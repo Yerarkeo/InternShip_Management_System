@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException, Request, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI, Depends, HTTPException, Request, Form, UploadFile, File
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from auth import get_current_active_user, create_access_token
 from database import SessionLocal, engine, get_db
 import crud
 from password import verify_password
+from file_utils import save_profile_picture, delete_old_profile_picture
 import os
 
 # Create database tables
@@ -19,9 +20,11 @@ app = FastAPI(title="Internship Management System")
 # Create directories if they don't exist
 os.makedirs("static", exist_ok=True)
 os.makedirs("templates", exist_ok=True)
+os.makedirs("uploads/profile_pictures", exist_ok=True)
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 templates = Jinja2Templates(directory="templates")
 
 # Authentication routes
@@ -91,7 +94,68 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         print(f"Dashboard error: {e}")
         return RedirectResponse("/login")
 
-# Registration endpoint for form submission
+# Profile routes
+@app.get("/profile", response_class=HTMLResponse)
+async def profile_page(request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse("/login")
+    
+    try:
+        from auth import get_current_user
+        user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
+        return templates.TemplateResponse("profile.html", {
+            "request": request,
+            "user": user
+        })
+    except Exception as e:
+        return RedirectResponse("/login")
+
+# Profile Picture Routes
+@app.post("/api/users/me/profile-picture")
+async def upload_profile_picture(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Upload and update profile picture"""
+    try:
+        # Save the uploaded file
+        filename = save_profile_picture(file, current_user.id)
+        
+        # Update user's profile picture in database
+        user = crud.update_profile_picture(db, current_user.id, filename)
+        
+        return {"message": "Profile picture updated successfully", "filename": filename}
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.delete("/api/users/me/profile-picture")
+async def delete_profile_picture(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Delete user's profile picture"""
+    try:
+        # Update user record to use default avatar
+        user = crud.update_profile_picture(db, current_user.id, "default_avatar.png")
+        return {"message": "Profile picture removed successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# Serve profile pictures
+@app.get("/uploads/profile_pictures/{filename}")
+async def get_profile_picture(filename: str):
+    """Serve profile picture files"""
+    file_path = os.path.join("uploads/profile_pictures", filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path)
+    else:
+        # Return default avatar if file doesn't exist
+        return FileResponse("static/images/default_avatar.svg")
+
+# API Routes
 @app.post("/api/register")
 async def register(
     request: Request,
@@ -119,15 +183,21 @@ async def register(
         
     except Exception as e:
         print(f"Registration error: {e}")
-        return RedirectResponse("/register?error=Registration failed: " + str(e), status_code=302)
+        return RedirectResponse("/register?error=Registration failed", status_code=302)
 
-# JSON registration endpoint for API clients
-@app.post("/api/register/json")
-def register_json(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+@app.get("/api/users/me/profile", response_model=schemas.UserProfile)
+def get_my_profile(current_user: models.User = Depends(get_current_active_user)):
+    """Get current user's profile"""
+    return current_user
+
+@app.put("/api/users/me/profile", response_model=schemas.UserProfile)
+def update_my_profile(
+    profile_update: schemas.UserProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Update current user's profile"""
+    return crud.update_user_profile(db, current_user.id, profile_update)
 
 @app.post("/api/internships")
 def create_internship(
@@ -173,6 +243,7 @@ if __name__ == "__main__":
     print("🚀 Starting Internship Management System...")
     print("📊 Access the application at: http://localhost:8000")
     print("📚 API documentation at: http://localhost:8000/docs")
+    print("🖼️  Profile pictures are now enabled!")
     print("⏹️  Press Ctrl+C to stop the server")
     print("-" * 50)
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

@@ -24,11 +24,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)  # Make sure this column exists
+    hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
     role = Column(String(50), nullable=False)
     phone = Column(String(20))
     department = Column(String(255))
+    profile_picture = Column(String(500), default="default_avatar.png")  # NEW: Profile picture field
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
 

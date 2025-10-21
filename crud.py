@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 import models
 import schemas
-from password import get_password_hash, verify_password  # Changed import
+from password import get_password_hash, verify_password
+from file_utils import delete_old_profile_picture  # NEW
+import os
 
 # User CRUD
 def get_user_by_email(db: Session, email: str):
@@ -75,3 +77,51 @@ def authenticate_user(db: Session, email: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
+# Add these functions to your existing crud.py
+
+def get_user_profile(db: Session, user_id: int):
+    """Get user profile by ID"""
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+def update_user_profile(db: Session, user_id: int, profile_update: schemas.UserProfileUpdate):
+    """Update user profile"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if db_user:
+        update_data = profile_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_user, field, value)
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
+
+def update_user_profile(db: Session, user_id: int, profile_update: schemas.UserProfileUpdate):
+    """Update user profile"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if db_user:
+        # Delete old profile picture if it's being updated
+        if (profile_update.profile_picture and 
+            profile_update.profile_picture != db_user.profile_picture and
+            db_user.profile_picture != "default_avatar.png"):
+            delete_old_profile_picture(db_user.profile_picture)
+        
+        update_data = profile_update.dict(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_user, field, value)
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
+def update_profile_picture(db: Session, user_id: int, filename: str):
+    """Update user's profile picture filename"""
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if db_user:
+        # Delete old profile picture
+        if db_user.profile_picture and db_user.profile_picture != "default_avatar.png":
+            delete_old_profile_picture(db_user.profile_picture)
+        
+        db_user.profile_picture = filename
+        db.commit()
+        db.refresh(db_user)
+    return db_user

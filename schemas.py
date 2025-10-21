@@ -1,7 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+import re
 
 class UserRole(str, Enum):
     STUDENT = "student"
@@ -111,3 +112,47 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+# Add this to your existing schemas.py
+
+class UserProfile(BaseModel):
+    id: int
+    email: str
+    full_name: str
+    role: UserRole
+    phone: Optional[str] = None
+    department: Optional[str] = None
+    created_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    department: Optional[str] = None
+
+
+class UserProfile(BaseModel):
+    id: int
+    email: str
+    full_name: str
+    role: UserRole
+    phone: Optional[str] = None
+    department: Optional[str] = None
+    profile_picture: Optional[str] = "default_avatar.png"  # NEW
+    created_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+class UserProfileUpdate(BaseModel):
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    department: Optional[str] = None
+    profile_picture: Optional[str] = None  # NEW
+
+class ProfilePictureUpdate(BaseModel):  # NEW: Separate schema for picture update
+    profile_picture: str
