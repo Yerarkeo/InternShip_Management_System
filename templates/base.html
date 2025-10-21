@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Internship Management System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center space-x-2">
+                        <span class="font-bold text-xl">Internship System</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if request.cookies.get('access_token') %}
+                        <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded transition">Dashboard</a>
+                        <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded transition">Logout</a>
+                    {% else %}
+                        <a href="/login" class="hover:bg-blue-700 px-3 py-2 rounded transition">Login</a>
+                        <a href="/register" class="bg-white text-blue-600 hover:bg-gray-100 px-3 py-2 rounded transition">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
