@@ -8,3 +8,5 @@ pyjwt==2.8.0
 bcrypt==4.1.2
 python-dotenv==1.0.0
 alembic==1.12.1
+# Frontend dependencies (served via CDN)
+# Chart.js is included via CDN in the template

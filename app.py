@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from typing import List  # ADD THIS IMPORT
 import models
 import schemas
 from auth import get_current_active_user, create_access_token
@@ -72,6 +73,8 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         from auth import get_current_user
         user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
         
+        print(f"🎯 Dashboard access - User: {user.email}, Role: {user.role}")
+        
         if user.role == "student":
             internships = crud.get_internships(db)
             applications = crud.get_applications_by_student(db, user.id)
@@ -83,15 +86,44 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                 "applications": applications,
                 "tasks": tasks
             })
-        else:
+        elif user.role == "admin":
             internships = crud.get_internships(db)
+            # FIX: Ensure stats is defined and handle potential errors
+            try:
+                stats = crud.get_system_stats(db)
+            except Exception as e:
+                print(f"⚠️  Could not get system stats: {e}")
+                stats = {
+                    "total_users": 0,
+                    "total_students": 0,
+                    "total_admins": 0,
+                    "total_mentors": 0,
+                    "total_internships": 0,
+                    "total_applications": 0,
+                    "total_tasks": 0
+                }
+            
             return templates.TemplateResponse("dashboard_admin.html", {
+                "request": request,
+                "user": user,
+                "internships": internships,
+                "stats": stats
+            })
+        elif user.role == "mentor":
+            internships = crud.get_internships(db)
+            return templates.TemplateResponse("dashboard_mentor.html", {
                 "request": request,
                 "user": user,
                 "internships": internships
             })
+        else:
+            print(f"❌ Unknown role: {user.role}")
+            return RedirectResponse("/login?error=Unknown user role")
+            
     except Exception as e:
-        print(f"Dashboard error: {e}")
+        print(f"💥 Dashboard error: {e}")
+        import traceback
+        traceback.print_exc()
         return RedirectResponse("/login")
 
 # Profile routes
@@ -154,6 +186,7 @@ async def get_profile_picture(filename: str):
     else:
         # Return default avatar if file doesn't exist
         return FileResponse("static/images/default_avatar.svg")
+    
 
 # API Routes
 @app.post("/api/register")
@@ -163,6 +196,9 @@ async def register(
 ):
     try:
         form_data = await request.form()
+        print(f"📝 Registration attempt for: {form_data.get('email')}")
+        print(f"📝 Role selected: {form_data.get('role')}")
+        print(f"📝 All form data: {dict(form_data)}")
         
         # Create UserCreate object from form data
         user_data = schemas.UserCreate(
@@ -174,17 +210,28 @@ async def register(
             department=form_data.get("department", None)
         )
         
+        print(f"🔍 User data created: {user_data}")
+        print(f"🔍 User role value: {user_data.role}")
+        print(f"🔍 User role type: {type(user_data.role)}")
+        
         db_user = crud.get_user_by_email(db, email=user_data.email)
+        
         if db_user:
+            print(f"❌ User already exists: {user_data.email}")
             return RedirectResponse("/register?error=Email already registered", status_code=302)
         
+        print(f"✅ Creating new user with role: {user_data.role}")
         user = crud.create_user(db=db, user=user_data)
+        print(f"🎉 User created successfully: {user.id} - {user.email} - {user.role}")
+        
         return RedirectResponse("/login?message=Registration successful", status_code=302)
         
     except Exception as e:
-        print(f"Registration error: {e}")
-        return RedirectResponse("/register?error=Registration failed", status_code=302)
-
+        print(f"💥 Registration error: {e}")
+        import traceback
+        traceback.print_exc()
+        return RedirectResponse("/register?error=Registration failed: " + str(e), status_code=302)
+    
 @app.get("/api/users/me/profile", response_model=schemas.UserProfile)
 def get_my_profile(current_user: models.User = Depends(get_current_active_user)):
     """Get current user's profile"""
@@ -238,12 +285,313 @@ def test_endpoint():
 def health_check():
     return {"status": "healthy", "message": "Server is running"}
 
+
+# Admin Management Routes
+@app.get("/admin/users", response_class=HTMLResponse)
+async def admin_users_page(request: Request, db: Session = Depends(get_db)):
+    """Admin users management page"""
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse("/login")
+    
+    try:
+        from auth import get_current_user
+        user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
+        
+        if user.role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        users = crud.get_all_users(db)
+        stats = crud.get_system_stats(db)
+        
+        return templates.TemplateResponse("admin_users.html", {
+            "request": request,
+            "user": user,
+            "users": users,
+            "stats": stats
+        })
+    except Exception as e:
+        return RedirectResponse("/login")
+
+@app.get("/admin/dashboard", response_class=HTMLResponse)
+async def admin_dashboard_page(request: Request, db: Session = Depends(get_db)):
+    """Admin system dashboard"""
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse("/login")
+    
+    try:
+        from auth import get_current_user
+        user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
+        
+        if user.role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        stats = crud.get_system_stats(db)
+        recent_users = db.query(models.User).order_by(models.User.created_at.desc()).limit(5).all()
+        recent_internships = db.query(models.Internship).order_by(models.Internship.created_at.desc()).limit(5).all()
+        
+        return templates.TemplateResponse("admin_dashboard.html", {
+            "request": request,
+            "user": user,
+            "stats": stats,
+            "recent_users": recent_users,
+            "recent_internships": recent_internships
+        })
+    except Exception as e:
+        return RedirectResponse("/login")
+
+# Admin API Routes
+@app.get("/api/admin/users", response_model=List[schemas.UserList])
+def get_all_users_api(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get all users (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return crud.get_all_users(db, skip=skip, limit=limit)
+
+@app.get("/api/admin/stats", response_model=schemas.SystemStats)
+def get_system_stats_api(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get system statistics (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return crud.get_system_stats(db)
+
+@app.get("/api/admin/users/{user_id}", response_model=schemas.UserList)
+def get_user_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get any user by ID (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    user = crud.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@app.put("/api/admin/users/{user_id}", response_model=schemas.UserList)
+def update_user_admin(
+    user_id: int,
+    user_update: schemas.UserUpdateAdmin,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Update any user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    user = crud.update_user_admin(db, user_id, user_update)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+@app.delete("/api/admin/users/{user_id}")
+def delete_user_admin(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Delete user (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    
+    user = crud.delete_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deleted successfully"}
+
+@app.get("/api/admin/search/users")
+def search_users_api(
+    query: str,
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Search users (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    if not query or len(query) < 2:
+        raise HTTPException(status_code=400, detail="Query must be at least 2 characters")
+    
+    return crud.search_users(db, query, skip=skip, limit=limit)
+
+@app.get("/api/admin/internships")
+def get_all_internships_admin(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get all internships with creator info (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    internships = db.query(models.Internship).offset(skip).limit(limit).all()
+    return internships
+
+@app.get("/api/admin/applications")
+def get_all_applications_admin(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get all applications with details (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    applications = db.query(models.InternshipApplication).offset(skip).limit(limit).all()
+    return applications
+
+@app.put("/api/admin/applications/{application_id}")
+def update_application_status_admin(
+    application_id: int,
+    status: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Update application status (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    application = db.query(models.InternshipApplication).filter(
+        models.InternshipApplication.id == application_id
+    ).first()
+    
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    if status not in ["pending", "approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
+    
+    application.status = status
+    db.commit()
+    db.refresh(application)
+    
+    return {"message": f"Application status updated to {status}", "application": application}
+
+@app.delete("/api/admin/internships/{internship_id}")
+def delete_internship_admin(
+    internship_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Delete internship (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    internship = db.query(models.Internship).filter(models.Internship.id == internship_id).first()
+    if not internship:
+        raise HTTPException(status_code=404, detail="Internship not found")
+    
+    # Delete related applications first
+    db.query(models.InternshipApplication).filter(
+        models.InternshipApplication.internship_id == internship_id
+    ).delete()
+    
+    # Delete related tasks
+    db.query(models.Task).filter(models.Task.internship_id == internship_id).delete()
+    
+    # Delete the internship
+    db.delete(internship)
+    db.commit()
+    
+    return {"message": "Internship deleted successfully"}
+
+@app.get("/api/admin/activity")
+def get_recent_activity(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_active_user)
+):
+    """Get recent system activity (admin only)"""
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    # Get recent users (last 5)
+    recent_users = db.query(models.User).order_by(models.User.created_at.desc()).limit(5).all()
+    
+    # Get recent internships (last 5)
+    recent_internships = db.query(models.Internship).order_by(models.Internship.created_at.desc()).limit(5).all()
+    
+    # Get recent applications (last 10)
+    recent_applications = db.query(models.InternshipApplication).order_by(
+        models.InternshipApplication.application_date.desc()
+    ).limit(10).all()
+    
+    return {
+        "recent_users": recent_users,
+        "recent_internships": recent_internships,
+        "recent_applications": recent_applications
+    }
+
+
+# Add this route to app.py for system management page
+@app.get("/admin/system", response_class=HTMLResponse)
+async def admin_system_page(request: Request, db: Session = Depends(get_db)):
+    """Admin system management page"""
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse("/login")
+    
+    try:
+        from auth import get_current_user
+        user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
+        
+        if user.role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        stats = crud.get_system_stats(db)
+        
+        return templates.TemplateResponse("admin_system.html", {
+            "request": request,
+            "user": user,
+            "stats": stats
+        })
+    except Exception as e:
+        return RedirectResponse("/login")
+    
+@app.get("/api/debug/user")
+async def debug_user(request: Request, db: Session = Depends(get_db)):
+    """Debug endpoint to check user authentication"""
+    token = request.cookies.get("access_token")
+    if not token:
+        return {"error": "No token"}
+    
+    try:
+        from auth import get_current_user
+        user = await get_current_user(credentials=type('', (object,), {"credentials": token.replace("Bearer ", "")})(), db=db)
+        return {
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "name": user.full_name,
+            "authenticated": True
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     print("🚀 Starting Internship Management System...")
     print("📊 Access the application at: http://localhost:8000")
     print("📚 API documentation at: http://localhost:8000/docs")
     print("🖼️  Profile pictures are now enabled!")
+    print("👨‍💼 Admin panel available at: /admin/dashboard")
     print("⏹️  Press Ctrl+C to stop the server")
     print("-" * 50)
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

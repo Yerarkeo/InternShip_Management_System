@@ -2,11 +2,10 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
-import re
 
 class UserRole(str, Enum):
     STUDENT = "student"
-    ADMIN = "admin"
+    ADMIN = "admin" 
     MENTOR = "mentor"
 
 class ApplicationStatus(str, Enum):
@@ -23,12 +22,31 @@ class TaskStatus(str, Enum):
 class UserBase(BaseModel):
     email: str
     full_name: str
-    role: UserRole
+    role: UserRole  # This should be UserRole enum, not string
     phone: Optional[str] = None
     department: Optional[str] = None
 
+    @field_validator('email')
+    def validate_email(cls, v):
+        if not v or '@' not in v:
+            raise ValueError('Invalid email format')
+        return v
+
 class UserCreate(UserBase):
     password: str
+
+    @field_validator('password')
+    def validate_password(cls, v):
+        if len(v) < 6:
+            raise ValueError('Password must be at least 6 characters long')
+        return v
+
+    @field_validator('role')
+    def validate_role(cls, v):
+        valid_roles = ['student', 'admin', 'mentor']
+        if v not in valid_roles:
+            raise ValueError(f'Role must be one of: {", ".join(valid_roles)}')
+        return v
 
 class User(UserBase):
     id: int
@@ -156,3 +174,37 @@ class UserProfileUpdate(BaseModel):
 
 class ProfilePictureUpdate(BaseModel):  # NEW: Separate schema for picture update
     profile_picture: str
+
+
+# Add these to your existing schemas.py
+
+class UserUpdateAdmin(BaseModel):
+    email: Optional[str] = None
+    full_name: Optional[str] = None
+    role: Optional[UserRole] = None
+    phone: Optional[str] = None
+    department: Optional[str] = None
+    is_active: Optional[bool] = None
+
+class UserList(BaseModel):
+    id: int
+    email: str
+    full_name: str
+    role: UserRole
+    phone: Optional[str] = None
+    department: Optional[str] = None
+    profile_picture: Optional[str] = None
+    created_at: datetime
+    is_active: bool
+
+    class Config:
+        from_attributes = True
+
+class SystemStats(BaseModel):
+    total_users: int
+    total_students: int
+    total_admins: int
+    total_mentors: int
+    total_internships: int
+    total_applications: int
+    total_tasks: int

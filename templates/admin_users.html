@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Users - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">User Management</h1>
+            <div class="space-x-4">
+                <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                <a href="/admin/users" class="bg-blue-700 px-3 py-2 rounded">Manage Users</a>
+                <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Main Dashboard</a>
+                <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">My Profile</a>
+                <span>Welcome, {{ user.full_name }} (Admin)</span>
+                <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 p-4">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-blue-600">{{ stats.total_users }}</div>
+                <div class="text-gray-600">Total Users</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-green-600">{{ stats.total_students }}</div>
+                <div class="text-gray-600">Students</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ stats.total_admins }}</div>
+                <div class="text-gray-600">Admins</div>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow text-center">
+                <div class="text-2xl font-bold text-yellow-600">{{ stats.total_mentors }}</div>
+                <div class="text-gray-600">Mentors</div>
+            </div>
+        </div>
+
+        <!-- Search and Actions -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="flex-1">
+                    <input type="text" id="searchInput" placeholder="Search users by name or email..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="searchUsers()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        Search
+                    </button>
+                    <button onclick="clearSearch()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                        Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">All Users</h2>
+            </div>
+            <div class="p-6">
+                {% if users %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for user_item in users %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img class="h-10 w-10 rounded-full" 
+                                                 src="/uploads/profile_pictures/{{ user_item.profile_picture if user_item.profile_picture else 'default_avatar.png' }}" 
+                                                 alt="{{ user_item.full_name }}">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ user_item.full_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ user_item.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if user_item.role == 'admin' %}bg-purple-100 text-purple-800
+                                        {% elif user_item.role == 'mentor' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-green-100 text-green-800{% endif %}">
+                                        {{ user_item.role|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ user_item.phone or 'N/A' }}<br>
+                                    {{ user_item.department or 'N/A' }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if user_item.is_active %}bg-green-100 text-green-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ 'Active' if user_item.is_active else 'Inactive' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ user_item.created_at.strftime('%Y-%m-%d') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button onclick="editUser({{ user_item.id }})" 
+                                            class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                    {% if user_item.id != user.id %}
+                                    <button onclick="deleteUser({{ user_item.id }}, '{{ user_item.full_name }}')" 
+                                            class="text-red-600 hover:text-red-900">Delete</button>
+                                    {% else %}
+                                    <span class="text-gray-400">Current User</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-4">No users found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Edit User</h3>
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId" name="id">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="editFullName" name="full_name" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="editEmail" name="email" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Role</label>
+                        <select id="editRole" name="role" 
+                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                            <option value="student">Student</option>
+                            <option value="admin">Admin</option>
+                            <option value="mentor">Mentor</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="text" id="editPhone" name="phone" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700">Department</label>
+                        <input type="text" id="editDepartment" name="department" 
+                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                    </div>
+                    <div class="mb-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="editIsActive" name="is_active" class="rounded border-gray-300">
+                            <span class="ml-2 text-sm text-gray-700">Active Account</span>
+                        </label>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="closeEditModal()" 
+                                class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEditingUser = null;
+
+        async function searchUsers() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length < 2) {
+                alert('Please enter at least 2 characters to search');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/search/users?query=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'Authorization': '{{ request.cookies.get("access_token") }}'
+                    }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    // You would update the table with search results
+                    alert(`Found ${users.length} users matching "${query}"`);
+                    // For now, we'll just show an alert. In a real app, you'd update the table.
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Search failed');
+                }
+            } catch (error) {
+                alert('Search failed: ' + error.message);
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            location.reload();
+        }
+
+        async function editUser(userId) {
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    headers: {
+                        'Authorization': '{{ request.cookies.get("access_token") }}'
+                    }
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    currentEditingUser = user;
+                    
+                    // Fill form with user data
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('editFullName').value = user.full_name;
+                    document.getElementById('editEmail').value = user.email;
+                    document.getElementById('editRole').value = user.role;
+                    document.getElementById('editPhone').value = user.phone || '';
+                    document.getElementById('editDepartment').value = user.department || '';
+                    document.getElementById('editIsActive').checked = user.is_active;
+                    
+                    document.getElementById('editModal').classList.remove('hidden');
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Failed to load user data');
+                }
+            } catch (error) {
+                alert('Failed to load user data: ' + error.message);
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            currentEditingUser = null;
+        }
+
+        document.getElementById('editUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                full_name: formData.get('full_name'),
+                email: formData.get('email'),
+                role: formData.get('role'),
+                phone: formData.get('phone'),
+                department: formData.get('department'),
+                is_active: document.getElementById('editIsActive').checked
+            };
+            
+            try {
+                const response = await fetch(`/api/admin/users/${currentEditingUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': '{{ request.cookies.get("access_token") }}'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('User updated successfully!');
+                    closeEditModal();
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Failed to update user');
+                }
+            } catch (error) {
+                alert('Failed to update user: ' + error.message);
+            }
+        });
+
+        async function deleteUser(userId, userName) {
+            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': '{{ request.cookies.get("access_token") }}'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('User deleted successfully!');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Failed to delete user');
+                }
+            } catch (error) {
+                alert('Failed to delete user: ' + error.message);
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function(e) {
+            if (e.target.id === 'editModal') {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>
