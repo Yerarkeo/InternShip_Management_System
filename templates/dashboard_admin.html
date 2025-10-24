@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Admin Dashboard - Internship System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -11,86 +13,400 @@
             <div class="space-x-4">
                 <a href="/admin/dashboard" class="bg-blue-700 px-3 py-2 rounded">Admin Panel</a>
                 <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Users</a>
+                <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Internships</a>
+                
                 <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">My Profile</a>
                 <span>Welcome, {{ user.full_name }} (Admin)</span>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
+                
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto mt-8 p-4">
         <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-lg font-semibold mb-2">System Status</h3>
-                <p class="text-2xl font-bold text-green-600">Operational</p>
-                <p class="text-sm text-gray-600">All systems running</p>
+                <h3 class="text-lg font-semibold mb-2">Total Users</h3>
+                <p class="text-2xl font-bold text-blue-600">{{ stats.total_users }}</p>
+                <p class="text-sm text-gray-600">Registered users</p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h3 class="text-lg font-semibold mb-2">User Management</h3>
-                <p class="text-2xl font-bold text-blue-600">Ready</p>
-                <p class="text-sm text-gray-600">Manage all users</p>
+                <h3 class="text-lg font-semibold mb-2">Total Students</h3>
+                <p class="text-2xl font-bold text-green-600">{{ stats.total_students }}</p>
+                <p class="text-sm text-gray-600">Active students</p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow-lg">
                 <h3 class="text-lg font-semibold mb-2">Internships</h3>
-                <p class="text-2xl font-bold text-purple-600">{{ internships|length }}</p>
-                <p class="text-sm text-gray-600">Active internships</p>
+                <p class="text-2xl font-bold text-purple-600">{{ stats.total_internships }}</p>
+                <p class="text-sm text-gray-600">Active listings</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h3 class="text-lg font-semibold mb-2">Applications</h3>
+                <p class="text-2xl font-bold text-orange-600">{{ stats.total_applications }}</p>
+                <p class="text-sm text-gray-600">Total applications</p>
             </div>
         </div>
 
         <!-- Quick Actions -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-2xl font-bold mb-4">Admin Actions</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="/admin/users" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition text-left">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="/admin/users"
+                    class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition text-left">
                     <div class="font-semibold">Manage Users</div>
                     <div class="text-sm opacity-90">View, edit, and manage all users</div>
                 </a>
-                <a href="/admin/dashboard" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition text-left">
-                    <div class="font-semibold">System Dashboard</div>
-                    <div class="text-sm opacity-90">View system statistics</div>
+                <a href="/admin/internships"
+                    class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition text-left">
+                    <div class="font-semibold">Manage Internships</div>
+                    <div class="text-sm opacity-90">Create, edit, delete internships</div>
                 </a>
-                <button onclick="createInternship()" class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition text-left">
+                <button onclick="showCreateForm()"
+                    class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition text-left cursor-pointer">
                     <div class="font-semibold">Create Internship</div>
-                    <div class="text-sm opacity-90">Post new internship opportunities</div>
+                    <div class="text-sm opacity-90">Post new opportunity</div>
                 </button>
-                <a href="/admin/system" class="bg-yellow-600 text-white p-4 rounded-lg hover:bg-yellow-700 transition text-left">
+                <a href="/admin/system"
+                    class="bg-yellow-600 text-white p-4 rounded-lg hover:bg-yellow-700 transition text-left">
                     <div class="font-semibold">System Settings</div>
-                    <div class="text-sm opacity-90">Manage system configuration</div>
+                    <div class="text-sm opacity-90">Manage configuration</div>
                 </a>
             </div>
         </div>
 
-        <!-- Recent Internships -->
+        <!-- Create Internship Form -->
+        <div id="createForm" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-2xl font-bold mb-4">Create New Internship</h2>
+            <form id="internshipForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Internship Title *</label>
+                        <input type="text" name="title" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g., Software Development Intern">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Company *</label>
+                        <input type="text" name="company" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Company name">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea name="description" required rows="3"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Describe the internship role and responsibilities..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <input type="text" name="location"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g., Remote, New York, NY">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                        <input type="text" name="duration"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g., 3 months, 6 months">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Stipend/Salary</label>
+                        <input type="text" name="stipend"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="e.g., $2000/month, Unpaid">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                        <textarea name="requirements" rows="2"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Skills and qualifications required..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" onclick="createInternship()" 
+                        class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                        Create Internship
+                    </button>
+                    <button type="button" onclick="hideCreateForm()" 
+                        class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition font-semibold">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Recent Internships with Management -->
         <div class="bg-white rounded-lg shadow-lg">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">Available Internships</h2>
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-gray-900">Internship Management</h2>
+                <span class="text-sm text-gray-500">{{ internships|length }} internships</span>
             </div>
             <div class="p-6">
                 {% if internships %}
+                <div class="space-y-4">
                     {% for internship in internships %}
-                    <div class="border border-gray-200 rounded-lg p-4 mb-4">
-                        <h3 class="text-lg font-semibold">{{ internship.title }}</h3>
-                        <p class="text-gray-600">{{ internship.company }} • {{ internship.location }}</p>
-                        <p class="text-sm text-gray-500 mt-2">{{ internship.description[:100] }}...</p>
-                        <div class="mt-3">
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
-                                View Details
-                            </button>
+                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900">{{ internship.title }}</h3>
+                                <p class="text-gray-600">{{ internship.company }} • {{ internship.location or 'Remote' }}</p>
+                                <p class="text-sm text-gray-500 mt-2">{{ internship.description[:120] }}{% if internship.description|length > 120 %}...{% endif %}</p>
+                                <div class="flex items-center mt-3 space-x-4 text-sm text-gray-500">
+                                    <span>Duration: {{ internship.duration or 'Not specified' }}</span>
+                                    <span>Stipend: {{ internship.stipend or 'Not specified' }}</span>
+                                    <span>Applications: {{ internship.applications|length if internship.applications else 0 }}</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 ml-4">
+                                <button onclick="viewInternship({{ internship.id }})" 
+                                    class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
+                                    View
+                                </button>
+                                <button onclick="editInternship({{ internship.id }})" 
+                                    class="bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700 transition">
+                                    Edit
+                                </button>
+                                <button onclick="deleteInternship({{ internship.id }})" 
+                                    class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition">
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
+                </div>
                 {% else %}
-                    <p class="text-gray-500 text-center py-4">No internships available.</p>
+                <div class="text-center py-8">
+                    <div class="text-gray-400 text-6xl mb-4">📋</div>
+                    <p class="text-gray-500 text-lg">No internships available.</p>
+                    <p class="text-gray-400 text-sm mt-2">Create your first internship to get started.</p>
+                    <button onclick="showCreateForm()" 
+                        class="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                        Create First Internship
+                    </button>
+                </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <script>
-        function createInternship() {
-            alert('Create internship feature coming soon!');
+    <!-- Edit Internship Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4">
+            <h3 class="text-xl font-bold mb-4">Edit Internship</h3>
+            <form id="editForm" class="space-y-4">
+                <input type="hidden" id="editInternshipId">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                        <input type="text" id="editTitle" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Company *</label>
+                        <input type="text" id="editCompany" required 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                    <textarea id="editDescription" required rows="3"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        <input type="text" id="editLocation"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                        <input type="text" id="editDuration"
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="hideEditModal()" 
+                        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="updateInternship()" 
+                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                        Update Internship
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+   <script>
+    function showCreateForm() {
+        document.getElementById('createForm').classList.remove('hidden');
+    }
+
+    function hideCreateForm() {
+        document.getElementById('createForm').classList.add('hidden');
+        document.getElementById('internshipForm').reset();
+    }
+
+    function showEditModal() {
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function hideEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    async function createInternship() {
+        const form = document.getElementById('internshipForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+
+        console.log("📤 Sending internship data:", data);
+
+        // Basic validation
+        if (!data.title || !data.company || !data.description) {
+            alert('Please fill in all required fields (Title, Company, Description)');
+            return;
         }
-    </script>
+
+        // Show loading state
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<span class="animate-spin">⏳</span> Creating...';
+        button.disabled = true;
+
+        try {
+            const response = await fetch('/api/admin/internships', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            console.log("📥 Response status:", response.status);
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log("✅ Success:", result);
+                alert('Internship created successfully!');
+                hideCreateForm();
+                // Refresh the page to show the new internship
+                location.reload();
+            } else {
+                const errorData = await response.json();
+                console.error("❌ Server error:", errorData);
+                alert('Error creating internship: ' + (errorData.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('❌ Network error:', error);
+            alert('Network error creating internship. Check console for details.');
+        } finally {
+            // Restore button state
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    }
+
+    function editInternship(internshipId) {
+        // For now, show a simple edit form
+        // In a full implementation, you would fetch the current data
+        document.getElementById('editInternshipId').value = internshipId;
+        
+        // Set some placeholder values - in real app, fetch from API
+        document.getElementById('editTitle').value = 'Edit: Internship #' + internshipId;
+        document.getElementById('editCompany').value = 'Edit Company';
+        document.getElementById('editDescription').value = 'Edit description here...';
+        document.getElementById('editLocation').value = 'Edit location';
+        document.getElementById('editDuration').value = 'Edit duration';
+        
+        showEditModal();
+    }
+
+    async function updateInternship() {
+        const internshipId = document.getElementById('editInternshipId').value;
+        const formData = {
+            title: document.getElementById('editTitle').value,
+            company: document.getElementById('editCompany').value,
+            description: document.getElementById('editDescription').value,
+            location: document.getElementById('editLocation').value,
+            duration: document.getElementById('editDuration').value
+        };
+
+        console.log("📤 Updating internship:", internshipId, formData);
+
+        try {
+            const response = await fetch(`/api/admin/internships/${internshipId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                alert('Internship updated successfully!');
+                hideEditModal();
+                location.reload();
+            } else {
+                const errorData = await response.json();
+                alert('Error updating internship: ' + (errorData.detail || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error updating internship');
+        }
+    }
+
+    function viewInternship(internshipId) {
+        alert(`Viewing internship ID: ${internshipId}\n\nThis would show detailed information in a full implementation.`);
+    }
+
+    async function deleteInternship(internshipId) {
+        if (confirm('Are you sure you want to delete this internship?\n\nThis action cannot be undone and will delete all associated applications.')) {
+            console.log("🗑️ Deleting internship:", internshipId);
+            
+            try {
+                const response = await fetch(`/api/admin/internships/${internshipId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Internship deleted successfully!');
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert('Error deleting internship: ' + (errorData.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting internship');
+            }
+        }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideEditModal();
+        }
+    });
+
+    // Add form submission handler
+    document.getElementById('internshipForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        createInternship();
+    });
+</script>
 </body>
 </html>

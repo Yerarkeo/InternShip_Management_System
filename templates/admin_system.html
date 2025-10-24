@@ -114,11 +114,7 @@
                 data: {
                     labels: ['Students', 'Admins', 'Mentors'],
                     datasets: [{
-                        data: [
-                            {{ stats.total_students }}, 
-                            {{ stats.total_admins }}, 
-                            {{ stats.total_mentors }}
-                        ],
+                        data: {{ [stats.total_students|default(0), stats.total_admins|default(0), stats.total_mentors|default(0)] | tojson }},
                         backgroundColor: [
                             '#10B981', // green
                             '#8B5CF6', // purple  

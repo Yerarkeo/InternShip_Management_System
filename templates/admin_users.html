@@ -3,6 +3,7 @@
 <head>
     <title>Manage Users - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
@@ -11,7 +12,7 @@
             <div class="space-x-4">
                 <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
                 <a href="/admin/users" class="bg-blue-700 px-3 py-2 rounded">Manage Users</a>
-                <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Main Dashboard</a>
+                <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Internships</a>
                 <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">My Profile</a>
                 <span>Welcome, {{ user.full_name }} (Admin)</span>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
@@ -49,10 +50,10 @@
                 </div>
                 <div class="flex space-x-2">
                     <button onclick="searchUsers()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                        Search
+                        <i class="fas fa-search mr-2"></i>Search
                     </button>
                     <button onclick="clearSearch()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-                        Clear
+                        <i class="fas fa-times mr-2"></i>Clear
                     </button>
                 </div>
             </div>
@@ -61,7 +62,7 @@
         <!-- Users Table -->
         <div class="bg-white rounded-lg shadow-lg">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-900">All Users</h2>
+                <h2 class="text-xl font-semibold text-gray-900">All Users ({{ users|length }})</h2>
             </div>
             <div class="p-6">
                 {% if users %}
@@ -85,7 +86,8 @@
                                         <div class="flex-shrink-0 h-10 w-10">
                                             <img class="h-10 w-10 rounded-full" 
                                                  src="/uploads/profile_pictures/{{ user_item.profile_picture if user_item.profile_picture else 'default_avatar.png' }}" 
-                                                 alt="{{ user_item.full_name }}">
+                                                 alt="{{ user_item.full_name }}"
+                                                 onerror="this.src='/static/images/default_avatar.svg'">
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ user_item.full_name }}</div>
@@ -117,10 +119,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button onclick="editUser({{ user_item.id }})" 
-                                            class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
+                                            class="text-blue-600 hover:text-blue-900 mr-3">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </button>
                                     {% if user_item.id != user.id %}
                                     <button onclick="deleteUser({{ user_item.id }}, '{{ user_item.full_name }}')" 
-                                            class="text-red-600 hover:text-red-900">Delete</button>
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash mr-1"></i>Delete
+                                    </button>
                                     {% else %}
                                     <span class="text-gray-400">Current User</span>
                                     {% endif %}
@@ -131,7 +137,10 @@
                     </table>
                 </div>
                 {% else %}
-                <p class="text-gray-500 text-center py-4">No users found.</p>
+                <div class="text-center py-8">
+                    <i class="fas fa-users text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500 text-lg">No users found.</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -141,22 +150,27 @@
     <div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Edit User</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Edit User</h3>
+                    <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 <form id="editUserForm">
                     <input type="hidden" id="editUserId" name="id">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input type="text" id="editFullName" name="full_name" 
+                        <label class="block text-sm font-medium text-gray-700">Full Name *</label>
+                        <input type="text" id="editFullName" name="full_name" required
                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="editEmail" name="email" 
+                        <label class="block text-sm font-medium text-gray-700">Email *</label>
+                        <input type="email" id="editEmail" name="email" required
                                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Role</label>
-                        <select id="editRole" name="role" 
+                        <label class="block text-sm font-medium text-gray-700">Role *</label>
+                        <select id="editRole" name="role" required
                                 class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                             <option value="student">Student</option>
                             <option value="admin">Admin</option>
@@ -181,18 +195,39 @@
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" onclick="closeEditModal()" 
-                                class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </button>
                         <button type="submit" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md">Save Changes</button>
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            <i class="fas fa-save mr-2"></i>Save Changes
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- Debug Panel -->
+    <div class="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border">
+        <h3 class="font-bold mb-2 text-sm">Debug Tools</h3>
+        <div class="space-y-2">
+            <button onclick="checkAuth()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🔐 Check Auth
+            </button>
+            <button onclick="testUserAPI()" class="bg-green-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🧪 Test API
+            </button>
+            <button onclick="refreshPage()" class="bg-gray-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+
     <script>
         let currentEditingUser = null;
 
+        // Search functionality
         async function searchUsers() {
             const query = document.getElementById('searchInput').value.trim();
             if (query.length < 2) {
@@ -202,19 +237,16 @@
 
             try {
                 const response = await fetch(`/api/admin/search/users?query=${encodeURIComponent(query)}`, {
-                    headers: {
-                        'Authorization': '{{ request.cookies.get("access_token") }}'
-                    }
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
                     const users = await response.json();
-                    // You would update the table with search results
                     alert(`Found ${users.length} users matching "${query}"`);
                     // For now, we'll just show an alert. In a real app, you'd update the table.
                 } else {
                     const error = await response.json();
-                    alert(error.detail || 'Search failed');
+                    alert('Search failed: ' + (error.detail || 'Unknown error'));
                 }
             } catch (error) {
                 alert('Search failed: ' + error.message);
@@ -226,16 +258,17 @@
             location.reload();
         }
 
+        // Edit user functionality
         async function editUser(userId) {
             try {
+                console.log('Loading user data for ID:', userId);
                 const response = await fetch(`/api/admin/users/${userId}`, {
-                    headers: {
-                        'Authorization': '{{ request.cookies.get("access_token") }}'
-                    }
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
                     const user = await response.json();
+                    console.log('User data loaded:', user);
                     currentEditingUser = user;
                     
                     // Fill form with user data
@@ -250,7 +283,7 @@
                     document.getElementById('editModal').classList.remove('hidden');
                 } else {
                     const error = await response.json();
-                    alert(error.detail || 'Failed to load user data');
+                    alert('Failed to load user data: ' + (error.detail || 'Unknown error'));
                 }
             } catch (error) {
                 alert('Failed to load user data: ' + error.message);
@@ -262,6 +295,7 @@
             currentEditingUser = null;
         }
 
+        // Handle form submission
         document.getElementById('editUserForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -276,58 +310,103 @@
             };
             
             try {
+                console.log('Updating user:', currentEditingUser.id, 'with data:', data);
                 const response = await fetch(`/api/admin/users/${currentEditingUser.id}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': '{{ request.cookies.get("access_token") }}'
+                        'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify(data)
                 });
                 
                 if (response.ok) {
-                    alert('User updated successfully!');
+                    alert('✅ User updated successfully!');
                     closeEditModal();
                     location.reload();
                 } else {
                     const error = await response.json();
-                    alert(error.detail || 'Failed to update user');
+                    alert('❌ Failed to update user: ' + (error.detail || error.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Failed to update user: ' + error.message);
+                alert('❌ Failed to update user: ' + error.message);
             }
         });
 
+        // Delete user functionality
         async function deleteUser(userId, userName) {
-            if (!confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+            if (!confirm(`⚠️ Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
                 return;
             }
 
             try {
                 const response = await fetch(`/api/admin/users/${userId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Authorization': '{{ request.cookies.get("access_token") }}'
-                    }
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
-                    alert('User deleted successfully!');
+                    alert('✅ User deleted successfully!');
                     location.reload();
                 } else {
                     const error = await response.json();
-                    alert(error.detail || 'Failed to delete user');
+                    alert('❌ Failed to delete user: ' + (error.detail || error.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Failed to delete user: ' + error.message);
+                alert('❌ Failed to delete user: ' + error.message);
             }
         }
 
-        // Close modal when clicking outside
+        // Debug functions
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/debug/user', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.authenticated) {
+                    alert('🔐 Authenticated as: ' + result.name + ' (' + result.role + ')');
+                } else {
+                    alert('🔐 Not authenticated: ' + result.error);
+                }
+            } catch (error) {
+                alert('🔐 Auth check error: ' + error.message);
+            }
+        }
+
+        async function testUserAPI() {
+            try {
+                const response = await fetch('/api/admin/users/1', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                alert('🧪 Test API Result: ' + JSON.stringify(result, null, 2));
+            } catch (error) {
+                alert('🧪 Test API Error: ' + error.message);
+            }
+        }
+
+        function refreshPage() {
+            location.reload();
+        }
+
+        // Event listeners
         document.getElementById('editModal').addEventListener('click', function(e) {
             if (e.target.id === 'editModal') {
                 closeEditModal();
             }
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchUsers();
+            }
+        });
+
+        // Page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin users page loaded');
+            console.log('Total users:', {{ users|length }});
         });
     </script>
 </body>

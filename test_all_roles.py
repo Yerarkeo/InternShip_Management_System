@@ -1,58 +1,51 @@
-# test_all_roles.py
-from database import SessionLocal
-import crud
-import schemas
-import models  # ADD THIS IMPORT
+# final_test.py
+import requests
+import time
 
-def test_all_roles():
-    db = SessionLocal()
-    try:
-        print("🧪 Testing all user roles...")
+def test_complete_flow():
+    print("🎯 Testing Complete User Management Flow")
+    print("=" * 50)
+    
+    # Test backend first
+    print("1. Testing Backend API...")
+    session = requests.Session()
+    session.post("http://localhost:8000/api/login", 
+                 data={"email": "admin@example.com", "password": "admin123"})
+    
+    # Create a test user
+    test_user_data = {
+        "email": "frontend_test@example.com",
+        "password": "test123",
+        "full_name": "Frontend Test User",
+        "role": "student"
+    }
+    
+    session.post("http://localhost:8000/api/register", data=test_user_data)
+    time.sleep(1)  # Wait for user creation
+    
+    # Get the new user
+    users = session.get("http://localhost:8000/api/admin/users").json()
+    test_user = next((u for u in users if u['email'] == 'frontend_test@example.com'), None)
+    
+    if test_user:
+        print(f"✅ Test user created: {test_user['email']} (ID: {test_user['id']})")
         
-        test_users = [
-            {
-                "email": "test_student@example.com",
-                "full_name": "Test Student", 
-                "password": "test123",
-                "role": "student"
-            },
-            {
-                "email": "test_admin@example.com",
-                "full_name": "Test Admin",
-                "password": "test123", 
-                "role": "admin"
-            },
-            {
-                "email": "test_mentor@example.com",
-                "full_name": "Test Mentor",
-                "password": "test123",
-                "role": "mentor"
-            }
-        ]
-        
-        for user_data in test_users:
-            # Check if user exists
-            existing_user = crud.get_user_by_email(db, user_data["email"])
-            
-            if existing_user:
-                print(f"ℹ️  User already exists: {user_data['email']} (Role: {existing_user.role})")
-            else:
-                user_schema = schemas.UserCreate(**user_data)
-                user = crud.create_user(db, user_schema)
-                print(f"✅ Created: {user.email} (Role: {user.role})")
-                
-        # Verify all users
-        users = db.query(models.User).all()
-        print(f"\n📊 All users in database:")
-        for user in users:
-            print(f"   👤 {user.id}: {user.email} - {user.role}")
-            
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
-    finally:
-        db.close()
+        # Test delete via API (backend)
+        delete_response = session.delete(f"http://localhost:8000/api/admin/users/{test_user['id']}")
+        if delete_response.json().get('success'):
+            print("✅ Backend delete functionality: WORKING")
+        else:
+            print("❌ Backend delete functionality: BROKEN")
+    else:
+        print("❌ Could not create test user")
+    
+    print("\n2. Frontend Testing Instructions:")
+    print("   • Go to: http://localhost:8000/admin/users")
+    print("   • Login as: admin@example.com / admin123")
+    print("   • Try to delete a user")
+    print("   • Check browser console for errors (F12)")
+    print("   • If it works, you should see a success message")
+    print("   • If not, check the console for error details")
 
 if __name__ == "__main__":
-    test_all_roles()
+    test_complete_flow()

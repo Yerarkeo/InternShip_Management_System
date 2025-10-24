@@ -22,7 +22,7 @@ class TaskStatus(str, Enum):
 class UserBase(BaseModel):
     email: str
     full_name: str
-    role: UserRole  # This should be UserRole enum, not string
+    role: UserRole
     phone: Optional[str] = None
     department: Optional[str] = None
 
@@ -131,8 +131,7 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     email: Optional[str] = None
 
-# Add this to your existing schemas.py
-
+# User Profile Schemas
 class UserProfile(BaseModel):
     id: int
     email: str
@@ -140,6 +139,7 @@ class UserProfile(BaseModel):
     role: UserRole
     phone: Optional[str] = None
     department: Optional[str] = None
+    profile_picture: Optional[str] = "default_avatar.png"
     created_at: datetime
     is_active: bool
 
@@ -150,53 +150,33 @@ class UserProfileUpdate(BaseModel):
     full_name: Optional[str] = None
     phone: Optional[str] = None
     department: Optional[str] = None
+    profile_picture: Optional[str] = None
 
-
-class UserProfile(BaseModel):
-    id: int
-    email: str
-    full_name: str
-    role: UserRole
-    phone: Optional[str] = None
-    department: Optional[str] = None
-    profile_picture: Optional[str] = "default_avatar.png"  # NEW
-    created_at: datetime
-    is_active: bool
-
-    class Config:
-        from_attributes = True
-
-class UserProfileUpdate(BaseModel):
-    full_name: Optional[str] = None
-    phone: Optional[str] = None
-    department: Optional[str] = None
-    profile_picture: Optional[str] = None  # NEW
-
-class ProfilePictureUpdate(BaseModel):  # NEW: Separate schema for picture update
+class ProfilePictureUpdate(BaseModel):
     profile_picture: str
 
-
-# Add these to your existing schemas.py
-
+# Admin Management Schemas
 class UserUpdateAdmin(BaseModel):
     email: Optional[str] = None
     full_name: Optional[str] = None
-    role: Optional[UserRole] = None
+    role: Optional[str] = None
     phone: Optional[str] = None
     department: Optional[str] = None
     is_active: Optional[bool] = None
+    
+    class Config:
+        from_attributes = True
 
 class UserList(BaseModel):
     id: int
     email: str
     full_name: str
-    role: UserRole
+    role: str
     phone: Optional[str] = None
     department: Optional[str] = None
-    profile_picture: Optional[str] = None
-    created_at: datetime
     is_active: bool
-
+    created_at: datetime
+    
     class Config:
         from_attributes = True
 
@@ -208,3 +188,40 @@ class SystemStats(BaseModel):
     total_internships: int
     total_applications: int
     total_tasks: int
+
+# Add these additional schemas for better functionality
+class ApplicationWithInternship(Application):
+    internship: Internship
+
+    class Config:
+        from_attributes = True
+
+class InternshipWithApplications(Internship):
+    applications: List[Application] = []
+
+    class Config:
+        from_attributes = True
+
+class UserWithApplications(User):
+    applications: List[Application] = []
+
+    class Config:
+        from_attributes = True
+
+# Response schemas for API endpoints
+class MessageResponse(BaseModel):
+    message: str
+
+class ApplicationStatusUpdate(BaseModel):
+    status: ApplicationStatus
+
+class InternshipUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    company: Optional[str] = None
+    location: Optional[str] = None
+    duration: Optional[str] = None
+    stipend: Optional[str] = None
+    requirements: Optional[str] = None
+    deadline: Optional[datetime] = None
+    is_active: Optional[bool] = None

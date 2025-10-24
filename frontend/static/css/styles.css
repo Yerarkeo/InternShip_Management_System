@@ -23,3 +23,100 @@ body {
 .btn:hover {
     transform: translateY(-1px);
 }
+/* static/css/styles.css */
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-small {
+    width: 40px;
+    height: 40px;
+}
+
+.avatar-medium {
+    width: 80px;
+    height: 80px;
+}
+
+.avatar-large {
+    width: 120px;
+    height: 120px;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.btn-loading {
+    position: relative;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-inactive {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
