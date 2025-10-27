@@ -40,6 +40,19 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
+# Add to your stats in crud.py
+def get_application_stats(db: Session):
+    total = db.query(models.InternshipApplication).count()
+    pending = db.query(models.InternshipApplication).filter(models.InternshipApplication.status == "pending").count()
+    approved = db.query(models.InternshipApplication).filter(models.InternshipApplication.status == "approved").count()
+    rejected = db.query(models.InternshipApplication).filter(models.InternshipApplication.status == "rejected").count()
+    
+    return {
+        "total_applications": total,
+        "pending_applications": pending,
+        "approved_applications": approved,
+        "rejected_applications": rejected
+    }
 # Internship CRUD
 def create_internship(db: Session, internship: schemas.InternshipCreate, user_id: int):
     db_internship = models.Internship(**internship.dict(), created_by=user_id)

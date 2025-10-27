@@ -13,6 +13,7 @@
                 <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
                 <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Users</a>
                 <a href="/admin/internships" class="bg-blue-700 px-3 py-2 rounded">Manage Internships</a>
+                <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Review Applications</a>
                 <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
                 <span>Welcome, {{ user.full_name }} (Admin)</span>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
@@ -117,7 +118,7 @@
                                     class="bg-yellow-500 text-white px-3 py-2 rounded text-sm hover:bg-yellow-600 transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
-                                <button onclick="deleteInternship({{ internship.id }})" 
+                                <button onclick="deleteInternship('{{ internship.id }}')" 
                                     class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition">
                                     <i class="fas fa-trash mr-1"></i>Delete
                                 </button>
@@ -142,11 +143,11 @@
                                     <textarea name="requirements" class="p-2 border rounded" placeholder="Requirements">{{ internship.requirements or '' }}</textarea>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button type="button" onclick="updateInternship({{ internship.id }})" 
+                                    <button type="button" onclick="updateInternship('{{ internship.id }}')" 
                                         class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition">
                                         <i class="fas fa-save mr-1"></i>Update
                                     </button>
-                                    <button type="button" onclick="cancelEdit({{ internship.id }})" 
+                                    <button type="button" onclick="cancelEdit('{{ internship.id }}')" 
                                         class="bg-gray-500 text-white px-4 py-2 rounded text-sm hover:bg-gray-600 transition">
                                         <i class="fas fa-times mr-1"></i>Cancel
                                     </button>

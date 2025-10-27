@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form, UploadFile, 
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 import models
 import schemas
@@ -11,7 +11,6 @@ from database import SessionLocal, engine, get_db
 import crud
 from password import verify_password
 from file_utils import save_profile_picture, delete_old_profile_picture
-from notifications import get_notification_service
 import os
 
 # Create database tables
@@ -200,6 +199,146 @@ async def admin_system_page(request: Request, db: Session = Depends(get_db)):
         })
     except Exception as e:
         return RedirectResponse("/login")
+
+# ===== ADMIN APPLICATION REVIEW ROUTES =====
+@app.get("/admin/applications", response_class=HTMLResponse)
+async def admin_applications_page(request: Request, db: Session = Depends(get_db)):
+    """Admin applications review page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        # Get all applications with student and internship details
+        applications = db.query(models.InternshipApplication)\
+            .join(models.User, models.InternshipApplication.student_id == models.User.id)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .options(
+                joinedload(models.InternshipApplication.student),
+                joinedload(models.InternshipApplication.internship)
+            )\
+            .order_by(models.InternshipApplication.application_date.desc())\
+            .all()
+        
+        stats = crud.get_system_stats(db)
+        
+        return templates.TemplateResponse("admin_applications.html", {
+            "request": request,
+            "user": user,
+            "applications": applications,
+            "stats": stats
+        })
+    except Exception as e:
+        print(f"Admin applications page error: {e}")
+        return RedirectResponse("/login")
+
+@app.put("/api/admin/applications/{application_id}/status")
+async def update_application_status_admin(
+    application_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Admin updates application status"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "admin":
+            return {"success": False, "error": "Only admins can update application status"}
+        
+        form_data = await request.form()
+        new_status = form_data.get("status")
+        admin_notes = form_data.get("admin_notes", "")
+        
+        if new_status not in ["approved", "rejected"]:
+            return {"success": False, "error": "Invalid status. Must be 'approved' or 'rejected'"}
+        
+        # Get application with student and internship details
+        application = db.query(models.InternshipApplication)\
+            .join(models.User, models.InternshipApplication.student_id == models.User.id)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .filter(models.InternshipApplication.id == application_id)\
+            .first()
+        
+        if not application:
+            return {"success": False, "error": "Application not found"}
+        
+        # Store old status for logging
+        old_status = application.status
+        
+        # Update application status
+        application.status = new_status
+        db.commit()
+        db.refresh(application)
+        
+        # Log the status change (you can add email notification here later)
+        print(f"📝 Application {application_id} status changed from {old_status} to {new_status}")
+        print(f"📝 Student: {application.student.email}, Internship: {application.internship.title}")
+        print(f"📝 Admin Notes: {admin_notes}")
+        
+        return {
+            "success": True, 
+            "message": f"Application {new_status} successfully", 
+            "student_email": application.student.email
+        }
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/admin/applications")
+async def get_applications_admin(
+    request: Request,
+    status: str = None,
+    db: Session = Depends(get_db)
+):
+    """Get applications for admin review (API endpoint)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "admin":
+            return {"success": False, "error": "Access denied"}
+        
+        query = db.query(models.InternshipApplication)\
+            .join(models.User, models.InternshipApplication.student_id == models.User.id)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .options(
+                joinedload(models.InternshipApplication.student),
+                joinedload(models.InternshipApplication.internship)
+            )
+        
+        # Filter by status if provided
+        if status and status in ["pending", "approved", "rejected"]:
+            query = query.filter(models.InternshipApplication.status == status)
+        
+        applications = query.order_by(models.InternshipApplication.application_date.desc()).all()
+        
+        # Convert to JSON-serializable format
+        applications_data = []
+        for app in applications:
+            applications_data.append({
+                "id": app.id,
+                "application_date": app.application_date.isoformat(),
+                "status": app.status,
+                "cover_letter": app.cover_letter,
+                "student": {
+                    "id": app.student.id,
+                    "full_name": app.student.full_name,
+                    "email": app.student.email,
+                    "department": app.student.department
+                },
+                "internship": {
+                    "id": app.internship.id,
+                    "title": app.internship.title,
+                    "company": app.internship.company,
+                    "location": app.internship.location
+                }
+            })
+        
+        return {"success": True, "applications": applications_data}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 # ===== MENTOR ROUTES =====
 @app.get("/mentor/internships", response_class=HTMLResponse)
@@ -519,10 +658,6 @@ async def create_application(
         db.commit()
         db.refresh(application)
         
-        # Send notification email
-        notification_service = get_notification_service(db)
-        notification_service.send_application_submitted_notification(application)
-        
         return {"success": True, "message": "Application submitted successfully"}
         
     except Exception as e:
@@ -596,10 +731,6 @@ async def update_application_status(
         db.commit()
         db.refresh(application)
         
-        # Send status change notification
-        notification_service = get_notification_service(db)
-        notification_service.send_application_status_notification(application)
-        
         return {"success": True, "message": f"Application {new_status} successfully"}
         
     except Exception as e:
@@ -633,10 +764,6 @@ async def create_task(
         db.add(task)
         db.commit()
         db.refresh(task)
-        
-        # Send task assignment notification
-        notification_service = get_notification_service(db)
-        notification_service.send_task_assigned_notification(task)
         
         return {"success": True, "message": "Task created successfully", "task_id": task.id}
         
@@ -782,7 +909,6 @@ async def download_report(filename: str):
         raise HTTPException(status_code=404, detail="File not found")
 
 # ===== ADMIN API ROUTES - FIXED WITH COOKIE AUTH =====
-
 @app.get("/api/admin/users", response_model=List[schemas.UserList])
 async def get_all_users_api(
     request: Request,  # Add request parameter
@@ -932,6 +1058,61 @@ async def get_system_stats_api(
         return crud.get_system_stats(db)
     except Exception as e:
         raise HTTPException(status_code=401, detail="Not authenticated")
+
+# ===== ADMIN SEARCH & UTILITY ROUTES =====
+@app.get("/api/admin/search/users")
+async def search_users(
+    request: Request,
+    query: str,
+    db: Session = Depends(get_db)
+):
+    """Search users by name or email"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        if user.role != "admin":
+            return {"success": False, "error": "Access denied"}
+        
+        users = db.query(models.User).filter(
+            (models.User.full_name.ilike(f"%{query}%")) | 
+            (models.User.email.ilike(f"%{query}%"))
+        ).all()
+        
+        return users
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/admin/activity")
+async def get_recent_activity(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Get recent system activity"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        if user.role != "admin":
+            return {"success": False, "error": "Access denied"}
+        
+        # Get recent users (last 5)
+        recent_users = db.query(models.User).order_by(models.User.created_at.desc()).limit(5).all()
+        
+        # Get recent applications (last 5)
+        recent_applications = db.query(models.InternshipApplication)\
+            .order_by(models.InternshipApplication.application_date.desc())\
+            .limit(5).all()
+        
+        # Get recent internships (last 5)
+        recent_internships = db.query(models.Internship)\
+            .order_by(models.Internship.created_at.desc())\
+            .limit(5).all()
+        
+        return {
+            "recent_users": recent_users,
+            "recent_applications": recent_applications,
+            "recent_internships": recent_internships
+        }
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 # ===== DEBUG & TEST ROUTES =====
 @app.get("/api/test")

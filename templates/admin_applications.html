@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Applications - Internship System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Internship Management System</h1>
+            <div class="flex items-center space-x-4">
+                <span>Welcome, {{ user.full_name }} (Admin)</span>
+                <a href="/dashboard" class="hover:underline">Dashboard</a>
+                <a href="/logout" class="hover:underline">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Sidebar -->
+    <div class="flex">
+        <div class="w-64 bg-white shadow-lg min-h-screen">
+            <div class="p-4">
+                <h2 class="font-bold text-lg mb-4">Admin Panel</h2>
+                <ul class="space-y-2">
+                    <li><a href="/admin/dashboard" class="block p-2 hover:bg-blue-50 rounded">Dashboard</a></li>
+                    <li><a href="/admin/users" class="block p-2 hover:bg-blue-50 rounded">Manage Users</a></li>
+                    <li><a href="/admin/internships" class="block p-2 hover:bg-blue-50 rounded">Manage Internships</a></li>
+                    <li><a href="/admin/applications" class="block p-2 bg-blue-100 text-blue-600 rounded font-semibold">Review Applications</a></li>
+                    <li><a href="/admin/system" class="block p-2 hover:bg-blue-50 rounded">System Settings</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Manage Internship Applications</h1>
+                <p class="text-gray-600">Review and update student internship applications</p>
+            </div>
+
+            <!-- Status Summary -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-yellow-100 rounded-lg">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600">Pending Review</p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                {{ applications|selectattr("status", "equalto", "pending")|list|length }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg">
+                            <i class="fas fa-check text-green-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600">Approved</p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                {{ applications|selectattr("status", "equalto", "approved")|list|length }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-red-100 rounded-lg">
+                            <i class="fas fa-times text-red-600"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600">Rejected</p>
+                            <p class="text-2xl font-bold text-gray-800">
+                                {{ applications|selectattr("status", "equalto", "rejected")|list|length }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Filters -->
+            <div class="mb-6 flex space-x-4">
+                <button onclick="filterApplications('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    All Applications
+                </button>
+                <button onclick="filterApplications('pending')" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                    Pending Review
+                </button>
+                <button onclick="filterApplications('approved')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    Approved
+                </button>
+                <button onclick="filterApplications('rejected')" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                    Rejected
+                </button>
+            </div>
+
+            <!-- Applications List -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applications-list" class="bg-white divide-y divide-gray-200">
+                        {% for application in applications %}
+                        <tr class="application-item" data-status="{{ application.status }}">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ application.student.full_name }}</div>
+                                <div class="text-sm text-gray-500">{{ application.student.email }}</div>
+                                <div class="text-sm text-gray-500">{{ application.student.department }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-gray-900">{{ application.internship.title }}</div>
+                                <div class="text-sm text-gray-500">{{ application.internship.company }}</div>
+                                <div class="text-sm text-gray-500">{{ application.internship.location }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ application.application_date.strftime('%Y-%m-%d') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if application.status == 'approved' %}bg-green-100 text-green-800
+                                    {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ application.status.title() }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                {% if application.status == 'pending' %}
+                                <button onclick="openReviewModal({{ application.id }}, '{{ application.student.full_name }}', '{{ application.internship.title }}', '{{ application.internship.company }}')" 
+                                        class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-edit mr-1"></i>Review
+                                </button>
+                                {% endif %}
+                                <button onclick="viewApplicationDetails({{ application.id }})" 
+                                        class="text-gray-600 hover:text-gray-900">
+                                    <i class="fas fa-eye mr-1"></i>View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900">Review Application</h3>
+                <div class="mt-2">
+                    <p id="modal-student-info" class="text-sm text-gray-500"></p>
+                    <p id="modal-internship-info" class="text-sm text-gray-500 mt-2"></p>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Decision</label>
+                        <select id="status-select" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
+                            <option value="approved">Approve Application</option>
+                            <option value="rejected">Reject Application</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
+                        <textarea id="admin-notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2" 
+                                  placeholder="Add any notes or instructions for the student..."></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="closeReviewModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Cancel
+                    </button>
+                    <button onclick="submitReview()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Submit Decision
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900">Application Details</h3>
+                <div id="details-content" class="mt-2 text-sm text-gray-500">
+                    <!-- Details will be loaded here -->
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button onclick="closeDetailsModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentApplicationId = null;
+
+        function filterApplications(status) {
+            const items = document.querySelectorAll('.application-item');
+            items.forEach(item => {
+                if (status === 'all' || item.dataset.status === status) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function openReviewModal(appId, studentName, internshipTitle, company) {
+            currentApplicationId = appId;
+            document.getElementById('modal-student-info').textContent = `Student: ${studentName}`;
+            document.getElementById('modal-internship-info').textContent = `Internship: ${internshipTitle} at ${company}`;
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+            currentApplicationId = null;
+        }
+
+        async function submitReview() {
+            const status = document.getElementById('status-select').value;
+            const notes = document.getElementById('admin-notes').value;
+
+            try {
+                const response = await fetch(`/api/admin/applications/${currentApplicationId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `status=${status}&admin_notes=${encodeURIComponent(notes)}`
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`Application ${status} successfully!`);
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error updating application: ' + error);
+            }
+        }
+
+        async function viewApplicationDetails(appId) {
+            try {
+                const response = await fetch(`/api/admin/applications?status=all`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const application = result.applications.find(app => app.id === appId);
+                    if (application) {
+                        const detailsContent = document.getElementById('details-content');
+                        detailsContent.innerHTML = `
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Student Information</h4>
+                                    <p><strong>Name:</strong> ${application.student.full_name}</p>
+                                    <p><strong>Email:</strong> ${application.student.email}</p>
+                                    <p><strong>Department:</strong> ${application.student.department || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">Internship Details</h4>
+                                    <p><strong>Position:</strong> ${application.internship.title}</p>
+                                    <p><strong>Company:</strong> ${application.internship.company}</p>
+                                    <p><strong>Location:</strong> ${application.internship.location || 'Not specified'}</p>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-900">Application Details</h4>
+                                <p><strong>Application Date:</strong> ${new Date(application.application_date).toLocaleDateString()}</p>
+                                <p><strong>Status:</strong> <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                    ${application.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                                      application.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                                      'bg-yellow-100 text-yellow-800'}">${application.status.toUpperCase()}</span></p>
+                            </div>
+                            ${application.cover_letter ? `
+                            <div class="mt-4">
+                                <h4 class="font-semibold text-gray-900">Cover Letter</h4>
+                                <div class="bg-gray-50 p-3 rounded-md mt-2">
+                                    <p class="whitespace-pre-wrap">${application.cover_letter}</p>
+                                </div>
+                            </div>
+                            ` : ''}
+                        `;
+                        document.getElementById('detailsModal').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                alert('Error loading application details: ' + error);
+            }
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -13,6 +13,7 @@
                 <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
                 <a href="/admin/users" class="bg-blue-700 px-3 py-2 rounded">Manage Users</a>
                 <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Internships</a>
+                <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Review Applications</a>
                 <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">My Profile</a>
                 <span>Welcome, {{ user.full_name }} (Admin)</span>
                 <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
@@ -406,7 +407,7 @@
         // Page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Admin users page loaded');
-            console.log('Total users:', {{ users|length }});
+            console.log('Total users:', "{{ users|length }}");
         });
     </script>
 </body>
