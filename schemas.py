@@ -225,3 +225,50 @@ class InternshipUpdate(BaseModel):
     requirements: Optional[str] = None
     deadline: Optional[datetime] = None
     is_active: Optional[bool] = None
+
+# Feedback Schemas
+class FeedbackBase(BaseModel):
+    student_id: int
+    mentor_id: int
+    internship_id: int
+    rating: int
+    comments: Optional[str] = None
+
+class FeedbackCreate(FeedbackBase):
+    pass
+
+class FeedbackUpdate(BaseModel):
+    rating: Optional[int] = None
+    comments: Optional[str] = None
+
+class Feedback(FeedbackBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# Report Schemas
+class ReportRequest(BaseModel):
+    report_type: str  # 'internship', 'student', 'system'
+    target_id: Optional[int] = None
+    format: str = 'pdf'  # 'pdf', 'excel'
+
+# Task Update Schemas
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[str] = None
+    progress: Optional[int] = None
+    due_date: Optional[datetime] = None
+
+# Success Response Schema
+class SuccessResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[dict] = None
+
+# Error Response Schema
+class ErrorResponse(BaseModel):
+    success: bool
+    error: str

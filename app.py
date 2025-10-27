@@ -11,6 +11,7 @@ from database import SessionLocal, engine, get_db
 import crud
 from password import verify_password
 from file_utils import save_profile_picture, delete_old_profile_picture
+from notifications import get_notification_service
 import os
 
 # Create database tables
@@ -231,7 +232,11 @@ async def mentor_applications_page(request: Request, db: Session = Depends(get_d
         if user.role != "mentor":
             return RedirectResponse("/dashboard?error=Access denied")
         
-        applications = crud.get_applications_for_mentor(db, user.id)
+        applications = db.query(models.InternshipApplication)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .join(models.User, models.InternshipApplication.student_id == models.User.id)\
+            .filter(models.Internship.created_by == user.id)\
+            .all()
         
         return templates.TemplateResponse("mentor_applications.html", {
             "request": request,
@@ -477,32 +482,34 @@ def read_internships(skip: int = 0, limit: int = 100, db: Session = Depends(get_
 @app.post("/api/applications")
 async def create_application(
     request: Request,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
+    db: Session = Depends(get_db)
 ):
-    """Create internship application"""
-    if current_user.role != "student":
-        raise HTTPException(status_code=403, detail="Only students can apply for internships")
-    
+    """Create internship application - FIXED WITH COOKIE AUTH"""
     try:
+        # Get user from cookie instead of Bearer token
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "student":
+            return {"success": False, "error": "Only students can apply for internships"}
+        
         form_data = await request.form()
         internship_id = form_data.get("internship_id")
         cover_letter = form_data.get("cover_letter", "")
         
         if not internship_id:
-            raise HTTPException(status_code=400, detail="Internship ID is required")
+            return {"success": False, "error": "Internship ID is required"}
         
         # Check if already applied
         existing_application = db.query(models.InternshipApplication).filter(
-            models.InternshipApplication.student_id == current_user.id,
+            models.InternshipApplication.student_id == user.id,
             models.InternshipApplication.internship_id == internship_id
         ).first()
         
         if existing_application:
-            raise HTTPException(status_code=400, detail="You have already applied for this internship")
+            return {"success": False, "error": "You have already applied for this internship"}
         
         application = models.InternshipApplication(
-            student_id=current_user.id,
+            student_id=user.id,
             internship_id=int(internship_id),
             cover_letter=cover_letter,
             status="pending"
@@ -512,34 +519,267 @@ async def create_application(
         db.commit()
         db.refresh(application)
         
+        # Send notification email
+        notification_service = get_notification_service(db)
+        notification_service.send_application_submitted_notification(application)
+        
         return {"success": True, "message": "Application submitted successfully"}
         
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=400, detail=str(e))
+        return {"success": False, "error": str(e)}
 
 @app.delete("/api/applications/{application_id}")
-def delete_application(
+async def delete_application(
     application_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
+    request: Request,
+    db: Session = Depends(get_db)
 ):
-    """Withdraw application (student only)"""
-    if current_user.role != "student":
-        raise HTTPException(status_code=403, detail="Only students can withdraw applications")
-    
-    application = db.query(models.InternshipApplication).filter(
-        models.InternshipApplication.id == application_id,
-        models.InternshipApplication.student_id == current_user.id
-    ).first()
-    
-    if not application:
-        raise HTTPException(status_code=404, detail="Application not found")
-    
-    db.delete(application)
-    db.commit()
-    
-    return {"message": "Application withdrawn successfully"}
+    """Withdraw application (student only) - FIXED WITH COOKIE AUTH"""
+    try:
+        # Get user from cookie instead of Bearer token
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "student":
+            return {"success": False, "error": "Only students can withdraw applications"}
+        
+        application = db.query(models.InternshipApplication).filter(
+            models.InternshipApplication.id == application_id,
+            models.InternshipApplication.student_id == user.id
+        ).first()
+        
+        if not application:
+            return {"success": False, "error": "Application not found"}
+        
+        db.delete(application)
+        db.commit()
+        
+        return {"success": True, "message": "Application withdrawn successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+# ===== MENTOR APPLICATION APPROVAL ROUTES =====
+@app.put("/api/mentor/applications/{application_id}")
+async def update_application_status(
+    application_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Mentor updates application status"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "mentor":
+            return {"success": False, "error": "Only mentors can update application status"}
+        
+        form_data = await request.form()
+        new_status = form_data.get("status")
+        
+        if new_status not in ["approved", "rejected"]:
+            return {"success": False, "error": "Invalid status"}
+        
+        # Check if application belongs to mentor's internship
+        application = db.query(models.InternshipApplication)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .filter(
+                models.InternshipApplication.id == application_id,
+                models.Internship.created_by == user.id
+            )\
+            .first()
+        
+        if not application:
+            return {"success": False, "error": "Application not found or access denied"}
+        
+        application.status = new_status
+        db.commit()
+        db.refresh(application)
+        
+        # Send status change notification
+        notification_service = get_notification_service(db)
+        notification_service.send_application_status_notification(application)
+        
+        return {"success": True, "message": f"Application {new_status} successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+# ===== TASK API ROUTES =====
+@app.post("/api/tasks")
+async def create_task(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Create task for student"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role not in ["mentor", "admin"]:
+            return {"success": False, "error": "Only mentors and admins can create tasks"}
+        
+        form_data = await request.form()
+        
+        task = models.Task(
+            title=form_data.get('title'),
+            description=form_data.get('description'),
+            internship_id=form_data.get('internship_id'),
+            student_id=form_data.get('student_id'),
+            assigned_by=user.id,
+            due_date=form_data.get('due_date')
+        )
+        
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        
+        # Send task assignment notification
+        notification_service = get_notification_service(db)
+        notification_service.send_task_assigned_notification(task)
+        
+        return {"success": True, "message": "Task created successfully", "task_id": task.id}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+# ===== FEEDBACK API ROUTES =====
+@app.post("/api/feedback")
+async def create_feedback(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Create feedback (mentor only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "mentor":
+            return {"success": False, "error": "Only mentors can provide feedback"}
+        
+        form_data = await request.form()
+        
+        feedback = models.Feedback(
+            student_id=form_data.get('student_id'),
+            mentor_id=user.id,
+            internship_id=form_data.get('internship_id'),
+            rating=form_data.get('rating'),
+            comments=form_data.get('comments', '')
+        )
+        
+        db.add(feedback)
+        db.commit()
+        db.refresh(feedback)
+        
+        return {"success": True, "message": "Feedback submitted successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/feedback/student/{student_id}")
+async def get_student_feedback(
+    student_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Get feedback for a student"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Students can only see their own feedback, mentors/admins can see all
+        if user.role == "student" and user.id != student_id:
+            return {"success": False, "error": "Access denied"}
+        
+        feedback = db.query(models.Feedback)\
+            .filter(models.Feedback.student_id == student_id)\
+            .all()
+        
+        return {"success": True, "feedback": feedback}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# ===== TASK PROGRESS ROUTES =====
+@app.put("/api/tasks/{task_id}/progress")
+async def update_task_progress(
+    task_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Update task progress (student only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "student":
+            return {"success": False, "error": "Only students can update task progress"}
+        
+        form_data = await request.form()
+        progress = int(form_data.get('progress', 0))
+        
+        if progress < 0 or progress > 100:
+            return {"success": False, "error": "Progress must be between 0 and 100"}
+        
+        task = crud.update_task_progress(db, task_id, progress, user.id)
+        if not task:
+            return {"success": False, "error": "Task not found or access denied"}
+        
+        return {"success": True, "message": "Progress updated successfully"}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# ===== REPORT GENERATION ROUTES =====
+@app.post("/api/reports/generate")
+async def generate_report(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Generate reports (admin/mentor only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role not in ["admin", "mentor"]:
+            return {"success": False, "error": "Access denied"}
+        
+        form_data = await request.form()
+        report_type = form_data.get('report_type')
+        target_id = form_data.get('target_id')
+        format_type = form_data.get('format', 'pdf')
+        
+        from report_generator import generate_internship_report_pdf, generate_student_report_excel
+        
+        if report_type == 'internship' and target_id:
+            if format_type == 'pdf':
+                filename = generate_internship_report_pdf(db, int(target_id))
+            else:
+                filename = generate_student_report_excel(db, int(target_id))
+        elif report_type == 'student' and target_id:
+            filename = generate_student_report_excel(db, int(target_id))
+        else:
+            return {"success": False, "error": "Invalid report type or target"}
+        
+        if filename:
+            return {
+                "success": True, 
+                "message": "Report generated successfully", 
+                "filename": filename,
+                "download_url": f"/static/reports/{filename}"
+            }
+        else:
+            return {"success": False, "error": "Failed to generate report"}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/static/reports/{filename}")
+async def download_report(filename: str):
+    """Download generated reports"""
+    file_path = os.path.join("static/reports", filename)
+    if os.path.exists(file_path):
+        return FileResponse(file_path, filename=filename)
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
 
 # ===== ADMIN API ROUTES - FIXED WITH COOKIE AUTH =====
 
@@ -692,74 +932,6 @@ async def get_system_stats_api(
         return crud.get_system_stats(db)
     except Exception as e:
         raise HTTPException(status_code=401, detail="Not authenticated")
-        
-@app.get("/api/admin/users/{user_id}", response_model=schemas.UserList)
-def get_user_admin(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
-):
-    """Get user by ID (admin only)"""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
-    user = crud.get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-@app.put("/api/admin/users/{user_id}", response_model=schemas.UserList)
-def update_user_admin(
-    user_id: int,
-    user_update: schemas.UserUpdateAdmin,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
-):
-    """Update user (admin only)"""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
-    user = crud.get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Update user fields
-    update_data = user_update.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(user, field, value)
-    
-    db.commit()
-    db.refresh(user)
-    
-    return user
-
-@app.delete("/api/admin/users/{user_id}")
-def delete_user_admin(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
-):
-    """Delete user (admin only)"""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    
-    if user_id == current_user.id:
-        raise HTTPException(status_code=400, detail="Cannot delete your own account")
-    
-    user = crud.delete_user(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"message": "User deleted successfully"}
-
-@app.get("/api/admin/stats", response_model=schemas.SystemStats)
-def get_system_stats_api(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_active_user)
-):
-    """Get system statistics (admin only)"""
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return crud.get_system_stats(db)
 
 # ===== DEBUG & TEST ROUTES =====
 @app.get("/api/test")
@@ -801,11 +973,10 @@ def debug_internships(db: Session = Depends(get_db)):
             for i in internships
         ]
     }
-# Add this to your app.py after the existing static mounts
-from fastapi.staticfiles import StaticFiles
 
 # Mount static files for images
 app.mount("/images", StaticFiles(directory="static/images"), name="images")
+
 # ===== ADMIN DASHBOARD ROUTE =====
 @app.get("/admin/dashboard", response_class=HTMLResponse)
 async def admin_dashboard_page(request: Request, db: Session = Depends(get_db)):

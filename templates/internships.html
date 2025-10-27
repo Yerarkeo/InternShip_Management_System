@@ -16,6 +16,7 @@
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                 <a class="nav-link active" href="/internships"><i class="fas fa-briefcase"></i> Internships</a>
+                <a class="nav-link" href="/my-applications"><i class="fas fa-file-alt"></i> My Applications</a>
                 <a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a>
                 <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
@@ -73,7 +74,7 @@
                         {% endif %}
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-primary w-100" onclick="applyForInternship({{ internship.id }})">
+                        <button class="btn btn-primary w-100" onclick="applyForInternship('{{ internship.id }}')">
                             <i class="fas fa-paper-plane"></i> Apply Now
                         </button>
                     </div>
@@ -123,39 +124,49 @@
 
         function applyForInternship(internshipId) {
             currentInternshipId = internshipId;
+            document.getElementById('internshipId').value = internshipId;
             const modal = new bootstrap.Modal(document.getElementById('applicationModal'));
             modal.show();
         }
 
         function submitApplication() {
             const coverLetter = document.getElementById('coverLetter').value;
+            const internshipId = document.getElementById('internshipId').value;
             
             if (!coverLetter.trim()) {
                 alert('Please write a cover letter');
                 return;
             }
 
+            // Create form data for proper form submission
+            const formData = new FormData();
+            formData.append('internship_id', internshipId);
+            formData.append('cover_letter', coverLetter);
+
             fetch('/api/applications', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    internship_id: currentInternshipId,
-                    cover_letter: coverLetter
-                })
+                body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.detail || 'Application failed') });
+                }
+                return response.json();
+            })
             .then(data => {
-                alert('Application submitted successfully!');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('applicationModal'));
-                modal.hide();
-                // Reset form
-                document.getElementById('applicationForm').reset();
+                if (data.success) {
+                    alert('Application submitted successfully!');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('applicationModal'));
+                    modal.hide();
+                    // Reset form
+                    document.getElementById('applicationForm').reset();
+                } else {
+                    alert('Error: ' + data.error);
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error submitting application');
+                alert('Error submitting application: ' + error.message);
             });
         }
     </script>
