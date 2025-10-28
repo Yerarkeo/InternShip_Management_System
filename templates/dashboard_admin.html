@@ -7,21 +7,22 @@
 </head>
 
 <body class="bg-gray-100">
-    <nav class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Admin Dashboard</h1>
-            <div class="space-x-4">
-                <a href="/admin/dashboard" class="bg-blue-700 px-3 py-2 rounded">Admin Panel</a>
-                <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Users</a>
-                <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Internships</a>
-                
-                <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">My Profile</a>
-                <span>Welcome, {{ user.full_name }} (Admin)</span>
-                <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded">Logout</a>
-                
-            </div>
+   <!-- Add this to the navigation menu in dashboard_admin.html -->
+<nav class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold">Admin Dashboard</h1>
+        <div class="flex space-x-4">
+            <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+            <!-- ADD THIS LINE -->
+            <a href="/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Task Management</a>
+            <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Users</a>
+            <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Internships</a>
+            <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Applications</a>
+            <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
+            <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded">Logout</a>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="container mx-auto mt-8 p-4">
         <!-- Quick Stats -->

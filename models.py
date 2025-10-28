@@ -112,3 +112,4 @@ class Feedback(Base):
     student = relationship("User", foreign_keys=[student_id], back_populates="student_feedback")
     mentor = relationship("User", foreign_keys=[mentor_id], back_populates="mentor_feedback")
     internship = relationship("Internship", back_populates="feedback")
+

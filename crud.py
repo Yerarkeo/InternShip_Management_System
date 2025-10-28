@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 import models
 import schemas
 from password import get_password_hash, verify_password
@@ -40,7 +40,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-# Add to your stats in crud.py
+# Application Stats
 def get_application_stats(db: Session):
     total = db.query(models.InternshipApplication).count()
     pending = db.query(models.InternshipApplication).filter(models.InternshipApplication.status == "pending").count()
@@ -53,6 +53,91 @@ def get_application_stats(db: Session):
         "approved_applications": approved,
         "rejected_applications": rejected
     }
+
+# Task CRUD Functions
+def get_tasks_by_student(db: Session, student_id: int):
+    """Get all tasks for a specific student"""
+    return db.query(models.Task)\
+        .filter(models.Task.student_id == student_id)\
+        .options(
+            joinedload(models.Task.internship),
+            joinedload(models.Task.assigner)
+        )\
+        .order_by(models.Task.due_date.asc())\
+        .all()
+
+def get_all_tasks(db: Session, skip: int = 0, limit: int = 100):
+    """Get all tasks in the system"""
+    return db.query(models.Task)\
+        .options(
+            joinedload(models.Task.student),
+            joinedload(models.Task.internship),
+            joinedload(models.Task.assigner)
+        )\
+        .order_by(models.Task.created_at.desc())\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
+
+def get_tasks_by_internship(db: Session, internship_id: int):
+    """Get all tasks for a specific internship"""
+    return db.query(models.Task)\
+        .filter(models.Task.internship_id == internship_id)\
+        .options(
+            joinedload(models.Task.student),
+            joinedload(models.Task.assigner)
+        )\
+        .all()
+
+def create_task(db: Session, task_data: dict):
+    """Create a new task"""
+    task = models.Task(**task_data)
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+    return task
+
+def update_task_progress(db: Session, task_id: int, progress: int, student_id: int):
+    """Update task progress and status"""
+    task = db.query(models.Task)\
+        .filter(
+            models.Task.id == task_id,
+            models.Task.student_id == student_id
+        )\
+        .first()
+    
+    if task:
+        task.progress = progress
+        # Auto-update status based on progress
+        if progress == 100:
+            task.status = models.TaskStatus.COMPLETED
+        elif progress > 0:
+            task.status = models.TaskStatus.IN_PROGRESS
+        else:
+            task.status = models.TaskStatus.PENDING
+        
+        db.commit()
+        db.refresh(task)
+    
+    return task
+
+def update_task_status(db: Session, task_id: int, status: str):
+    """Update task status (admin/mentor only)"""
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if task:
+        task.status = status
+        db.commit()
+        db.refresh(task)
+    return task
+
+def delete_task(db: Session, task_id: int):
+    """Delete a task"""
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if task:
+        db.delete(task)
+        db.commit()
+    return task
+
 # Internship CRUD
 def create_internship(db: Session, internship: schemas.InternshipCreate, user_id: int):
     db_internship = models.Internship(**internship.dict(), created_by=user_id)
@@ -80,17 +165,6 @@ def get_applications_by_student(db: Session, student_id: int):
 
 def get_applications_by_internship(db: Session, internship_id: int):
     return db.query(models.InternshipApplication).filter(models.InternshipApplication.internship_id == internship_id).all()
-
-# Task CRUD
-def create_task(db: Session, task: schemas.TaskCreate, assigned_by: int):
-    db_task = models.Task(**task.dict(), assigned_by=assigned_by)
-    db.add(db_task)
-    db.commit()
-    db.refresh(db_task)
-    return db_task
-
-def get_tasks_by_student(db: Session, student_id: int):
-    return db.query(models.Task).filter(models.Task.student_id == student_id).all()
 
 # Authentication
 def authenticate_user(db: Session, email: str, password: str):
@@ -202,6 +276,12 @@ def delete_user(db: Session, user_id: int):
         for task in tasks:
             db.delete(task)
             print(f"🗑️ Deleted task: {task.id}")
+        
+        # Delete tasks created by this user
+        created_tasks = db.query(models.Task).filter(models.Task.assigned_by == user_id).all()
+        for task in created_tasks:
+            db.delete(task)
+            print(f"🗑️ Deleted created task: {task.id}")
         
         # Delete user's profile picture if exists
         if user.profile_picture and user.profile_picture != "default_avatar.png":

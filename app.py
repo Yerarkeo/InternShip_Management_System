@@ -1197,6 +1197,167 @@ async def admin_dashboard_page(request: Request, db: Session = Depends(get_db)):
         print(f"Admin dashboard error: {e}")
         return RedirectResponse("/login")
 
+# ===== TASK MANAGEMENT ROUTES =====
+
+@app.get("/tasks")
+async def tasks_page(request: Request, db: Session = Depends(get_db)):
+    """Tasks page for students"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role == "student":
+            tasks = crud.get_tasks_by_student(db, user.id)
+            return templates.TemplateResponse("tasks_student.html", {
+                "request": request,
+                "user": user,
+                "tasks": tasks
+            })
+        elif user.role in ["admin", "mentor"]:
+            tasks = crud.get_all_tasks(db)
+            students = crud.get_all_users(db)
+            internships = crud.get_internships(db)
+            return templates.TemplateResponse("tasks_management.html", {
+                "request": request,
+                "user": user,
+                "tasks": tasks,
+                "students": students,
+                "internships": internships
+            })
+        else:
+            return RedirectResponse("/dashboard?error=Access denied")
+            
+    except Exception as e:
+        return RedirectResponse("/login")
+
+@app.post("/api/tasks")
+async def create_task_api(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Create new task (admin/mentor only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role not in ["admin", "mentor"]:
+            return {"success": False, "error": "Only admins and mentors can create tasks"}
+        
+        form_data = await request.form()
+        
+        task = models.Task(
+            title=form_data.get('title'),
+            description=form_data.get('description'),
+            internship_id=form_data.get('internship_id'),
+            student_id=form_data.get('student_id'),
+            assigned_by=user.id,
+            due_date=form_data.get('due_date'),
+            status="pending"
+        )
+        
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        
+        return {"success": True, "message": "Task created successfully", "task_id": task.id}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.put("/api/tasks/{task_id}/progress")
+async def update_task_progress_api(
+    task_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Update task progress (student only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "student":
+            return {"success": False, "error": "Only students can update task progress"}
+        
+        form_data = await request.form()
+        progress = int(form_data.get('progress', 0))
+        
+        if progress < 0 or progress > 100:
+            return {"success": False, "error": "Progress must be between 0 and 100"}
+        
+        task = db.query(models.Task).filter(
+            models.Task.id == task_id,
+            models.Task.student_id == user.id
+        ).first()
+        
+        if not task:
+            return {"success": False, "error": "Task not found"}
+        
+        task.progress = progress
+        if progress == 100:
+            task.status = "completed"
+        elif progress > 0:
+            task.status = "in_progress"
+        else:
+            task.status = "pending"
+        
+        db.commit()
+        
+        return {"success": True, "message": "Progress updated successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.put("/api/tasks/{task_id}/status")
+async def update_task_status_api(
+    task_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Update task status (admin/mentor only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role not in ["admin", "mentor"]:
+            return {"success": False, "error": "Access denied"}
+        
+        form_data = await request.form()
+        new_status = form_data.get('status')
+        
+        if new_status not in ["pending", "in_progress", "completed", "cancelled"]:
+            return {"success": False, "error": "Invalid status"}
+        
+        task = db.query(models.Task).filter(models.Task.id == task_id).first()
+        if not task:
+            return {"success": False, "error": "Task not found"}
+        
+        task.status = new_status
+        db.commit()
+        
+        return {"success": True, "message": "Task status updated successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/tasks/student/{student_id}")
+async def get_student_tasks_api(
+    student_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Get tasks for a specific student"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Students can only see their own tasks, admins/mentors can see all
+        if user.role == "student" and user.id != student_id:
+            return {"success": False, "error": "Access denied"}
+        
+        tasks = crud.get_tasks_by_student(db, student_id)
+        return {"success": True, "tasks": tasks}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 if __name__ == "__main__":
     import uvicorn
     print("🚀 Starting Internship Management System...")
