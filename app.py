@@ -737,39 +737,7 @@ async def update_application_status(
         db.rollback()
         return {"success": False, "error": str(e)}
 
-# ===== TASK API ROUTES =====
-@app.post("/api/tasks")
-async def create_task(
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    """Create task for student"""
-    try:
-        user = await get_current_user_from_cookie(request, db)
-        
-        if user.role not in ["mentor", "admin"]:
-            return {"success": False, "error": "Only mentors and admins can create tasks"}
-        
-        form_data = await request.form()
-        
-        task = models.Task(
-            title=form_data.get('title'),
-            description=form_data.get('description'),
-            internship_id=form_data.get('internship_id'),
-            student_id=form_data.get('student_id'),
-            assigned_by=user.id,
-            due_date=form_data.get('due_date')
-        )
-        
-        db.add(task)
-        db.commit()
-        db.refresh(task)
-        
-        return {"success": True, "message": "Task created successfully", "task_id": task.id}
-        
-    except Exception as e:
-        db.rollback()
-        return {"success": False, "error": str(e)}
+
 
 # ===== FEEDBACK API ROUTES =====
 @app.post("/api/feedback")
@@ -1243,14 +1211,29 @@ async def create_task_api(
         
         form_data = await request.form()
         
+        # Parse due_date from string to datetime
+        due_date_str = form_data.get('due_date')
+        due_date = None
+        if due_date_str:
+            try:
+                from datetime import datetime
+                due_date = datetime.strptime(due_date_str, '%Y-%m-%d')
+            except ValueError:
+                return {"success": False, "error": "Invalid date format. Use YYYY-MM-DD"}
+        
+        # Convert string IDs to integers (they come as strings from form)
+        internship_id = form_data.get('internship_id')
+        student_id = form_data.get('student_id')
+        
         task = models.Task(
             title=form_data.get('title'),
             description=form_data.get('description'),
-            internship_id=form_data.get('internship_id'),
-            student_id=form_data.get('student_id'),
+            internship_id=int(internship_id) if internship_id else None,
+            student_id=int(student_id) if student_id else None,
             assigned_by=user.id,
-            due_date=form_data.get('due_date'),
-            status="pending"
+            due_date=due_date,
+            status=models.TaskStatus.PENDING,  # Use Enum instead of string
+            progress=0
         )
         
         db.add(task)
@@ -1261,6 +1244,7 @@ async def create_task_api(
         
     except Exception as e:
         db.rollback()
+        print(f"❌ Error creating task: {e}")
         return {"success": False, "error": str(e)}
 
 @app.put("/api/tasks/{task_id}/progress")
@@ -1356,6 +1340,76 @@ async def get_student_tasks_api(
         return {"success": True, "tasks": tasks}
         
     except Exception as e:
+        return {"success": False, "error": str(e)}
+    
+# ===== DEBUG ROUTES =====
+@app.get("/debug/current-user")
+async def debug_current_user(request: Request, db: Session = Depends(get_db)):
+    """Debug endpoint to check current user"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        return {
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "authenticated": True
+        }
+    except Exception as e:
+        return {"authenticated": False, "error": str(e)}
+
+@app.get("/debug/students")
+async def debug_students(db: Session = Depends(get_db)):
+    """Debug endpoint to check available students"""
+    students = db.query(models.User).filter(models.User.role == "student").all()
+    return {
+        "total_students": len(students),
+        "students": [{"id": s.id, "name": s.full_name, "email": s.email} for s in students]
+    }
+
+@app.get("/debug/tasks")
+async def debug_tasks(db: Session = Depends(get_db)):
+    """Debug endpoint to check tasks"""
+    tasks = db.query(models.Task).all()
+    return {
+        "total_tasks": len(tasks),
+        "tasks": [
+            {
+                "id": t.id,
+                "title": t.title,
+                "student_id": t.student_id,
+                "status": t.status,
+                "progress": t.progress
+            } for t in tasks
+        ]
+    }
+
+@app.get("/debug/test-task-creation")
+async def debug_test_task_creation(request: Request, db: Session = Depends(get_db)):
+    """Test task creation manually"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role not in ["admin", "mentor"]:
+            return {"success": False, "error": "Not authorized"}
+        
+        # Create a test task
+        task = models.Task(
+            title="Test Task - Debug",
+            description="This is a test task created via debug",
+            student_id=2,  # Change this to an actual student ID
+            assigned_by=user.id,
+            status=models.TaskStatus.PENDING,
+            progress=0
+        )
+        
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        
+        return {"success": True, "message": "Test task created", "task_id": task.id}
+        
+    except Exception as e:
+        db.rollback()
         return {"success": False, "error": str(e)}
 
 if __name__ == "__main__":
