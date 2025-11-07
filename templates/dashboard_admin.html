@@ -4,6 +4,7 @@
 <head>
     <title>Admin Dashboard - Internship System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body class="bg-gray-100">
@@ -14,7 +15,7 @@
         <div class="flex space-x-4">
             <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
             <!-- ADD THIS LINE -->
-            <a href="/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Task Management</a>
+            <a href="/admin/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Tasks</a>
             <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Users</a>
             <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Internships</a>
             <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Applications</a>
@@ -52,7 +53,7 @@
         <!-- Quick Actions -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-2xl font-bold mb-4">Admin Actions</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <a href="/admin/users"
                     class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition text-left">
                     <div class="font-semibold">Manage Users</div>
@@ -68,10 +69,32 @@
                     <div class="font-semibold">Create Internship</div>
                     <div class="text-sm opacity-90">Post new opportunity</div>
                 </button>
+                <a href="/admin/evaluations"
+                    class="bg-indigo-600 text-white p-4 rounded-lg hover:bg-indigo-700 transition text-left">
+                    <div class="font-semibold">Evaluations</div>
+                    <div class="text-sm opacity-90">Student performance</div>
+                </a>
                 <a href="/admin/system"
                     class="bg-yellow-600 text-white p-4 rounded-lg hover:bg-yellow-700 transition text-left">
                     <div class="font-semibold">System Settings</div>
                     <div class="text-sm opacity-90">Manage configuration</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- New Evaluation Management Card -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Existing cards can remain here if needed -->
+            
+            <!-- New Evaluation Management Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Student Evaluations</h3>
+                    <i class="fas fa-chart-line text-blue-500 text-xl"></i>
+                </div>
+                <p class="text-gray-600 mb-4">Manage and review student performance evaluations</p>
+                <a href="/admin/evaluations" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                    Manage Evaluations
                 </a>
             </div>
         </div>

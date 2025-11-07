@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Feedback Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            box-shadow: 0 2px 10px rgba(52, 101, 234, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .badge {
+            font-weight: 500;
+            padding: 6px 10px;
+        }
+        
+        .rating-stars {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, var(--primary-color));
+            transform: translateY(-2px);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px 10px;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .stat-card h4 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .stat-card p {
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .profile-img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .feedback-details h6 {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.075);
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .page-title {
+            color: var(--secondary-color);
+            font-weight: 700;
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light-color);
+        }
+        
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .stat-card h4 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">
+                <i class="fas fa-graduation-cap me-2"></i>
+                Internship Management System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-home me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/mentor/feedback">
+                            <i class="fas fa-comments me-1"></i> Feedback
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mentor/internships">
+                            <i class="fas fa-briefcase me-1"></i> Internships
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/mentor/applications">
+                            <i class="fas fa-tasks me-1"></i> Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tasks">
+                            <i class="fas fa-list-check me-1"></i> Tasks
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <img id="userProfileImg" src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff" alt="Profile" class="profile-img me-2">
+                            <span id="userName">Mentor</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i> Profile</a></li>
+                           
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+                    <h1 class="page-title">
+                        <i class="fas fa-comments text-primary me-2"></i>Student Feedback Management
+                    </h1>
+                    <div>
+                        <a href="/mentor/applications" class="btn btn-primary">
+                            <i class="fas fa-eye me-1"></i> View Applications
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Applications Needing Feedback -->
+                <div class="card mb-4 fade-in">
+                    <div class="card-header bg-warning text-white d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <h5 class="card-title mb-0">Applications Needing Feedback</h5>
+                        <span class="badge bg-light text-dark ms-2" id="pendingFeedbackCount">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Internship</th>
+                                        <th>Application Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingFeedbackTable">
+                                    <!-- Dynamic content will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Given -->
+                <div class="card fade-in">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fas fa-history me-2 text-primary"></i>
+                        <h5 class="card-title mb-0">Feedback Given</h5>
+                        <span class="badge bg-primary ms-2" id="givenFeedbackCount">0</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Internship</th>
+                                        <th>Overall Rating</th>
+                                        <th>Technical Skills</th>
+                                        <th>Communication</th>
+                                        <th>Feedback Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="givenFeedbackTable">
+                                    <!-- Dynamic content will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Feedback Statistics -->
+                        <div class="row mt-4">
+                            <div class="col-md-3">
+                                <div class="stat-card bg-primary">
+                                    <h4 id="totalFeedbacks">0</h4>
+                                    <p class="mb-0">Total Feedbacks</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-success">
+                                    <h4 id="submittedFeedbacks">0</h4>
+                                    <p class="mb-0">Submitted</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-info">
+                                    <h4 id="averageRating">0.0</h4>
+                                    <p class="mb-0">Avg Rating</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stat-card bg-warning">
+                                    <h4 id="totalStudents">0</h4>
+                                    <p class="mb-0">Students</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Detail Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">Feedback Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="feedbackModalBody">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="editFeedbackBtn">
+                        <i class="fas fa-edit me-1"></i> Edit Feedback
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get current user info
+            fetch('/api/users/me')
+                .then(response => response.json())
+                .then(user => {
+                    document.getElementById('userName').textContent = user.full_name || user.email;
+                    // Update profile image if available
+                    if (user.profile_picture && user.profile_picture !== 'default_avatar.png') {
+                        document.getElementById('userProfileImg').src = `/uploads/profile_pictures/${user.profile_picture}`;
+                    } else {
+                        const name = user.full_name || user.email.split('@')[0];
+                        document.getElementById('userProfileImg').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3498db&color=fff`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                });
+
+            // Load feedback data
+            loadFeedbackData();
+
+            // Add animation to cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                    }
+                });
+            }, observerOptions);
+            
+            // Observe all cards for animation
+            document.querySelectorAll('.card').forEach(card => {
+                observer.observe(card);
+            });
+            
+            // Add some interactive elements
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Handle edit feedback button
+            document.getElementById('editFeedbackBtn').addEventListener('click', function() {
+                const feedbackId = this.getAttribute('data-feedback-id');
+                if (feedbackId) {
+                    window.location.href = `/mentor/feedback/create/${feedbackId}`;
+                }
+            });
+        });
+
+        function loadFeedbackData() {
+            // Load applications needing feedback
+            fetch('/api/mentor/feedback/applications-needing')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updatePendingFeedbackTable(data.applications);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading applications needing feedback:', error);
+                });
+
+            // Load given feedback
+            fetch('/api/mentor/feedback')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateGivenFeedbackTable(data.feedbacks);
+                        updateStatistics(data.feedbacks);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading given feedback:', error);
+                });
+        }
+
+        function updatePendingFeedbackTable(applications) {
+            const tbody = document.getElementById('pendingFeedbackTable');
+            const countElement = document.getElementById('pendingFeedbackCount');
+            
+            countElement.textContent = applications.length;
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">
+                            <i class="fas fa-check-circle fa-2x mb-2"></i>
+                            <p class="mb-0">No applications need feedback at this time.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = applications.map(app => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(app.student_name)}&background=27ae60&color=fff" 
+                                 alt="${app.student_name}" 
+                                 class="profile-img me-2">
+                            <div>
+                                <strong>${app.student_name}</strong>
+                                <br>
+                                <small class="text-muted">${app.student_email}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${app.internship_title}</strong>
+                        <br>
+                        <small class="text-muted">${app.company}</small>
+                    </td>
+                    <td>${new Date(app.application_date).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-success">Approved</span>
+                    </td>
+                    <td>
+                        <a href="/mentor/feedback/create/${app.application_id}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-edit me-1"></i> Provide Feedback
+                        </a>
+                        <button type="button" class="btn btn-sm btn-outline-secondary view-application" data-application-id="${app.application_id}">
+                            <i class="fas fa-info-circle me-1"></i> Details
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Add event listeners for view application buttons
+            document.querySelectorAll('.view-application').forEach(button => {
+                button.addEventListener('click', function() {
+                    const applicationId = this.getAttribute('data-application-id');
+                    // Implement view application details functionality
+                    console.log('View application:', applicationId);
+                });
+            });
+        }
+
+        function updateGivenFeedbackTable(feedbacks) {
+            const tbody = document.getElementById('givenFeedbackTable');
+            const countElement = document.getElementById('givenFeedbackCount');
+            
+            countElement.textContent = feedbacks.length;
+            
+            if (feedbacks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-comments fa-2x mb-2"></i>
+                            <p class="mb-0">No feedback has been given yet.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = feedbacks.map(feedback => `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(feedback.student_name)}&background=3498db&color=fff" 
+                                 alt="${feedback.student_name}" 
+                                 class="profile-img me-2">
+                            <strong>${feedback.student_name}</strong>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>${feedback.internship_title}</strong>
+                        <br>
+                        <small class="text-muted">${feedback.company}</small>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary me-2">${feedback.overall_rating}/5.0</span>
+                            <div class="rating-stars">
+                                ${generateStarRating(feedback.overall_rating)}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small">
+                            <span class="badge bg-info">${feedback.technical_rating}/5</span>
+                            <br>
+                            <small class="text-muted">${feedback.technical_skills || 'No specific comments'}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small">
+                            <span class="badge bg-info">${feedback.communication_rating}/5</span>
+                            <br>
+                            <small class="text-muted">${feedback.communication_skills || 'No specific comments'}</small>
+                        </div>
+                    </td>
+                    <td>${new Date(feedback.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-success">Submitted</span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary view-feedback" 
+                                    data-feedback-id="${feedback.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <a href="/mentor/feedback/create/${feedback.application_id}" class="btn btn-outline-secondary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Add event listeners for view feedback buttons
+            document.querySelectorAll('.view-feedback').forEach(button => {
+                button.addEventListener('click', function() {
+                    const feedbackId = this.getAttribute('data-feedback-id');
+                    showFeedbackDetails(feedbackId);
+                });
+            });
+        }
+
+        function generateStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+            
+            let stars = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            // Half star
+            if (halfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+
+        function updateStatistics(feedbacks) {
+            document.getElementById('totalFeedbacks').textContent = feedbacks.length;
+            document.getElementById('submittedFeedbacks').textContent = feedbacks.length; // All are submitted
+            
+            // Calculate average rating
+            const totalRating = feedbacks.reduce((sum, feedback) => sum + (feedback.overall_rating || 0), 0);
+            const averageRating = feedbacks.length > 0 ? (totalRating / feedbacks.length).toFixed(1) : '0.0';
+            document.getElementById('averageRating').textContent = averageRating;
+            
+            // Count unique students
+            const uniqueStudents = new Set(feedbacks.map(feedback => feedback.student_id)).size;
+            document.getElementById('totalStudents').textContent = uniqueStudents;
+        }
+
+        function showFeedbackDetails(feedbackId) {
+            fetch(`/api/mentor/feedback/${feedbackId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const feedback = data.feedback;
+                        const modalBody = document.getElementById('feedbackModalBody');
+                        const editBtn = document.getElementById('editFeedbackBtn');
+                        
+                        editBtn.setAttribute('data-feedback-id', feedback.id);
+                        
+                        modalBody.innerHTML = `
+                            <div class="feedback-details">
+                                <div class="row mb-3">
+                                    <div class="col-md-8">
+                                        <h6>Student Information</h6>
+                                        <p><strong>Name:</strong> ${feedback.student_name}</p>
+                                        <p><strong>Email:</strong> ${feedback.student_email}</p>
+                                        <p><strong>Department:</strong> ${feedback.student_department || 'Not specified'}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Internship Details</h6>
+                                        <p><strong>Title:</strong> ${feedback.internship_title}</p>
+                                        <p><strong>Company:</strong> ${feedback.company}</p>
+                                        <p><strong>Date:</strong> ${new Date(feedback.created_at).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6>Technical Skills</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rating-stars">
+                                                ${generateStarRating(feedback.technical_rating)}
+                                            </div>
+                                            <span class="ms-2 badge bg-primary">${feedback.technical_rating}/5</span>
+                                        </div>
+                                        <p class="text-muted small mt-1">${feedback.technical_skills || 'No specific comments'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Communication</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rating-stars">
+                                                ${generateStarRating(feedback.communication_rating)}
+                                            </div>
+                                            <span class="ms-2 badge bg-primary">${feedback.communication_rating}/5</span>
+                                        </div>
+                                        <p class="text-muted small mt-1">${feedback.communication_skills || 'No specific comments'}</p>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <h6>Teamwork</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rating-stars">
+                                                ${generateStarRating(feedback.teamwork_rating)}
+                                            </div>
+                                            <span class="ms-2 badge bg-primary">${feedback.teamwork_rating}/5</span>
+                                        </div>
+                                        <p class="text-muted small mt-1">${feedback.teamwork || 'No specific comments'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Problem Solving</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rating-stars">
+                                                ${generateStarRating(feedback.problem_solving_rating)}
+                                            </div>
+                                            <span class="ms-2 badge bg-primary">${feedback.problem_solving_rating}/5</span>
+                                        </div>
+                                        <p class="text-muted small mt-1">${feedback.problem_solving || 'No specific comments'}</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h6>Overall Feedback</h6>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <p class="mb-0">${feedback.overall_feedback || 'No overall feedback provided.'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Overall Rating</h6>
+                                        <div class="d-flex align-items-center">
+                                            <div class="rating-stars">
+                                                ${generateStarRating(feedback.overall_rating)}
+                                            </div>
+                                            <span class="ms-2 badge bg-success">${feedback.overall_rating}/5.0</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Status</h6>
+                                        <span class="badge bg-success">Submitted</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Show the modal
+                        const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+                        modal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading feedback details:', error);
+                    alert('Error loading feedback details. Please try again.');
+                });
+        }
+    </script>
+</body>
+</html>

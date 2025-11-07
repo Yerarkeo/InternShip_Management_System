@@ -4,6 +4,7 @@ import schemas
 from password import get_password_hash, verify_password
 from file_utils import delete_old_profile_picture
 import os
+from sqlalchemy import func
 
 # User CRUD
 def get_user_by_email(db: Session, email: str):
@@ -110,11 +111,11 @@ def update_task_progress(db: Session, task_id: int, progress: int, student_id: i
         task.progress = progress
         # Auto-update status based on progress
         if progress == 100:
-            task.status = models.TaskStatus.COMPLETED
+            task.status = "completed"
         elif progress > 0:
-            task.status = models.TaskStatus.IN_PROGRESS
+            task.status = "in_progress"
         else:
-            task.status = models.TaskStatus.PENDING
+            task.status = "pending"
         
         db.commit()
         db.refresh(task)
@@ -435,3 +436,235 @@ def delete_internship(db: Session, internship_id: int):
         db.commit()
     
     return internship
+
+# =============================================
+# MENTOR-SPECIFIC FUNCTIONS FOR STUDENT VIEWING
+# =============================================
+
+def get_mentor_students(db: Session, mentor_id: int):
+    """Get all students assigned to a mentor"""
+    try:
+        # Get all active students (you might want to adjust this based on your mentor-student relationships)
+        students = db.query(models.User).filter(
+            models.User.role == "student",
+            models.User.is_active == True
+        ).all()
+        return students
+    except Exception as e:
+        print(f"❌ Error getting mentor students: {e}")
+        return []
+
+def get_mentor_pending_tasks_count(db: Session, mentor_id: int):
+    """Get count of pending tasks for mentor's students"""
+    try:
+        count = db.query(models.Task).filter(
+            models.Task.assigned_by == mentor_id,
+            models.Task.status.in_(["pending", "in_progress"])
+        ).count()
+        return count
+    except Exception as e:
+        print(f"❌ Error getting pending tasks count: {e}")
+        return 0
+
+def get_mentor_pending_feedback_count(db: Session, mentor_id: int):
+    """Get count of pending feedback for mentor"""
+    try:
+        count = db.query(models.MentorFeedback).filter(
+            models.MentorFeedback.mentor_id == mentor_id
+        ).count()
+        return count
+    except Exception as e:
+        print(f"❌ Error getting pending feedback count: {e}")
+        return 0
+
+def get_mentor_active_internships_count(db: Session, mentor_id: int):
+    """Get count of active internships for mentor's students"""
+    try:
+        count = db.query(models.Internship).filter(
+            models.Internship.created_by == mentor_id,
+            models.Internship.is_active == True
+        ).count()
+        return count
+    except Exception as e:
+        print(f"❌ Error getting active internships count: {e}")
+        return 0
+
+def get_mentor_recent_tasks(db: Session, mentor_id: int, limit: int = 5):
+    """Get recent tasks assigned by mentor"""
+    try:
+        tasks = db.query(models.Task).filter(
+            models.Task.assigned_by == mentor_id
+        ).options(
+            joinedload(models.Task.student),
+            joinedload(models.Task.internship)
+        ).order_by(models.Task.created_at.desc()).limit(limit).all()
+        return tasks
+    except Exception as e:
+        print(f"❌ Error getting recent tasks: {e}")
+        return []
+
+def get_mentor_recent_feedback(db: Session, mentor_id: int, limit: int = 5):
+    """Get recent feedback given by mentor"""
+    try:
+        feedback = db.query(models.MentorFeedback).filter(
+            models.MentorFeedback.mentor_id == mentor_id
+        ).options(
+            joinedload(models.MentorFeedback.student),
+            joinedload(models.MentorFeedback.internship)
+        ).order_by(models.MentorFeedback.feedback_date.desc()).limit(limit).all()
+        return feedback
+    except Exception as e:
+        print(f"❌ Error getting recent feedback: {e}")
+        return []
+
+def get_student_progress(db: Session, student_id: int):
+    """Calculate student progress based on completed tasks"""
+    try:
+        total_tasks = db.query(models.Task).filter(models.Task.student_id == student_id).count()
+        completed_tasks = db.query(models.Task).filter(
+            models.Task.student_id == student_id,
+            models.Task.status == "completed"
+        ).count()
+        
+        if total_tasks == 0:
+            return 0
+        return int((completed_tasks / total_tasks) * 100)
+    except Exception as e:
+        print(f"❌ Error calculating student progress: {e}")
+        return 0
+
+def get_student_current_internship(db: Session, student_id: int):
+    """Get student's current internship"""
+    try:
+        application = db.query(models.InternshipApplication).filter(
+            models.InternshipApplication.student_id == student_id,
+            models.InternshipApplication.status == "approved"
+        ).options(joinedload(models.InternshipApplication.internship)).first()
+        
+        if application:
+            return application.internship
+        return None
+    except Exception as e:
+        print(f"❌ Error getting student internship: {e}")
+        return None
+
+def get_mentor_active_tasks_count(db: Session, mentor_id: int):
+    """Get count of active tasks for mentor's students"""
+    try:
+        count = db.query(models.Task).filter(
+            models.Task.assigned_by == mentor_id,
+            models.Task.status.in_(["pending", "in_progress"])
+        ).count()
+        return count
+    except Exception as e:
+        print(f"❌ Error getting active tasks count: {e}")
+        return 0
+
+def get_mentor_students_avg_rating(db: Session, mentor_id: int):
+    """Get average rating of mentor's students"""
+    try:
+        avg_rating = db.query(func.avg(models.MentorFeedback.overall_rating)).filter(
+            models.MentorFeedback.mentor_id == mentor_id
+        ).scalar()
+        return float(avg_rating) if avg_rating else 0.0
+    except Exception as e:
+        print(f"❌ Error getting average rating: {e}")
+        return 0.0
+
+def get_mentor_student(db: Session, mentor_id: int, student_id: int):
+    """Verify and get a specific student for a mentor"""
+    try:
+        student = db.query(models.User).filter(
+            models.User.id == student_id,
+            models.User.role == "student",
+            models.User.is_active == True
+        ).first()
+        return student
+    except Exception as e:
+        print(f"❌ Error getting mentor student: {e}")
+        return None
+
+def get_student_details(db: Session, student_id: int):
+    """Get detailed information about a student"""
+    try:
+        student = db.query(models.User).filter(models.User.id == student_id).first()
+        return student
+    except Exception as e:
+        print(f"❌ Error getting student details: {e}")
+        return None
+
+def get_student_tasks(db: Session, student_id: int):
+    """Get all tasks for a student"""
+    try:
+        tasks = db.query(models.Task).filter(
+            models.Task.student_id == student_id
+        ).options(
+            joinedload(models.Task.internship),
+            joinedload(models.Task.assigner)
+        ).all()
+        return tasks
+    except Exception as e:
+        print(f"❌ Error getting student tasks: {e}")
+        return []
+
+def get_student_feedback(db: Session, student_id: int):
+    """Get all feedback for a student"""
+    try:
+        feedback = db.query(models.MentorFeedback).filter(
+            models.MentorFeedback.student_id == student_id
+        ).options(
+            joinedload(models.MentorFeedback.mentor),
+            joinedload(models.MentorFeedback.internship)
+        ).all()
+        return feedback
+    except Exception as e:
+        print(f"❌ Error getting student feedback: {e}")
+        return []
+
+def get_students_with_internships_count(db: Session, mentor_id: int):
+    """Get count of students with active internships"""
+    try:
+        # Get all students assigned to mentor
+        students = get_mentor_students(db, mentor_id)
+        count = 0
+        
+        for student in students:
+            internship = get_student_current_internship(db, student.id)
+            if internship:
+                count += 1
+        
+        return count
+    except Exception as e:
+        print(f"❌ Error counting students with internships: {e}")
+        return 0
+
+def get_mentor_student_internships(db: Session, mentor_id: int):
+    """Get internships for all mentor's students"""
+    try:
+        students = get_mentor_students(db, mentor_id)
+        student_internships = {}
+        
+        for student in students:
+            internship = get_student_current_internship(db, student.id)
+            student_internships[student.id] = internship
+        
+        return student_internships
+    except Exception as e:
+        print(f"❌ Error getting student internships: {e}")
+        return {}
+
+def get_mentor_student_progress(db: Session, mentor_id: int):
+    """Get progress for all mentor's students"""
+    try:
+        students = get_mentor_students(db, mentor_id)
+        student_progress = {}
+        
+        for student in students:
+            progress = get_student_progress(db, student.id)
+            student_progress[student.id] = progress
+        
+        return student_progress
+    except Exception as e:
+        print(f"❌ Error getting student progress: {e}")
+        return {}
+    

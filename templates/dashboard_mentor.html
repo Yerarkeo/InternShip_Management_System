@@ -4,515 +4,406 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mentor Dashboard - Internship Management System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --sidebar-width: 250px;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
+            font-family: 'Inter', sans-serif;
         }
         
-        /* Navbar Styling */
-        .navbar-custom {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 0.8rem 1rem;
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #2f7ae4 100%);
         }
         
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
+        .card-hover {
+            transition: all 0.3s ease;
         }
         
-        .navbar-brand i {
-            margin-right: 10px;
-            font-size: 1.8rem;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            padding: 0.5rem 1rem !important;
-            border-radius: 6px;
-            margin: 0 2px;
-            transition: all 0.3s;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.15);
-            color: white !important;
-        }
-        
-        .nav-link i {
-            margin-right: 8px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .user-dropdown .dropdown-toggle {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 0.8rem;
-        }
-        
-        .user-dropdown .dropdown-toggle::after {
-            margin-left: 8px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-        }
-        
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-        
-        .dropdown-item {
-            padding: 0.6rem 1rem;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .dropdown-item i {
-            margin-right: 10px;
-            width: 18px;
-            text-align: center;
-        }
-        
-        /* Dashboard Content */
-        .dashboard-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-        
-        .stat-card:hover {
+        .card-hover:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
-        .stat-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
         }
         
-        .quick-action-card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .quick-action-card:hover {
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e5e7eb;
+            overflow: hidden;
         }
         
-        .btn-action {
-            padding: 1rem;
-            border-radius: 10px;
-            font-weight: 500;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .progress-fill {
             height: 100%;
-            transition: all 0.3s;
-        }
-        
-        .btn-action i {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-        
-        .recent-activity-card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            height: 100%;
-        }
-        
-        .activity-item {
-            padding: 1rem 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-        
-        .badge-status {
-            padding: 0.5rem 0.8rem;
-            border-radius: 20px;
-            font-weight: 500;
-        }
-        
-        footer {
-            background-color: var(--dark);
-            color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-        
-        @media (max-width: 768px) {
-            .navbar-nav {
-                padding: 1rem 0;
-            }
-            
-            .nav-link {
-                margin: 2px 0;
-            }
+            border-radius: 4px;
         }
     </style>
 </head>
-<body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="/dashboard">
-                <i class="fas fa-chalkboard-teacher"></i>
-                MentorHub
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon">
-                    <i class="fas fa-bars text-white"></i>
-                </span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard">
-                            <i class="fas fa-tachometer-alt"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/tasks">
-                            <i class="fas fa-tasks"></i>Task Management
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/mentor/internships">
-                            <i class="fas fa-briefcase"></i>My Internships
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/mentor/applications">
-                            <i class="fas fa-file-alt"></i>Applications
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown user-dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                           Mentor 
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="/profile">
-                                    <i class="fas fa-user-circle"></i>My Profile
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="/settings">
-                                    <i class="fas fa-cog"></i>Settings
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="/logout">
-                                    <i class="fas fa-sign-out-alt"></i>Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <i class="fas fa-chalkboard-teacher text-xl mr-2"></i>
+                <h1 class="text-xl font-bold">MentorHub</h1>
+            </div>
+            <div class="flex space-x-4">
+                <a href="/dashboard" class="bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                <a href="/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Task Management</a>
+                <a href="/mentor/feedback" class="hover:bg-blue-700 px-3 py-2 rounded">Feedback</a>
+                <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
+                <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded">Logout</a>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container mt-4">
+    <div class="container mx-auto p-6">
         <!-- Welcome Section -->
-        <div class="dashboard-header">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1>Welcome back, Dr. Sarah Johnson! 👋</h1>
-                    <p class="lead mb-0">Here's what's happening with your internships and mentees today.</p>
+        <div class="gradient-bg text-white rounded-xl p-6 mb-8 fade-in">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-2xl font-bold mb-2">Welcome back, Dr. Sarah Johnson! 👋</h1>
+                    <p class="text-blue-100">Here's what's happening with your students and internships today.</p>
                 </div>
-                <div class="col-md-4 text-md-end">
-                    <div class="bg-white rounded p-3 text-dark d-inline-block">
-                        <small class="text-muted">MENTOR PROFILE</small>
-                        <h5 class="mb-0 text-primary">ACTIVE</h5>
-                    </div>
+                <div class="bg-white text-gray-900 rounded-full px-6 py-3 text-center">
+                    <div class="text-sm text-gray-500">MENTOR PROFILE</div>
+                    <div class="text-lg font-bold text-blue-600">ACTIVE</div>
                 </div>
             </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="card stat-card text-white bg-primary">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="mb-0">5</h2>
-                                <p class="mb-0">Active Internships</p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 fade-in">
+            <div class="bg-white p-6 rounded-lg shadow card-hover">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Active Students</h3>
+                        <p class="text-2xl font-bold text-gray-900">8</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-white bg-success">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="mb-0">12</h2>
-                                <p class="mb-0">Total Applications</p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                        </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow card-hover">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-tasks text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Pending Tasks</h3>
+                        <p class="text-2xl font-bold text-gray-900">12</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-white bg-warning">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="mb-0">3</h2>
-                                <p class="mb-0">Pending Reviews</p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                        </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow card-hover">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 rounded-lg">
+                        <i class="fas fa-comments text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Pending Feedback</h3>
+                        <p class="text-2xl font-bold text-gray-900">5</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card stat-card text-white bg-info">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h2 class="mb-0">8</h2>
-                                <p class="mb-0">Approved Interns</p>
-                            </div>
-                            <div class="stat-icon">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow card-hover">
+                <div class="flex items-center">
+                    <div class="p-3 bg-indigo-100 rounded-lg">
+                        <i class="fas fa-briefcase text-indigo-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-gray-500">Active Internships</h3>
+                        <p class="text-2xl font-bold text-gray-900">3</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card quick-action-card">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title mb-0"><i class="fas fa-bolt text-warning me-2"></i>Quick Actions</h5>
+        <div class="bg-white rounded-lg shadow mb-8 fade-in">
+            <div class="p-6 border-b">
+                <div class="flex items-center">
+                    <div class="p-2 bg-yellow-100 rounded-lg mr-3">
+                        <i class="fas fa-bolt text-yellow-600"></i>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3 col-sm-6">
-                                <a href="/mentor/internships" class="btn btn-primary btn-action">
-                                    <i class="fas fa-plus"></i>
-                                    Create Internship
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="/mentor/applications" class="btn btn-success btn-action">
-                                    <i class="fas fa-list"></i>
-                                    Review Applications
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="/tasks" class="btn btn-info btn-action">
-                                    <i class="fas fa-tasks"></i>
-                                    Manage Tasks
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6">
-                                <a href="/profile" class="btn btn-secondary btn-action">
-                                    <i class="fas fa-cog"></i>
-                                    Profile Settings
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                    <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <a href="/tasks" class="bg-blue-600 text-white p-6 rounded-lg hover:bg-blue-700 transition flex flex-col items-center justify-center card-hover">
+                        <i class="fas fa-tasks text-2xl mb-3"></i>
+                        <span class="font-medium">Assign Tasks</span>
+                    </a>
+                    
+                    <a href="/mentor/feedback" class="bg-green-600 text-white p-6 rounded-lg hover:bg-green-700 transition flex flex-col items-center justify-center card-hover">
+                        <i class="fas fa-comments text-2xl mb-3"></i>
+                        <span class="font-medium">Give Feedback</span>
+                    </a>
+                    
+                   
+        
                 </div>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="row">
-            <!-- Recent Internships -->
-            <div class="col-lg-6 mb-4">
-                <div class="card recent-activity-card">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title mb-0"><i class="fas fa-briefcase text-primary me-2"></i>Recent Internships</h5>
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in">
+            <!-- Student Monitoring Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-blue-100 rounded-lg mr-3">
+                            <i class="fas fa-users text-blue-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-800">Student Monitoring</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">Frontend Development Intern</h6>
-                                    <p class="text-muted small mb-2">Tech Solutions Inc. • Remote</p>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <!-- Student 1 -->
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=3498db&color=fff" 
+                                         alt="Michael Chen" 
+                                         class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">Yuna</h3>
+                                        <p class="text-gray-600 text-sm">Frontend Developer Intern</p>
+                                    </div>
                                 </div>
-                                <span class="badge bg-primary badge-status">
-                                    <i class="fas fa-users me-1"></i> 4 applications
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Active
                                 </span>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Posted on May 15, 2023
-                            </small>
+                            <div class="mt-3">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span>75%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-blue-600" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                    <i class="fas fa-eye mr-1"></i> View Details
+                                </button>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                    <i class="fas fa-comment mr-1"></i> Give Feedback
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">Data Science Research Assistant</h6>
-                                    <p class="text-muted small mb-2">University Lab • On-site</p>
+                        <!-- Student 2 -->
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Jessica+Williams&background=e67e22&color=fff" 
+                                         alt="Jessica Williams" 
+                                         class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">YeJi</h3>
+                                        <p class="text-gray-600 text-sm">Data Science Intern</p>
+                                    </div>
                                 </div>
-                                <span class="badge bg-primary badge-status">
-                                    <i class="fas fa-users me-1"></i> 7 applications
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Active
                                 </span>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Posted on April 28, 2023
-                            </small>
+                            <div class="mt-3">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span>60%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-blue-600" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                    <i class="fas fa-eye mr-1"></i> View Details
+                                </button>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                    <i class="fas fa-comment mr-1"></i> Give Feedback
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">UX/UI Design Intern</h6>
-                                    <p class="text-muted small mb-2">Creative Studio • Hybrid</p>
+                        <!-- Student 3 -->
+                        <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=David+Rodriguez&background=2ecc71&color=fff" 
+                                         alt="David Rodriguez" 
+                                         class="w-10 h-10 rounded-full mr-3">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">Kookie</h3>
+                                        <p class="text-gray-600 text-sm">UX/UI Design Intern</p>
+                                    </div>
                                 </div>
-                                <span class="badge bg-primary badge-status">
-                                    <i class="fas fa-users me-1"></i> 3 applications
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Needs Attention
                                 </span>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Posted on April 10, 2023
-                            </small>
-                        </div>
-                        
-                        <div class="text-center mt-3">
-                            <a href="/mentor/internships" class="btn btn-outline-primary btn-sm">View All Internships</a>
+                            <div class="mt-3">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span>40%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill bg-yellow-500" style="width: 40%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                    <i class="fas fa-eye mr-1"></i> View Details
+                                </button>
+                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                    <i class="fas fa-comment mr-1"></i> Give Feedback
+                                </button>
+                            </div>
                         </div>
                     </div>
+                    
+                    
                 </div>
             </div>
 
-            <!-- Recent Applications -->
-            <div class="col-lg-6 mb-4">
-                <div class="card recent-activity-card">
-                    <div class="card-header bg-light">
-                        <h5 class="card-title mb-0"><i class="fas fa-file-alt text-success me-2"></i>Recent Applications</h5>
+            <!-- Task Management & Feedback Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-green-100 rounded-lg mr-3">
+                            <i class="fas fa-tasks text-green-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-gray-800">Task Management & Feedback</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">Michael Chen</h6>
-                                    <p class="text-muted small mb-1">For: Frontend Development Intern</p>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Pending Tasks -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Pending Tasks</h3>
+                        <div class="space-y-3">
+                            <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Implement user authentication</h4>
+                                        <p class="text-gray-600 text-sm">Assigned to: Yuna</p>
+                                        <p class="text-gray-500 text-xs mt-1">Due: 2023-06-20</p>
+                                    </div>
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                        In Progress
+                                    </span>
                                 </div>
-                                <span class="badge bg-warning badge-status">Pending</span>
-                            </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Applied on June 5, 2023
-                            </small>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">Jessica Williams</h6>
-                                    <p class="text-muted small mb-1">For: Data Science Research Assistant</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
+                                        <i class="fas fa-eye mr-1"></i> Review
+                                    </button>
+                                    <button class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
+                                        <i class="fas fa-comment mr-1"></i> Feedback
+                                    </button>
                                 </div>
-                                <span class="badge bg-success badge-status">Approved</span>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Applied on May 30, 2023
-                            </small>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">David Rodriguez</h6>
-                                    <p class="text-muted small mb-1">For: UX/UI Design Intern</p>
+                            
+                            <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Data analysis report</h4>
+                                        <p class="text-gray-600 text-sm">Assigned to: Kookie</p>
+                                        <p class="text-gray-500 text-xs mt-1">Due: 2023-06-18</p>
+                                    </div>
+                                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                        Overdue
+                                    </span>
                                 </div>
-                                <span class="badge bg-danger badge-status">Rejected</span>
-                            </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Applied on May 22, 2023
-                            </small>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">Sophia Martinez</h6>
-                                    <p class="text-muted small mb-1">For: Frontend Development Intern</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
+                                        <i class="fas fa-eye mr-1"></i> Review
+                                    </button>
+                                    <button class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
+                                        <i class="fas fa-comment mr-1"></i> Feedback
+                                    </button>
                                 </div>
-                                <span class="badge bg-warning badge-status">Pending</span>
                             </div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar me-1"></i> Applied on May 18, 2023
-                            </small>
                         </div>
-                        
-                        <div class="text-center mt-3">
-                            <a href="/mentor/applications" class="btn btn-outline-primary btn-sm">View All Applications</a>
+                    </div>
+                    
+                    <!-- Recent Feedback -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-800 mb-3">Recent Feedback</h3>
+                        <div class="space-y-3">
+                            <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">UI Design Review</h4>
+                                        <p class="text-gray-600 text-sm">To: Mana</p>
+                                        <div class="flex items-center mt-1">
+                                            <div class="text-yellow-400">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="far fa-star"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-600 ml-2">4.0/5.0</span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                        Completed
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-2">"Good work on the initial design concepts. The color scheme is visually appealing, but we need to improve the user flow for the checkout process."</p>
+                                <p class="text-gray-500 text-xs mt-2">Posted: 2023-06-10</p>
+                            </div>
+                            
+                            <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Code Review</h4>
+                                        <p class="text-gray-600 text-sm">To:Kai</p>
+                                        <div class="flex items-center mt-1">
+                                            <div class="text-yellow-400">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                            </div>
+                                            <span class="text-sm text-gray-600 ml-2">4.5/5.0</span>
+                                        </div>
+                                    </div>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                        Completed
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-2">"Excellent implementation of the authentication system. The code is clean and well-documented. Consider adding more error handling for edge cases."</p>
+                                <p class="text-gray-500 text-xs mt-2">Posted: 2023-06-08</p>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/mentor/feedback" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+                            Manage All Feedback
+                        </a>
                     </div>
                 </div>
             </div>
@@ -520,20 +411,70 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>MentorHub</h5>
-                    <p class="mb-0">Empowering mentors and students through meaningful internship experiences.</p>
+    <footer class="bg-gray-800 text-white mt-12 py-8">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h5 class="text-lg font-bold">MentorHub</h5>
+                    <p class="text-gray-400">Empowering mentors and students through meaningful internship experiences.</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0">&copy; 2023 MentorHub Internship System. All rights reserved.</p>
+                <div class="text-gray-400">
+                    <p>&copy; 2023 MentorHub Internship System. All rights reserved.</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add animation to cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all cards for animation
+        document.querySelectorAll('.bg-white.rounded-lg.shadow').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Add hover effects to stat cards
+        const statCards = document.querySelectorAll('.card-hover');
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // View Details button functionality
+        document.querySelectorAll('button.bg-blue-600').forEach(button => {
+            if (button.textContent.includes('View Details')) {
+                button.addEventListener('click', function() {
+                    alert('Student details would be displayed here');
+                });
+            }
+        });
+        
+        // Give Feedback button functionality
+        document.querySelectorAll('button.bg-green-600').forEach(button => {
+            if (button.textContent.includes('Feedback')) {
+                button.addEventListener('click', function() {
+                    alert('Feedback form would open here');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

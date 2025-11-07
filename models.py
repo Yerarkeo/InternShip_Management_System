@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Enum, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from database import Base
@@ -18,6 +18,15 @@ class TaskStatus(str, enum.Enum):
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
+    CANCELLED = "cancelled"
+
+class FeedbackStatus(str, enum.Enum):
+    DRAFT = "draft"
+    SUBMITTED = "submitted"
+
+class EvaluationStatus(str, enum.Enum):
+    DRAFT = "draft"
+    FINAL = "final"
 
 class User(Base):
     __tablename__ = "users"
@@ -38,8 +47,18 @@ class User(Base):
     applications = relationship("InternshipApplication", back_populates="student")
     assigned_tasks = relationship("Task", foreign_keys="Task.student_id", back_populates="student")
     assigned_by_tasks = relationship("Task", foreign_keys="Task.assigned_by", back_populates="assigner")
+    
+    # Feedback relationships (existing)
     student_feedback = relationship("Feedback", foreign_keys="Feedback.student_id", back_populates="student")
     mentor_feedback = relationship("Feedback", foreign_keys="Feedback.mentor_id", back_populates="mentor")
+    
+    # Enhanced feedback relationships
+    given_feedbacks = relationship("MentorFeedback", foreign_keys="MentorFeedback.mentor_id", back_populates="mentor")
+    received_feedbacks = relationship("MentorFeedback", foreign_keys="MentorFeedback.student_id", back_populates="student")
+    
+    # Evaluation relationships
+    given_evaluations = relationship("Evaluation", foreign_keys="Evaluation.admin_id", back_populates="admin")
+    received_evaluations = relationship("Evaluation", foreign_keys="Evaluation.student_id", back_populates="student")
 
 class Internship(Base):
     __tablename__ = "internships"
@@ -61,7 +80,13 @@ class Internship(Base):
     creator = relationship("User", back_populates="created_internships")
     applications = relationship("InternshipApplication", back_populates="internship")
     tasks = relationship("Task", back_populates="internship")
+    
+    # Feedback relationships (existing)
     feedback = relationship("Feedback", back_populates="internship")
+    
+    # Enhanced feedback relationships
+    mentor_feedbacks = relationship("MentorFeedback", back_populates="internship")
+    evaluations = relationship("Evaluation", back_populates="internship")
 
 class InternshipApplication(Base):
     __tablename__ = "internship_applications"
@@ -77,6 +102,10 @@ class InternshipApplication(Base):
     # Relationships
     student = relationship("User", back_populates="applications")
     internship = relationship("Internship", back_populates="applications")
+    
+    # Enhanced feedback relationships
+    mentor_feedbacks = relationship("MentorFeedback", back_populates="application")
+    evaluations = relationship("Evaluation", back_populates="application")
 
 class Task(Base):
     __tablename__ = "tasks"
@@ -113,3 +142,67 @@ class Feedback(Base):
     mentor = relationship("User", foreign_keys=[mentor_id], back_populates="mentor_feedback")
     internship = relationship("Internship", back_populates="feedback")
 
+# Enhanced Feedback System
+class MentorFeedback(Base):
+    __tablename__ = "mentor_feedbacks"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    application_id = Column(Integer, ForeignKey("internship_applications.id"), nullable=False)
+    mentor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    internship_id = Column(Integer, ForeignKey("internships.id"), nullable=False)
+    
+    # Feedback content
+    technical_skills = Column(Text, nullable=True)
+    communication_skills = Column(Text, nullable=True)
+    teamwork = Column(Text, nullable=True)
+    problem_solving = Column(Text, nullable=True)
+    overall_feedback = Column(Text, nullable=False)
+    
+    # Ratings (1-5 scale)
+    technical_rating = Column(Integer, nullable=True)  # 1-5
+    communication_rating = Column(Integer, nullable=True)  # 1-5
+    teamwork_rating = Column(Integer, nullable=True)  # 1-5
+    problem_solving_rating = Column(Integer, nullable=True)  # 1-5
+    overall_rating = Column(Float, nullable=True)  # Calculated average
+    
+    feedback_date = Column(DateTime(timezone=True), server_default=func.now())
+    status = Column(Enum(FeedbackStatus), default=FeedbackStatus.DRAFT)
+    
+    # Relationships
+    application = relationship("InternshipApplication", back_populates="mentor_feedbacks")
+    mentor = relationship("User", foreign_keys=[mentor_id], back_populates="given_feedbacks")
+    student = relationship("User", foreign_keys=[student_id], back_populates="received_feedbacks")
+    internship = relationship("Internship", back_populates="mentor_feedbacks")
+
+# Evaluation System
+class Evaluation(Base):
+    __tablename__ = "evaluations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    application_id = Column(Integer, ForeignKey("internship_applications.id"), nullable=False)
+    admin_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    internship_id = Column(Integer, ForeignKey("internships.id"), nullable=False)
+    
+    # Evaluation criteria (1-10 scale)
+    technical_competence = Column(Integer, nullable=False)  # 1-10
+    task_completion = Column(Integer, nullable=False)  # 1-10
+    communication_skills = Column(Integer, nullable=False)  # 1-10
+    professionalism = Column(Integer, nullable=False)  # 1-10
+    initiative = Column(Integer, nullable=False)  # 1-10
+    
+    # Overall score and comments
+    overall_score = Column(Float, nullable=False)
+    strengths = Column(Text, nullable=True)
+    areas_for_improvement = Column(Text, nullable=True)
+    final_comments = Column(Text, nullable=False)
+    
+    evaluation_date = Column(DateTime(timezone=True), server_default=func.now())
+    status = Column(Enum(EvaluationStatus), default=EvaluationStatus.DRAFT)
+    
+    # Relationships
+    application = relationship("InternshipApplication", back_populates="evaluations")
+    admin = relationship("User", foreign_keys=[admin_id], back_populates="given_evaluations")
+    student = relationship("User", foreign_keys=[student_id], back_populates="received_evaluations")
+    internship = relationship("Internship", back_populates="evaluations")

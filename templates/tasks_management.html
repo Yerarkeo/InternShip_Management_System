@@ -3,160 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Management - Internship Management System</title>
+    <title>Task Management - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-100">
     <!-- Navigation -->
-    <nav class="bg-blue-600 text-white p-4">
+    <nav class="bg-blue-600 text-white p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">Task Management</h1>
-            <div class="flex space-x-4">
-                <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
-                <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
-                <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded">Logout</a>
+            <h1 class="text-2xl font-bold">Task Management System</h1>
+            <div class="flex items-center space-x-4">
+                <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded transition duration-200">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </a>
+                <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded transition duration-200">
+                    <i class="fas fa-users mr-2"></i>Users
+                </a>
+                <a href="/admin/tasks" class="bg-blue-700 px-3 py-2 rounded transition duration-200">
+                    <i class="fas fa-tasks mr-2"></i>Tasks
+                </a>
+                <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition duration-200">
+                    <i class="fas fa-briefcase mr-2"></i>Internships
+                </a>
+                <div class="flex items-center space-x-2">
+                    <span class="text-blue-200">Welcome, {{ current_user.full_name }} (Admin)</span>
+                    <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded transition duration-200">
+                        <i class="fas fa-user-circle mr-1"></i>Profile
+                    </a>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-3 py-2 rounded transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto p-6">
-        <!-- Create Task Button -->
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Task Management</h2>
-            <button onclick="openCreateTaskModal()" 
-                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center">
-                <i class="fas fa-plus mr-2"></i> Create Task
-            </button>
-        </div>
-
-        <!-- Stats -->
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 p-4">
+        <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-blue-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-blue-100 rounded-lg">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
                         <i class="fas fa-tasks text-blue-600 text-xl"></i>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Total Tasks</h3>
-                        <p class="text-2xl font-bold text-gray-900">{{ tasks|length }}</p>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-800">{{ stats.total_tasks }}</div>
+                        <div class="text-gray-600 text-sm">Total Tasks</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-green-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-green-100 rounded-lg">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
                         <i class="fas fa-check-circle text-green-600 text-xl"></i>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Completed</h3>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ tasks|selectattr("status", "equalto", "completed")|list|length }}
-                        </p>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-800">{{ stats.completed_tasks }}</div>
+                        <div class="text-gray-600 text-sm">Completed</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-yellow-100 rounded-lg">
-                        <i class="fas fa-spinner text-yellow-600 text-xl"></i>
+                    <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">In Progress</h3>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ tasks|selectattr("status", "equalto", "in_progress")|list|length }}
-                        </p>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-800">{{ stats.pending_tasks }}</div>
+                        <div class="text-gray-600 text-sm">Pending</div>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white p-6 rounded-lg shadow">
+            <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
                 <div class="flex items-center">
-                    <div class="p-3 bg-red-100 rounded-lg">
-                        <i class="fas fa-clock text-red-600 text-xl"></i>
+                    <div class="bg-red-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-exclamation-circle text-red-600 text-xl"></i>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-sm font-medium text-gray-500">Pending</h3>
-                        <p class="text-2xl font-bold text-gray-900">
-                            {{ tasks|selectattr("status", "equalto", "pending")|list|length }}
-                        </p>
+                    <div>
+                        <div class="text-2xl font-bold text-gray-800">{{ stats.overdue_tasks }}</div>
+                        <div class="text-gray-600 text-sm">Overdue</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div class="flex-1 w-full md:w-auto">
+                    <input type="text" id="searchInput" placeholder="Search tasks by title, description, or student..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="flex space-x-3">
+                    <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button onclick="searchTasks()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                    <button onclick="clearFilters()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
+                        <i class="fas fa-times mr-2"></i>Clear
+                    </button>
+                    <button onclick="showCreateModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>New Task
+                    </button>
                 </div>
             </div>
         </div>
 
         <!-- Tasks Table -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-800">All Tasks</h2>
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-xl font-semibold text-gray-800">All Tasks ({{ tasks|length }})</h2>
             </div>
-            
             <div class="p-6">
                 {% if tasks %}
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Details</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             {% for task in tasks %}
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
-                                        <div class="text-sm text-gray-500">{{ task.description[:50] }}{% if task.description|length > 50 %}...{% endif %}</div>
+                            <tr class="hover:bg-gray-50 transition duration-150">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0 mt-1">
+                                            <i class="fas fa-tasks text-gray-400"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
+                                            <div class="text-sm text-gray-500 mt-1">{{ task.description[:100] if task.description else '' }}{% if task.description and task.description|length > 100 %}...{% endif %}</div>
+                                            <div class="text-xs text-gray-400 mt-1">
+                                                Created: {{ task.created_at.strftime('%Y-%m-%d') if task.created_at else 'N/A' }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ task.student.full_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ task.student.email }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {% if task.internship %}
-                                        {{ task.internship.title }}
+                                    {% if task.student %}
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-8 w-8">
+                                            <img class="h-8 w-8 rounded-full" 
+                                                 src="/uploads/profile_pictures/{{ task.student.profile_picture if task.student.profile_picture else 'default_avatar.png' }}" 
+                                                 alt="{{ task.student.full_name }}"
+                                                 onerror="this.src='/static/images/default_avatar.svg'">
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium text-gray-900">{{ task.student.full_name }}</div>
+                                            <div class="text-sm text-gray-500">{{ task.student.email }}</div>
+                                        </div>
+                                    </div>
                                     {% else %}
-                                        <span class="text-gray-400">No internship</span>
+                                    <span class="text-gray-500">Not assigned</span>
                                     {% endif %}
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No due date' }}
-                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <select onchange="updateTaskStatus({{ task.id }}, this.value)" 
-                                            class="text-sm rounded border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Pending</option>
-                                        <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                                        <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
-                                        <option value="cancelled" {% if task.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                                    </select>
+                                    {% if task.internship %}
+                                    <div class="text-sm text-gray-900">{{ task.internship.title }}</div>
+                                    <div class="text-sm text-gray-500">{{ task.internship.company }}</div>
+                                    {% else %}
+                                    <span class="text-gray-500">No internship</span>
+                                    {% endif %}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="w-32 bg-gray-200 rounded-full h-2 mr-3">
+                                        <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
                                             <div class="bg-blue-600 h-2 rounded-full" style="width: {{ task.progress }}%"></div>
                                         </div>
-                                        <span class="text-sm text-gray-600">{{ task.progress }}%</span>
+                                        <span class="text-sm text-gray-700">{{ task.progress }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if task.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif task.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ task.status.replace('_', ' ')|title if task.status else 'Pending' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+                                        {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No due date' }}
+                                        {% if task.due_date and task.due_date.date() < today and task.status != 'completed' %}
+                                        <i class="fas fa-exclamation-triangle ml-2 text-red-500" title="Overdue"></i>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button onclick="viewTaskDetails({{ task.id }})" 
-                                            class="text-blue-600 hover:text-blue-900 mr-3">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button onclick="deleteTask({{ task.id }})" 
-                                            class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <div class="flex space-x-2">
+                                        <button onclick="updateTaskStatus({{ task.id }}, 'in_progress')" 
+                                                class="text-blue-600 hover:text-blue-900 transition duration-150"
+                                                title="Mark In Progress">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button onclick="updateTaskStatus({{ task.id }}, 'completed')" 
+                                                class="text-green-600 hover:text-green-900 transition duration-150"
+                                                title="Mark Completed">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button onclick="deleteTask({{ task.id }}, '{{ task.title }}')" 
+                                                class="text-red-600 hover:text-red-900 transition duration-150"
+                                                title="Delete Task">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -164,10 +229,13 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-8">
-                    <i class="fas fa-tasks text-gray-300 text-6xl mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900">No tasks created yet</h3>
-                    <p class="text-gray-500 mt-1">Create your first task to get started.</p>
+                <div class="text-center py-12">
+                    <i class="fas fa-tasks text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+                    <p class="text-gray-500 mb-6">Get started by creating your first task.</p>
+                    <button onclick="showCreateModal()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>Create New Task
+                    </button>
                 </div>
                 {% endif %}
             </div>
@@ -175,64 +243,68 @@
     </div>
 
     <!-- Create Task Modal -->
-    <div id="createTaskModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+    <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
             <div class="mt-3">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Task</h3>
-                
-                <form id="createTaskForm" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Title *</label>
-                        <input type="text" name="title" required 
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea name="description" rows="3" 
-                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Create New Task</h3>
+                    <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="createTaskForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Student *</label>
-                            <select name="student_id" required 
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Task Title *</label>
+                            <input type="text" id="createTitle" name="title" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="Enter task title">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Internship</label>
+                            <select id="createInternship" name="internship_id"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Select Internship (Optional)</option>
+                                {% for internship in internships %}
+                                <option value="{{ internship.id }}">{{ internship.title }} - {{ internship.company }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="createDescription" name="description" rows="3"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="Enter task description"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Assigned To *</label>
+                            <select id="createStudent" name="student_id" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="">Select Student</option>
                                 {% for student in students %}
-                                {% if student.role == 'student' %}
                                 <option value="{{ student.id }}">{{ student.full_name }} ({{ student.email }})</option>
-                                {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
-                        
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Internship (Optional)</label>
-                            <select name="internship_id" 
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="">Select Internship</option>
-                                {% for internship in internships %}
-                                <option value="{{ internship.id }}">{{ internship.title }}</option>
-                                {% endfor %}
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date *</label>
+                            <input type="date" id="createDueDate" name="due_date" required
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Due Date</label>
-                        <input type="date" name="due_date" 
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3 pt-4">
-                        <button type="button" onclick="closeCreateTaskModal()" 
-                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                            Cancel
+
+                    <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <button type="button" onclick="closeCreateModal()" 
+                                class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200">
+                            <i class="fas fa-times mr-2"></i>Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
-                            Create Task
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-plus mr-2"></i>Create Task
                         </button>
                     </div>
                 </form>
@@ -240,92 +312,199 @@
         </div>
     </div>
 
+    <!-- Debug Panel -->
+    <div class="fixed bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border">
+        <h3 class="font-bold mb-2 text-sm">Debug Tools</h3>
+        <div class="space-y-2">
+            <button onclick="checkAuth()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🔐 Check Auth
+            </button>
+            <button onclick="testTaskAPI()" class="bg-green-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🧪 Test API
+            </button>
+            <button onclick="refreshPage()" class="bg-gray-500 text-white px-3 py-1 rounded text-sm block w-full">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+
     <script>
-    function openCreateTaskModal() {
-        document.getElementById('createTaskModal').classList.remove('hidden');
-    }
-    
-    function closeCreateTaskModal() {
-        document.getElementById('createTaskModal').classList.add('hidden');
-    }
-    
-    async function updateTaskStatus(taskId, status) {
-        const formData = new FormData();
-        formData.append('status', status);
-        
-        try {
-            const response = await fetch(`/api/tasks/${taskId}/status`, {
-                method: 'PUT',
-                body: formData
-            });
+        // Modal Functions
+        function showCreateModal() {
+            document.getElementById('createModal').classList.remove('hidden');
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('createDueDate').min = today;
             
-            const result = await response.json();
-            
-            if (!result.success) {
-                alert('Error: ' + result.error);
-            }
-        } catch (error) {
-            alert('Error updating status: ' + error.message);
+            // Set default due date to 7 days from now
+            const defaultDueDate = new Date();
+            defaultDueDate.setDate(defaultDueDate.getDate() + 7);
+            document.getElementById('createDueDate').value = defaultDueDate.toISOString().split('T')[0];
         }
-    }
-    
-    document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        
-        try {
-            const response = await fetch('/api/tasks', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                alert('Task created successfully!');
-                closeCreateTaskModal();
-                location.reload();
-            } else {
-                alert('Error: ' + result.error);
-            }
-        } catch (error) {
-            alert('Error creating task: ' + error.message);
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+            document.getElementById('createTaskForm').reset();
         }
-    });
-    
-    function viewTaskDetails(taskId) {
-        alert('View task details for ID: ' + taskId);
-    }
-    
-    async function deleteTask(taskId) {
-        if (confirm('Are you sure you want to delete this task?')) {
+
+        // Search and Filter Functions
+        function searchTasks() {
+            alert('Search functionality will be implemented with backend API');
+            // This will be implemented when backend API is ready
+        }
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            location.reload();
+        }
+
+        // Task CRUD Operations
+        async function createTask() {
+            const formData = new FormData(document.getElementById('createTaskForm'));
+            
+            // Prepare form data for submission
+            const data = new URLSearchParams();
+            data.append('title', formData.get('title'));
+            data.append('description', formData.get('description'));
+            if (formData.get('internship_id')) {
+                data.append('internship_id', formData.get('internship_id'));
+            }
+            data.append('student_id', formData.get('student_id'));
+            data.append('due_date', formData.get('due_date'));
+
             try {
-                const response = await fetch(`/api/tasks/${taskId}`, {
-                    method: 'DELETE'
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    credentials: 'include',
+                    body: data
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    alert('Task deleted successfully!');
+                    alert('✅ Task created successfully!');
+                    closeCreateModal();
                     location.reload();
                 } else {
-                    alert('Error: ' + result.error);
+                    alert('❌ Failed to create task: ' + (result.error || 'Unknown error'));
                 }
             } catch (error) {
-                alert('Error deleting task: ' + error.message);
+                alert('❌ Failed to create task: ' + error.message);
             }
         }
-    }
-    
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const modal = document.getElementById('createTaskModal');
-        if (event.target === modal) {
-            closeCreateTaskModal();
+
+        async function updateTaskStatus(taskId, status) {
+            try {
+                const formData = new URLSearchParams();
+                formData.append('status', status);
+
+                const response = await fetch(`/api/tasks/${taskId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    credentials: 'include',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Task status updated successfully!');
+                    location.reload();
+                } else {
+                    alert('❌ Failed to update task: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Failed to update task: ' + error.message);
+            }
         }
-    }
+
+        async function deleteTask(taskId, taskTitle) {
+            if (!confirm(`⚠️ Are you sure you want to delete task "${taskTitle}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tasks/${taskId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ Task deleted successfully!');
+                    location.reload();
+                } else {
+                    alert('❌ Failed to delete task: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('❌ Failed to delete task: ' + error.message);
+            }
+        }
+
+        // Form Submission
+        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            createTask();
+        });
+
+        // Debug Functions
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/debug/user', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.authenticated) {
+                    alert('🔐 Authenticated as: ' + result.name + ' (' + result.role + ')');
+                } else {
+                    alert('🔐 Not authenticated: ' + result.error);
+                }
+            } catch (error) {
+                alert('🔐 Auth check error: ' + error.message);
+            }
+        }
+
+        async function testTaskAPI() {
+            try {
+                const response = await fetch('/api/tasks', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                alert('🧪 Test API Result: ' + JSON.stringify(result, null, 2));
+            } catch (error) {
+                alert('🧪 Test API Error: ' + error.message);
+            }
+        }
+
+        function refreshPage() {
+            location.reload();
+        }
+
+        // Event Listeners
+        document.getElementById('createModal').addEventListener('click', function(e) {
+            if (e.target.id === 'createModal') {
+                closeCreateModal();
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchTasks();
+            }
+        });
+
+        // Page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Task management page loaded');
+            console.log('Total tasks:', {{ tasks|length }});
+        });
     </script>
 </body>
 </html>

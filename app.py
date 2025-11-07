@@ -2,13 +2,14 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Form, UploadFile, 
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, aliased
 from typing import List
 import models
 import schemas
 from auth import get_current_active_user, create_access_token, get_current_user_from_cookie
 from database import SessionLocal, engine, get_db
 import crud
+import feedback_crud
 from password import verify_password
 from file_utils import save_profile_picture, delete_old_profile_picture
 import os
@@ -17,6 +18,8 @@ import asyncio
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
+from datetime import datetime, date
+
 
 # ===== EMAIL NOTIFICATION SYSTEM =====
 
@@ -173,6 +176,62 @@ class EmailTemplates:
         </body>
         </html>
         """
+    
+    @staticmethod
+    def feedback_received(student_name: str, mentor_name: str, internship_title: str, rating: float):
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: #FF9800; color: white; padding: 20px; text-align: center; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>New Feedback Received</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello {student_name},</h2>
+                    <p>Your mentor <strong>{mentor_name}</strong> has provided feedback for your internship at <strong>{internship_title}</strong>.</p>
+                    <p><strong>Rating:</strong> {rating}/5.0</p>
+                    <p>Please check your dashboard to view the detailed feedback.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+    
+    @staticmethod
+    def evaluation_received(student_name: str, admin_name: str, internship_title: str, score: float):
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: #607D8B; color: white; padding: 20px; text-align: center; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Evaluation Completed</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello {student_name},</h2>
+                    <p>Admin <strong>{admin_name}</strong> has completed your evaluation for <strong>{internship_title}</strong>.</p>
+                    <p><strong>Overall Score:</strong> {score}/10.0</p>
+                    <p>Please check your dashboard to view the detailed evaluation.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
 
 async def send_application_submitted_email(db: Session, student_id: int, internship_id: int):
     """Send email when student submits application"""
@@ -203,23 +262,31 @@ async def send_application_status_email(db: Session, application_id: int, new_st
         await email_service.send_email_async(application.student.email, subject, html_content)
 
 async def send_task_assignment_email(db: Session, task_id: int):
-    """Send email when task is assigned to student"""
-    task = db.query(models.Task)\
-        .join(models.User, models.Task.student_id == models.User.id)\
-        .join(models.User, models.Task.assigned_by == models.User.id)\
-        .filter(models.Task.id == task_id)\
-        .first()
-    
-    if task and task.student:
-        subject = f"New Task: {task.title}"
-        due_date = task.due_date.strftime("%Y-%m-%d") if task.due_date else "Not specified"
-        html_content = EmailTemplates.task_assigned(
-            task.student.full_name,
-            task.title,
-            due_date,
-            task.assigned_by_user.full_name
-        )
-        await email_service.send_email_async(task.student.email, subject, html_content)
+    """Send email when task is assigned to student - FIXED WITH ALIASES"""
+    try:
+        # Create aliases for the users table to avoid ambiguous column names
+        Student = aliased(models.User)
+        Assigner = aliased(models.User)
+        
+        task = db.query(models.Task)\
+            .join(Student, models.Task.student_id == Student.id)\
+            .join(Assigner, models.Task.assigned_by == Assigner.id)\
+            .filter(models.Task.id == task_id)\
+            .first()
+        
+        if task and task.student:
+            subject = f"New Task: {task.title}"
+            due_date = task.due_date.strftime("%Y-%m-%d") if task.due_date else "Not specified"
+            html_content = EmailTemplates.task_assigned(
+                task.student.full_name,
+                task.title,
+                due_date,
+                task.assigner.full_name
+            )
+            await email_service.send_email_async(task.student.email, subject, html_content)
+            print(f"✅ Task assignment email sent for task {task_id}")
+    except Exception as e:
+        print(f"❌ Error sending task assignment email: {e}")
 
 async def send_new_application_notification(db: Session, application_id: int):
     """Send email to mentor when new application is received"""
@@ -242,6 +309,44 @@ async def send_new_application_notification(db: Session, application_id: int):
             subject, 
             html_content
         )
+
+async def send_feedback_notification(db: Session, feedback_id: int):
+    """Send email when mentor provides feedback to student"""
+    feedback = db.query(models.MentorFeedback)\
+        .join(models.User, models.MentorFeedback.student_id == models.User.id)\
+        .join(models.User, models.MentorFeedback.mentor_id == models.User.id)\
+        .join(models.Internship, models.MentorFeedback.internship_id == models.Internship.id)\
+        .filter(models.MentorFeedback.id == feedback_id)\
+        .first()
+    
+    if feedback and feedback.student:
+        subject = f"New Feedback - {feedback.internship.title}"
+        html_content = EmailTemplates.feedback_received(
+            feedback.student.full_name,
+            feedback.mentor.full_name,
+            feedback.internship.title,
+            feedback.overall_rating or 0
+        )
+        await email_service.send_email_async(feedback.student.email, subject, html_content)
+
+async def send_evaluation_notification(db: Session, evaluation_id: int):
+    """Send email when admin completes evaluation"""
+    evaluation = db.query(models.Evaluation)\
+        .join(models.User, models.Evaluation.student_id == models.User.id)\
+        .join(models.User, models.Evaluation.admin_id == models.User.id)\
+        .join(models.Internship, models.Evaluation.internship_id == models.Internship.id)\
+        .filter(models.Evaluation.id == evaluation_id)\
+        .first()
+    
+    if evaluation and evaluation.student:
+        subject = f"Evaluation Completed - {evaluation.internship.title}"
+        html_content = EmailTemplates.evaluation_received(
+            evaluation.student.full_name,
+            evaluation.admin.full_name,
+            evaluation.internship.title,
+            evaluation.overall_score
+        )
+        await email_service.send_email_async(evaluation.student.email, subject, html_content)
 
 async def check_deadlines_and_send_reminders():
     """Check for upcoming deadlines and send reminder emails"""
@@ -344,20 +449,29 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        print(f"🎯 Dashboard access - User: {user.email}, Role: {user.role}")
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
         
-        if user.role == "student":
+        print(f"🎯 Dashboard access - User: {user.email}, Role: {user_role}")
+        
+        if user_role == "student":
             internships = crud.get_internships(db)
             applications = crud.get_applications_by_student(db, user.id)
             tasks = crud.get_tasks_by_student(db, user.id)
+            # Get feedback and evaluations for student
+            feedbacks = feedback_crud.get_mentor_feedbacks_by_student(db, user.id)
+            evaluations = feedback_crud.get_evaluations_by_student(db, user.id)
+            
             return templates.TemplateResponse("dashboard_student.html", {
                 "request": request,
                 "user": user,
                 "internships": internships,
                 "applications": applications,
-                "tasks": tasks
+                "tasks": tasks,
+                "feedbacks": feedbacks,
+                "evaluations": evaluations
             })
-        elif user.role == "admin":
+        elif user_role == "admin":
             internships = crud.get_internships(db)
             try:
                 stats = crud.get_system_stats(db)
@@ -379,20 +493,23 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
                 "internships": internships,
                 "stats": stats
             })
-        elif user.role == "mentor":
+        elif user_role == "mentor":
             internships = crud.get_internships(db)
             mentor_internships = crud.get_internships_by_mentor(db, user.id)
             mentor_applications = crud.get_applications_for_mentor(db, user.id)
+            # Get feedback given by mentor
+            feedbacks = feedback_crud.get_mentor_feedbacks_by_mentor(db, user.id)
             
             return templates.TemplateResponse("dashboard_mentor.html", {
                 "request": request,
                 "user": user,
                 "internships": internships,
                 "mentor_internships": mentor_internships,
-                "mentor_applications": mentor_applications
+                "mentor_applications": mentor_applications,
+                "feedbacks": feedbacks
             })
         else:
-            print(f"❌ Unknown role: {user.role}")
+            print(f"❌ Unknown role: {user_role}")
             return RedirectResponse("/login?error=Unknown user role")
             
     except Exception as e:
@@ -420,7 +537,10 @@ async def admin_users_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return RedirectResponse("/dashboard?error=Access denied")
         
         users = crud.get_all_users(db)
@@ -441,7 +561,10 @@ async def admin_internships_page(request: Request, db: Session = Depends(get_db)
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return RedirectResponse("/dashboard?error=Access denied")
         
         internships = db.query(models.Internship).all()
@@ -463,7 +586,10 @@ async def admin_system_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return RedirectResponse("/dashboard?error=Access denied")
         
         stats = crud.get_system_stats(db)
@@ -483,7 +609,10 @@ async def admin_applications_page(request: Request, db: Session = Depends(get_db
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return RedirectResponse("/dashboard?error=Access denied")
         
         # Get all applications with student and internship details
@@ -520,7 +649,10 @@ async def update_application_status_admin(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Only admins can update application status"}
         
         form_data = await request.form()
@@ -575,7 +707,10 @@ async def get_applications_admin(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Access denied"}
         
         query = db.query(models.InternshipApplication)\
@@ -626,7 +761,10 @@ async def mentor_internships_page(request: Request, db: Session = Depends(get_db
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "mentor":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
             return RedirectResponse("/dashboard?error=Access denied")
         
         mentor_internships = crud.get_internships_by_mentor(db, user.id)
@@ -647,7 +785,10 @@ async def mentor_applications_page(request: Request, db: Session = Depends(get_d
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "mentor":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
             return RedirectResponse("/dashboard?error=Access denied")
         
         applications = db.query(models.InternshipApplication)\
@@ -671,7 +812,10 @@ async def internships_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return RedirectResponse("/dashboard?error=Access denied")
         
         internships = crud.get_internships(db)
@@ -689,7 +833,10 @@ async def my_applications_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return RedirectResponse("/dashboard?error=Access denied")
         
         applications = crud.get_student_applications_with_details(db, user.id)
@@ -793,7 +940,10 @@ async def create_internship_admin(
         # Get user from cookie instead of Bearer token
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Not enough permissions"}
         
         form_data = await request.form()
@@ -831,7 +981,10 @@ async def update_internship_admin(
         # Get user from cookie instead of Bearer token
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Not enough permissions"}
         
         form_data = await request.form()
@@ -864,7 +1017,10 @@ async def delete_internship_admin(
         # Get user from cookie instead of Bearer token
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Not enough permissions"}
         
         print(f"DELETE INTERNSHIP {internship_id}")
@@ -908,7 +1064,10 @@ async def create_application(
         # Get user from cookie instead of Bearer token
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return {"success": False, "error": "Only students can apply for internships"}
         
         form_data = await request.form()
@@ -959,7 +1118,10 @@ async def delete_application(
         # Get user from cookie instead of Bearer token
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return {"success": False, "error": "Only students can withdraw applications"}
         
         application = db.query(models.InternshipApplication).filter(
@@ -991,7 +1153,10 @@ async def update_application_status(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "mentor":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
             return {"success": False, "error": "Only mentors can update application status"}
         
         form_data = await request.form()
@@ -1036,7 +1201,10 @@ async def create_feedback(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "mentor":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
             return {"success": False, "error": "Only mentors can provide feedback"}
         
         form_data = await request.form()
@@ -1069,8 +1237,11 @@ async def get_student_feedback(
     try:
         user = await get_current_user_from_cookie(request, db)
         
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
         # Students can only see their own feedback, mentors/admins can see all
-        if user.role == "student" and user.id != student_id:
+        if user_role == "student" and user.id != student_id:
             return {"success": False, "error": "Access denied"}
         
         feedback = db.query(models.Feedback)\
@@ -1079,6 +1250,317 @@ async def get_student_feedback(
         
         return {"success": True, "feedback": feedback}
         
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+# ===== ENHANCED FEEDBACK & EVALUATION ROUTES =====
+
+# Mentor Feedback Routes
+@app.get("/mentor/feedback", response_class=HTMLResponse)
+async def mentor_feedback_page(request: Request, db: Session = Depends(get_db)):
+    """Mentor feedback management page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        feedbacks = feedback_crud.get_mentor_feedbacks_by_mentor(db, user.id)
+        applications_needing_feedback = feedback_crud.get_applications_needing_feedback(db, user.id)
+        
+        return templates.TemplateResponse("mentor_feedback.html", {
+            "request": request,
+            "user": user,
+            "feedbacks": feedbacks,
+            "applications_needing_feedback": applications_needing_feedback
+        })
+    except Exception as e:
+        print(f"Mentor feedback page error: {e}")
+        return RedirectResponse("/login")
+
+@app.get("/mentor/feedback/create/{application_id}", response_class=HTMLResponse)
+async def create_feedback_page(request: Request, application_id: int, db: Session = Depends(get_db)):
+    """Create feedback page for mentor"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        # Verify application exists and belongs to mentor
+        application = db.query(models.InternshipApplication)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .filter(
+                models.InternshipApplication.id == application_id,
+                models.Internship.created_by == user.id
+            )\
+            .first()
+        
+        if not application:
+            return RedirectResponse("/mentor/feedback?error=Application not found")
+        
+        # Check if feedback already exists
+        existing_feedback = feedback_crud.get_mentor_feedback_by_application(db, application_id)
+        
+        return templates.TemplateResponse("create_feedback.html", {
+            "request": request,
+            "user": user,
+            "application": application,
+            "existing_feedback": existing_feedback
+        })
+    except Exception as e:
+        print(f"Create feedback page error: {e}")
+        return RedirectResponse("/mentor/feedback")
+
+@app.post("/api/mentor/feedback")
+async def create_mentor_feedback(
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Create enhanced mentor feedback"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
+            return {"success": False, "error": "Only mentors can provide feedback"}
+        
+        form_data = await request.form()
+        
+        # Verify application belongs to mentor
+        application = db.query(models.InternshipApplication)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .filter(
+                models.InternshipApplication.id == int(form_data.get('application_id')),
+                models.Internship.created_by == user.id
+            )\
+            .first()
+        
+        if not application:
+            return {"success": False, "error": "Application not found or access denied"}
+        
+        feedback_data = schemas.MentorFeedbackCreate(
+            application_id=int(form_data.get('application_id')),
+            student_id=application.student_id,
+            internship_id=application.internship_id,
+            technical_skills=form_data.get('technical_skills'),
+            communication_skills=form_data.get('communication_skills'),
+            teamwork=form_data.get('teamwork'),
+            problem_solving=form_data.get('problem_solving'),
+            overall_feedback=form_data.get('overall_feedback'),
+            technical_rating=int(form_data.get('technical_rating')) if form_data.get('technical_rating') else None,
+            communication_rating=int(form_data.get('communication_rating')) if form_data.get('communication_rating') else None,
+            teamwork_rating=int(form_data.get('teamwork_rating')) if form_data.get('teamwork_rating') else None,
+            problem_solving_rating=int(form_data.get('problem_solving_rating')) if form_data.get('problem_solving_rating') else None
+        )
+        
+        feedback = feedback_crud.create_mentor_feedback(db, feedback_data, user.id)
+        
+        # Send notification email
+        background_tasks.add_task(send_feedback_notification, db, feedback.id)
+        
+        return {"success": True, "message": "Feedback submitted successfully", "feedback_id": feedback.id}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+# Admin Evaluation Routes
+@app.get("/admin/evaluations", response_class=HTMLResponse)
+async def admin_evaluations_page(request: Request, db: Session = Depends(get_db)):
+    """Admin evaluations management page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        evaluations = feedback_crud.get_evaluations_by_admin(db, user.id)
+        applications_needing_evaluation = feedback_crud.get_applications_needing_evaluation(db)
+        
+        return templates.TemplateResponse("admin_evaluations.html", {
+            "request": request,
+            "user": user,
+            "evaluations": evaluations,
+            "applications_needing_evaluation": applications_needing_evaluation
+        })
+    except Exception as e:
+        print(f"Admin evaluations page error: {e}")
+        return RedirectResponse("/login")
+
+@app.get("/admin/evaluation/create/{application_id}", response_class=HTMLResponse)
+async def create_evaluation_page(request: Request, application_id: int, db: Session = Depends(get_db)):
+    """Create evaluation page for admin"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        application = db.query(models.InternshipApplication)\
+            .join(models.User, models.InternshipApplication.student_id == models.User.id)\
+            .join(models.Internship, models.InternshipApplication.internship_id == models.Internship.id)\
+            .filter(models.InternshipApplication.id == application_id)\
+            .first()
+        
+        if not application:
+            return RedirectResponse("/admin/evaluations?error=Application not found")
+        
+        # Check if evaluation already exists
+        existing_evaluation = feedback_crud.get_evaluation_by_application(db, application_id)
+        
+        return templates.TemplateResponse("create_evaluation.html", {
+            "request": request,
+            "user": user,
+            "application": application,
+            "existing_evaluation": existing_evaluation
+        })
+    except Exception as e:
+        print(f"Create evaluation page error: {e}")
+        return RedirectResponse("/admin/evaluations")
+
+@app.post("/api/admin/evaluations")
+async def create_evaluation(
+    background_tasks: BackgroundTasks,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Create student evaluation"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
+            return {"success": False, "error": "Only admins can create evaluations"}
+        
+        form_data = await request.form()
+        
+        application = db.query(models.InternshipApplication)\
+            .filter(models.InternshipApplication.id == int(form_data.get('application_id')))\
+            .first()
+        
+        if not application:
+            return {"success": False, "error": "Application not found"}
+        
+        evaluation_data = schemas.EvaluationCreate(
+            application_id=int(form_data.get('application_id')),
+            student_id=application.student_id,
+            internship_id=application.internship_id,
+            technical_competence=int(form_data.get('technical_competence')),
+            task_completion=int(form_data.get('task_completion')),
+            communication_skills=int(form_data.get('communication_skills')),
+            professionalism=int(form_data.get('professionalism')),
+            initiative=int(form_data.get('initiative')),
+            strengths=form_data.get('strengths'),
+            areas_for_improvement=form_data.get('areas_for_improvement'),
+            final_comments=form_data.get('final_comments')
+        )
+        
+        evaluation = feedback_crud.create_evaluation(db, evaluation_data, user.id)
+        
+        # Send notification email
+        background_tasks.add_task(send_evaluation_notification, db, evaluation.id)
+        
+        return {"success": True, "message": "Evaluation created successfully", "evaluation_id": evaluation.id}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+# Student Feedback & Evaluation View
+@app.get("/student/feedback", response_class=HTMLResponse)
+async def student_feedback_page(request: Request, db: Session = Depends(get_db)):
+    """Student feedback and evaluation viewing page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        feedbacks = feedback_crud.get_mentor_feedbacks_by_student(db, user.id)
+        evaluations = feedback_crud.get_evaluations_by_student(db, user.id)
+        stats = feedback_crud.get_student_feedback_stats(db, user.id)
+        
+        return templates.TemplateResponse("student_feedback.html", {
+            "request": request,
+            "user": user,
+            "feedbacks": feedbacks,
+            "evaluations": evaluations,
+            "stats": stats
+        })
+    except Exception as e:
+        print(f"Student feedback page error: {e}")
+        return RedirectResponse("/login")
+
+# API Routes for Enhanced Feedback & Evaluation
+@app.get("/api/mentor/feedback")
+async def get_mentor_feedbacks_api(request: Request, db: Session = Depends(get_db)):
+    """Get mentor's feedbacks (API)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
+            return {"success": False, "error": "Access denied"}
+        
+        feedbacks = feedback_crud.get_mentor_feedbacks_by_mentor(db, user.id)
+        return {"success": True, "feedbacks": feedbacks}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/admin/evaluations")
+async def get_admin_evaluations_api(request: Request, db: Session = Depends(get_db)):
+    """Get admin's evaluations (API)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
+            return {"success": False, "error": "Access denied"}
+        
+        evaluations = feedback_crud.get_evaluations_by_admin(db, user.id)
+        return {"success": True, "evaluations": evaluations}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@app.get("/api/student/feedback-stats")
+async def get_student_feedback_stats_api(request: Request, db: Session = Depends(get_db)):
+    """Get student feedback statistics (API)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
+            return {"success": False, "error": "Access denied"}
+        
+        stats = feedback_crud.get_student_feedback_stats(db, user.id)
+        return {"success": True, "stats": stats}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
@@ -1093,7 +1575,10 @@ async def update_task_progress(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return {"success": False, "error": "Only students can update task progress"}
         
         form_data = await request.form()
@@ -1121,7 +1606,10 @@ async def generate_report(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role not in ["admin", "mentor"]:
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role not in ["admin", "mentor"]:
             return {"success": False, "error": "Access denied"}
         
         form_data = await request.form()
@@ -1175,7 +1663,10 @@ async def get_all_users_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             raise HTTPException(status_code=403, detail="Not enough permissions")
         
         return crud.get_all_users(db, skip=skip, limit=limit)
@@ -1192,7 +1683,10 @@ async def get_user_admin(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             raise HTTPException(status_code=403, detail="Not enough permissions")
         
         user_data = crud.get_user_by_id(db, user_id)
@@ -1212,7 +1706,10 @@ async def update_user_admin(
     try:
         current_user = await get_current_user_from_cookie(request, db)
         
-        if current_user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = current_user.role.value if hasattr(current_user.role, 'value') else current_user.role
+        
+        if user_role != "admin":
             raise HTTPException(status_code=403, detail="Not enough permissions")
         
         # Get the update data from request body
@@ -1245,7 +1742,10 @@ async def delete_user_admin(
     try:
         current_user = await get_current_user_from_cookie(request, db)
         
-        if current_user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = current_user.role.value if hasattr(current_user.role, 'value') else current_user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Not enough permissions"}
         
         if user_id == current_user.id:
@@ -1273,6 +1773,18 @@ async def delete_user_admin(
         db.query(models.Feedback).filter(
             (models.Feedback.student_id == user_id) | 
             (models.Feedback.mentor_id == user_id)
+        ).delete()
+        
+        # Delete enhanced feedback
+        db.query(models.MentorFeedback).filter(
+            (models.MentorFeedback.student_id == user_id) | 
+            (models.MentorFeedback.mentor_id == user_id)
+        ).delete()
+        
+        # Delete evaluations
+        db.query(models.Evaluation).filter(
+            (models.Evaluation.student_id == user_id) | 
+            (models.Evaluation.admin_id == user_id)
         ).delete()
         
         # Delete internships created by user
@@ -1307,7 +1819,10 @@ async def get_system_stats_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             raise HTTPException(status_code=403, detail="Not enough permissions")
         
         return crud.get_system_stats(db)
@@ -1324,7 +1839,11 @@ async def search_users(
     """Search users by name or email"""
     try:
         user = await get_current_user_from_cookie(request, db)
-        if user.role != "admin":
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Access denied"}
         
         users = db.query(models.User).filter(
@@ -1344,7 +1863,11 @@ async def get_recent_activity(
     """Get recent system activity"""
     try:
         user = await get_current_user_from_cookie(request, db)
-        if user.role != "admin":
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return {"success": False, "error": "Access denied"}
         
         # Get recent users (last 5)
@@ -1386,7 +1909,7 @@ async def debug_user(request: Request, db: Session = Depends(get_db)):
         return {
             "user_id": user.id,
             "email": user.email,
-            "role": user.role,
+            "role": user.role.value if hasattr(user.role, 'value') else user.role,
             "name": user.full_name,
             "authenticated": True
         }
@@ -1420,7 +1943,10 @@ async def admin_dashboard_page(request: Request, db: Session = Depends(get_db)):
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "admin":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "admin":
             return RedirectResponse("/dashboard?error=Access denied")
         
         # Get statistics
@@ -1456,33 +1982,195 @@ async def admin_dashboard_page(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/tasks")
 async def tasks_page(request: Request, db: Session = Depends(get_db)):
-    """Tasks page for students"""
+    """Tasks page for all users - FIXED WITH STATS FOR MENTORS"""
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role == "student":
+        # If user is a RedirectResponse (not authenticated), return it directly
+        if isinstance(user, RedirectResponse):
+            return user
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        print(f"🎯 Tasks page access - User: {user.email}, Role: {user_role}")
+        
+        if user_role == "student":
             tasks = crud.get_tasks_by_student(db, user.id)
             return templates.TemplateResponse("tasks_student.html", {
                 "request": request,
-                "user": user,
+                "user": user,  # This should match your template variable
                 "tasks": tasks
             })
-        elif user.role in ["admin", "mentor"]:
-            tasks = crud.get_all_tasks(db)
+        elif user_role in ["admin", "mentor"]:
+            # Get tasks based on user role
+            if user_role == "admin":
+                tasks = crud.get_all_tasks(db)
+            else:  # mentor
+                tasks = db.query(models.Task)\
+                    .join(models.Internship, models.Task.internship_id == models.Internship.id)\
+                    .filter(models.Internship.created_by == user.id)\
+                    .all()
+            
             students = crud.get_all_users(db)
             internships = crud.get_internships(db)
+            
+            # Calculate stats for tasks
+            total_tasks = len(tasks)
+            completed_tasks = len([t for t in tasks if t.status == 'completed'])
+            pending_tasks = len([t for t in tasks if t.status in ['pending', 'in_progress']])
+            overdue_tasks = len([t for t in tasks if t.due_date and t.due_date.date() < date.today() and t.status != 'completed'])
+            
+            stats = {
+                "total_tasks": total_tasks,
+                "completed_tasks": completed_tasks,
+                "pending_tasks": pending_tasks,
+                "overdue_tasks": overdue_tasks
+            }
+            
             return templates.TemplateResponse("tasks_management.html", {
                 "request": request,
-                "user": user,
+                "current_user": user,  # Changed to match template
                 "tasks": tasks,
                 "students": students,
-                "internships": internships
+                "internships": internships,
+                "stats": stats,  # Add stats for mentors too
+                "today": date.today()
             })
         else:
+            print(f"❌ Unknown role for tasks: {user_role}")
             return RedirectResponse("/dashboard?error=Access denied")
             
     except Exception as e:
+        print(f"💥 Tasks page error: {e}")
+        import traceback
+        traceback.print_exc()
         return RedirectResponse("/login")
+
+@app.get("/admin/tasks", response_class=HTMLResponse)
+async def admin_tasks_page(request: Request, db: Session = Depends(get_db)):
+    """Admin tasks management page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if user.role != "admin":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        # Get all tasks with student and internship details
+        tasks = db.query(models.Task).join(models.User, models.Task.student_id == models.User.id)\
+                                    .join(models.Internship, models.Task.internship_id == models.Internship.id)\
+                                    .all()
+        
+        # Get all students for assignment
+        students = db.query(models.User).filter(models.User.role == "student").all()
+        
+        # Get all internships
+        internships = db.query(models.Internship).all()
+        
+        # Calculate stats - FIXED: Changed t.due_date < date.today() to t.due_date.date() < date.today()
+        total_tasks = len(tasks)
+        completed_tasks = len([t for t in tasks if t.status == 'completed'])
+        pending_tasks = len([t for t in tasks if t.status in ['pending', 'in_progress']])
+        overdue_tasks = len([t for t in tasks if t.due_date and t.due_date.date() < date.today() and t.status != 'completed'])  # FIXED LINE
+        
+        stats = {
+            "total_tasks": total_tasks,
+            "completed_tasks": completed_tasks,
+            "pending_tasks": pending_tasks,
+            "overdue_tasks": overdue_tasks
+        }
+        
+        return templates.TemplateResponse("tasks_management.html", {
+            "request": request,
+            "current_user": user,  # FIXED: Changed from "user" to "current_user"
+            "tasks": tasks,
+            "students": students,
+            "internships": internships,
+            "stats": stats,
+            "today": date.today()  # Add today for overdue calculations
+        })
+    except Exception as e:
+        print(f"💥 Tasks page error: {e}")
+        import traceback
+        traceback.print_exc()
+        return RedirectResponse("/login")
+
+@app.get("/mentor/tasks", response_class=HTMLResponse)
+async def mentor_tasks_page(request: Request, db: Session = Depends(get_db)):
+    """Mentor tasks management page"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "mentor":
+            return RedirectResponse("/dashboard?error=Access denied")
+        
+        # Get tasks for mentor's internships only
+        tasks = db.query(models.Task)\
+            .join(models.Internship, models.Task.internship_id == models.Internship.id)\
+            .filter(models.Internship.created_by == user.id)\
+            .all()
+        
+        # Get students for assignment (all students)
+        students = db.query(models.User).filter(models.User.role == "student").all()
+        
+        # Get mentor's internships only
+        internships = crud.get_internships_by_mentor(db, user.id)
+        
+        # Calculate stats for mentor's tasks
+        total_tasks = len(tasks)
+        completed_tasks = len([t for t in tasks if t.status == 'completed'])
+        pending_tasks = len([t for t in tasks if t.status in ['pending', 'in_progress']])
+        overdue_tasks = len([t for t in tasks if t.due_date and t.due_date.date() < date.today() and t.status != 'completed'])
+        
+        stats = {
+            "total_tasks": total_tasks,
+            "completed_tasks": completed_tasks,
+            "pending_tasks": pending_tasks,
+            "overdue_tasks": overdue_tasks
+        }
+        
+        return templates.TemplateResponse("tasks_management.html", {
+            "request": request,
+            "current_user": user,
+            "tasks": tasks,
+            "students": students,
+            "internships": internships,
+            "stats": stats,
+            "today": date.today()
+        })
+    except Exception as e:
+        print(f"💥 Mentor tasks page error: {e}")
+        import traceback
+        traceback.print_exc()
+        return RedirectResponse("/login")
+
+@app.get("/debug/auth-details")
+async def debug_auth_details(request: Request, db: Session = Depends(get_db)):
+    """Debug authentication details"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        if isinstance(user, RedirectResponse):
+            return {
+                "status": "redirected",
+                "redirect_url": user.headers.get("location"),
+                "status_code": user.status_code,
+                "cookies": dict(request.cookies)
+            }
+        
+        return {
+            "status": "authenticated",
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role.value if hasattr(user.role, 'value') else user.role,
+            "role_type": type(user.role).__name__,
+            "role_raw": str(user.role)
+        }
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
 
 @app.post("/api/tasks")
 async def create_task_api(
@@ -1494,7 +2182,10 @@ async def create_task_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role not in ["admin", "mentor"]:
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role not in ["admin", "mentor"]:
             return {"success": False, "error": "Only admins and mentors can create tasks"}
         
         form_data = await request.form()
@@ -1512,6 +2203,15 @@ async def create_task_api(
         # Convert string IDs to integers (they come as strings from form)
         internship_id = form_data.get('internship_id')
         student_id = form_data.get('student_id')
+        
+        # For mentors, verify they own the internship
+        if user_role == "mentor" and internship_id:
+            internship = db.query(models.Internship).filter(
+                models.Internship.id == int(internship_id),
+                models.Internship.created_by == user.id
+            ).first()
+            if not internship:
+                return {"success": False, "error": "You can only create tasks for your own internships"}
         
         task = models.Task(
             title=form_data.get('title'),
@@ -1549,7 +2249,10 @@ async def update_task_progress_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role != "student":
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role != "student":
             return {"success": False, "error": "Only students can update task progress"}
         
         form_data = await request.form()
@@ -1592,7 +2295,10 @@ async def update_task_status_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role not in ["admin", "mentor"]:
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role not in ["admin", "mentor"]:
             return {"success": False, "error": "Access denied"}
         
         form_data = await request.form()
@@ -1602,6 +2308,16 @@ async def update_task_status_api(
             return {"success": False, "error": "Invalid status"}
         
         task = db.query(models.Task).filter(models.Task.id == task_id).first()
+        
+        # For mentors, verify they own the internship associated with the task
+        if user_role == "mentor" and task.internship_id:
+            internship = db.query(models.Internship).filter(
+                models.Internship.id == task.internship_id,
+                models.Internship.created_by == user.id
+            ).first()
+            if not internship:
+                return {"success": False, "error": "You can only update tasks for your own internships"}
+        
         if not task:
             return {"success": False, "error": "Task not found"}
         
@@ -1609,6 +2325,45 @@ async def update_task_status_api(
         db.commit()
         
         return {"success": True, "message": "Task status updated successfully"}
+        
+    except Exception as e:
+        db.rollback()
+        return {"success": False, "error": str(e)}
+
+@app.delete("/api/tasks/{task_id}")
+async def delete_task_api(
+    task_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    """Delete task (admin/mentor only)"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role not in ["admin", "mentor"]:
+            return {"success": False, "error": "Access denied"}
+        
+        task = db.query(models.Task).filter(models.Task.id == task_id).first()
+        
+        if not task:
+            return {"success": False, "error": "Task not found"}
+        
+        # For mentors, verify they own the internship associated with the task
+        if user_role == "mentor" and task.internship_id:
+            internship = db.query(models.Internship).filter(
+                models.Internship.id == task.internship_id,
+                models.Internship.created_by == user.id
+            ).first()
+            if not internship:
+                return {"success": False, "error": "You can only delete tasks for your own internships"}
+        
+        db.delete(task)
+        db.commit()
+        
+        return {"success": True, "message": "Task deleted successfully"}
         
     except Exception as e:
         db.rollback()
@@ -1624,8 +2379,11 @@ async def get_student_tasks_api(
     try:
         user = await get_current_user_from_cookie(request, db)
         
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
         # Students can only see their own tasks, admins/mentors can see all
-        if user.role == "student" and user.id != student_id:
+        if user_role == "student" and user.id != student_id:
             return {"success": False, "error": "Access denied"}
         
         tasks = crud.get_tasks_by_student(db, student_id)
@@ -1633,7 +2391,7 @@ async def get_student_tasks_api(
         
     except Exception as e:
         return {"success": False, "error": str(e)}
-    
+
 # ===== DEBUG ROUTES =====
 @app.get("/debug/current-user")
 async def debug_current_user(request: Request, db: Session = Depends(get_db)):
@@ -1643,7 +2401,7 @@ async def debug_current_user(request: Request, db: Session = Depends(get_db)):
         return {
             "user_id": user.id,
             "email": user.email,
-            "role": user.role,
+            "role": user.role.value if hasattr(user.role, 'value') else user.role,
             "authenticated": True
         }
     except Exception as e:
@@ -1681,7 +2439,10 @@ async def debug_test_task_creation(request: Request, db: Session = Depends(get_d
     try:
         user = await get_current_user_from_cookie(request, db)
         
-        if user.role not in ["admin", "mentor"]:
+        # Extract role value if it's an enum
+        user_role = user.role.value if hasattr(user.role, 'value') else user.role
+        
+        if user_role not in ["admin", "mentor"]:
             return {"success": False, "error": "Not authorized"}
         
         # Create a test task
@@ -1748,6 +2509,227 @@ async def startup_event():
     """Start background tasks on startup"""
     asyncio.create_task(start_background_tasks())
     print("🚀 Email notification system started!")
+
+@app.get("/debug/cookies")
+async def debug_cookies(request: Request):
+    """Debug cookies"""
+    cookies = request.cookies
+    return {
+        "cookies": dict(cookies),
+        "has_access_token": "access_token" in cookies,
+        "access_token_value": cookies.get("access_token", "NOT_FOUND")[:50] + "..." if "access_token" in cookies else "NOT_FOUND"
+    }
+
+@app.get("/debug/auth-test")
+async def debug_auth_test(request: Request, db: Session = Depends(get_db)):
+    """Test authentication directly"""
+    try:
+        user = await get_current_user_from_cookie(request, db)
+        return {
+            "status": "authenticated",
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role.value if hasattr(user.role, 'value') else user.role
+        }
+    except Exception as e:
+        return {
+            "status": "not_authenticated", 
+            "error": str(e),
+            "error_type": type(e).__name__
+        }
+    
+# Add these routes with your other route definitions
+
+@app.get("/certificates", response_class=HTMLResponse)
+async def certificates(request: Request):
+    """Certificates page for students"""
+    try:
+        print("🎯 Certificates page accessed")
+        
+        # Check if user is logged in
+        if 'user_id' not in request.session:
+            return RedirectResponse(url="/login")
+        
+        user_id = request.session['user_id']
+        user_role = request.session.get('role')
+        
+        print(f"🎯 User accessing certificates: {user_id}, Role: {user_role}")
+        
+        if user_role != 'student':
+            # Return a simple error page
+            return HTMLResponse("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Access Denied</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+            </head>
+            <body class="bg-gray-100">
+                <nav class="bg-blue-600 text-white p-4">
+                    <div class="container mx-auto">
+                        <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Back to Dashboard</a>
+                    </div>
+                </nav>
+                <div class="container mx-auto mt-8 p-4">
+                    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                        <h1 class="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+                        <p class="text-gray-600 mb-4">Only students can access certificates.</p>
+                        <a href="/dashboard" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                            Return to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """)
+        
+        # Simple certificates page
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>My Certificates</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-gray-100">
+            <nav class="bg-blue-600 text-white p-4">
+                <div class="container mx-auto flex justify-between items-center">
+                    <h1 class="text-xl font-bold">Student Dashboard</h1>
+                    <div class="flex space-x-4">
+                        <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                        <a href="/certificates" class="hover:bg-blue-700 px-3 py-2 rounded">Certificates</a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container mx-auto mt-8 p-4">
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">My Certificates</h1>
+                    <p class="text-gray-600">Download certificates for your completed internships</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Sample Certificate 1 -->
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Web Development Intern</h3>
+                            <i class="fas fa-award text-purple-500 text-xl"></i>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-building mr-2"></i>
+                                Tech Corp
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-calendar mr-2"></i>
+                                Completed: 2024-01-15
+                            </p>
+                        </div>
+                        
+                        <a href="/certificate/download/1" 
+                           class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition block text-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Certificate
+                        </a>
+                    </div>
+                    
+                    <!-- Sample Certificate 2 -->
+                    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Data Science Intern</h3>
+                            <i class="fas fa-award text-purple-500 text-xl"></i>
+                        </div>
+                        
+                        <div class="space-y-2 mb-4">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-building mr-2"></i>
+                                Data Solutions Inc
+                            </p>
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-calendar mr-2"></i>
+                                Completed: 2024-01-10
+                            </p>
+                        </div>
+                        
+                        <a href="/certificate/download/2" 
+                           class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-md transition block text-center">
+                            <i class="fas fa-download mr-2"></i>
+                            Download Certificate
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Success Message -->
+                <div class="mt-8 bg-green-50 border-l-4 border-green-500 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                <strong>Success!</strong> Certificates page is now working. 
+                                You can click "Download Certificate" to test the download feature.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        return HTMLResponse(html_content)
+        
+    except Exception as e:
+        print(f"❌ Error in certificates route: {e}")
+        return HTMLResponse(f"Error: {str(e)}", status_code=500)
+
+@app.get("/certificate/download/{internship_id}")
+async def download_certificate(internship_id: int, request: Request):
+    """Download certificate for a specific internship"""
+    try:
+        print(f"🎯 Download certificate requested for internship: {internship_id}")
+        
+        # Check if user is logged in
+        if 'user_id' not in request.session:
+            return RedirectResponse(url="/login")
+        
+        user_id = request.session['user_id']
+        user_role = request.session.get('role')
+        
+        if user_role != 'student':
+            return HTMLResponse("Access denied", status_code=403)
+        
+        # Create certificate content
+        certificate_content = f"""
+INTERNSHIP COMPLETION CERTIFICATE
+
+This certifies that
+Student #{user_id}
+has successfully completed the internship program
+
+Internship ID: {internship_id}
+Completion Date: {datetime.now().strftime('%Y-%m-%d')}
+
+Congratulations on your achievement!
+
+InternShip Management System
+        """
+        
+        # Return as downloadable file
+        from fastapi.responses import Response
+        return Response(
+            content=certificate_content,
+            media_type="text/plain",
+            headers={
+                "Content-Disposition": f"attachment; filename=certificate_{internship_id}.txt"
+            }
+        )
+        
+    except Exception as e:
+        print(f"❌ Error downloading certificate: {e}")
+        return HTMLResponse(f"Error downloading certificate: {str(e)}", status_code=500)
 
 if __name__ == "__main__":
     import uvicorn

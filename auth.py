@@ -54,14 +54,11 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     return user
 
 async def get_current_user_from_cookie(request: Request, db: Session = Depends(get_db)):
-    """Get current user from cookie - FIXED VERSION"""
+    """Get current user from cookie - FIXED VERSION WITH PROPER REDIRECTS"""
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            detail="Not authenticated",
-            headers={"Location": "/login"}
-        )
+        # Return RedirectResponse directly instead of raising exception
+        return RedirectResponse(url="/login", status_code=302)
     
     # Remove "Bearer " prefix if present
     if token.startswith("Bearer "):
@@ -71,38 +68,23 @@ async def get_current_user_from_cookie(request: Request, db: Session = Depends(g
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         email: str = payload.get("sub")
         if email is None:
-            raise HTTPException(
-                status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-                detail="Invalid token",
-                headers={"Location": "/login"}
-            )
+            # Return RedirectResponse directly
+            return RedirectResponse(url="/login", status_code=302)
     except jwt.ExpiredSignatureError:
         # Clear expired token and redirect to login
-        response = RedirectResponse(url="/login")
+        response = RedirectResponse(url="/login", status_code=302)
         response.delete_cookie("access_token")
-        raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            detail="Token has expired",
-            headers={"Location": "/login"}
-        )
+        return response
     except jwt.JWTError as e:
         logger.error(f"JWT Error in cookie auth: {e}")
         # Clear invalid token and redirect to login
-        response = RedirectResponse(url="/login")
+        response = RedirectResponse(url="/login", status_code=302)
         response.delete_cookie("access_token")
-        raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            detail="Invalid token",
-            headers={"Location": "/login"}
-        )
+        return response
     
     user = crud.get_user_by_email(db, email=email)
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_307_TEMPORARY_REDIRECT,
-            detail="User not found",
-            headers={"Location": "/login"}
-        )
+        return RedirectResponse(url="/login", status_code=302)
     return user
 
 async def get_current_user_optional(request: Request, db: Session = Depends(get_db)):
@@ -141,7 +123,11 @@ async def get_current_active_user(current_user = Depends(get_current_user)):
     return current_user
 
 async def get_current_active_user_from_cookie(current_user = Depends(get_current_user_from_cookie)):
-    """Get current active user from cookie"""
+    """Get current active user from cookie - FIXED VERSION"""
+    # Handle the case where current_user might be a RedirectResponse
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+    
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -159,7 +145,7 @@ def create_login_response(user, db: Session):
     # Set cookie with longer expiration
     response.set_cookie(
         key="access_token",
-        value=access_token,
+        value=f"Bearer {access_token}",
         httponly=True,
         max_age=7 * 24 * 60 * 60,  # 7 days in seconds
         expires=7 * 24 * 60 * 60,   # 7 days in seconds
@@ -194,7 +180,14 @@ def verify_token(token: str) -> Optional[dict]:
 # Role-based access control
 async def require_role(required_role: str, user = Depends(get_current_user_from_cookie)):
     """Check if user has required role"""
-    if user.role.value != required_role:
+    # Handle the case where user might be a RedirectResponse
+    if isinstance(user, RedirectResponse):
+        return user
+    
+    # Extract role value if it's an enum, otherwise use as is
+    user_role = user.role.value if hasattr(user.role, 'value') else user.role
+    
+    if user_role != required_role:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Requires {required_role} role"

@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Add this in the head section of base.html -->
-<link href="/static/css/styles.css" rel="stylesheet">
+    <link href="/static/css/styles.css" rel="stylesheet">
 </head>
 
 <body class="bg-gray-50">
@@ -27,6 +27,55 @@
                     <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded transition">
                         <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
                     </a>
+                    
+                    <!-- Role Specific Navigation -->
+                    <div id="roleSpecificNav" class="hidden flex items-center space-x-4">
+                        <!-- Admin Links -->
+                        <div id="adminNav" class="hidden">
+                            <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-users mr-1"></i>Users
+                            </a>
+                            <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-briefcase mr-1"></i>Internships
+                            </a>
+                            <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-file-alt mr-1"></i>Applications
+                            </a>
+                            <a href="/admin/evaluations" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-chart-line mr-1"></i>Evaluations
+                            </a>
+                        </div>
+                        
+                        <!-- Mentor Links -->
+                        <div id="mentorNav" class="hidden">
+                            <a href="/mentor/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-briefcase mr-1"></i>My Internships
+                            </a>
+                            <a href="/mentor/applications" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-file-alt mr-1"></i>Applications
+                            </a>
+                            <a href="/mentor/feedback" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-comments mr-1"></i>Feedback
+                            </a>
+                        </div>
+                        
+                        <!-- Student Links -->
+                        <div id="studentNav" class="hidden">
+                            <a href="/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-briefcase mr-1"></i>Internships
+                            </a>
+                            <a href="/my-applications" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-file-alt mr-1"></i>My Applications
+                            </a>
+                            <a href="/student/feedback" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-star mr-1"></i>My Feedback
+                            </a>
+                            <a href="/tasks" class="hover:bg-blue-700 px-3 py-2 rounded transition">
+                                <i class="fas fa-tasks mr-1"></i>Tasks
+                            </a>
+                        </div>
+                    </div>
+                    
                     <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded transition">
                         <i class="fas fa-user mr-1"></i>Profile
                     </a>
@@ -104,41 +153,46 @@
     </footer>
 
     <script>
-        // Add admin links if user is admin and update welcome message
+        // Add role-specific navigation based on user role
         document.addEventListener('DOMContentLoaded', function () {
             const userWelcome = document.getElementById('userWelcome');
+            const roleSpecificNav = document.getElementById('roleSpecificNav');
             
-            // Check if user is authenticated and on admin pages
-            if (userWelcome) {
+            // Check if user is authenticated and show role-specific navigation
+            if (userWelcome && roleSpecificNav) {
                 // Get user info from the page content or check URL
                 const isAdminPage = window.location.pathname.includes('/admin');
+                const isMentorPage = window.location.pathname.includes('/mentor');
+                const isStudentPage = window.location.pathname.includes('/student') || 
+                                     window.location.pathname.includes('/internships') ||
+                                     window.location.pathname.includes('/my-applications') ||
+                                     window.location.pathname.includes('/tasks');
                 const pageText = document.body.innerText;
                 
-                if (isAdminPage || pageText.includes('(Admin)') || pageText.includes('Admin Panel')) {
-                    // Add admin navigation links
-                    const adminLinks = `
-                        <a href="/admin/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded transition">
-                            <i class="fas fa-cog mr-1"></i>Admin Panel
-                        </a>
-                        <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded transition">
-                            <i class="fas fa-users mr-1"></i>Manage Users
-                        </a>
-                        <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
-                            <i class="fas fa-briefcase mr-1"></i>Internships
-                        </a>
-                    `;
-                    userWelcome.insertAdjacentHTML('beforebegin', adminLinks);
-                    
-                    // Set welcome message for admin
+                // Show the role-specific navigation container
+                roleSpecificNav.classList.remove('hidden');
+                
+                if (isAdminPage || pageText.includes('(Admin)') || pageText.includes('Admin Panel') || pageText.includes('System Administration')) {
+                    // Show admin navigation
+                    document.getElementById('adminNav').classList.remove('hidden');
                     userWelcome.textContent = 'Welcome, Admin';
                     userWelcome.className = 'px-3 py-2 text-blue-200';
-                } else if (pageText.includes('(Mentor)')) {
-                    // Set welcome message for mentor
+                    
+                } else if (isMentorPage || pageText.includes('(Mentor)') || pageText.includes('Mentor Dashboard')) {
+                    // Show mentor navigation
+                    document.getElementById('mentorNav').classList.remove('hidden');
                     userWelcome.textContent = 'Welcome, Mentor';
                     userWelcome.className = 'px-3 py-2 text-blue-200';
-                } else if (pageText.includes('(Student)')) {
-                    // Set welcome message for student
+                    
+                } else if (isStudentPage || pageText.includes('(Student)') || pageText.includes('Student Dashboard')) {
+                    // Show student navigation
+                    document.getElementById('studentNav').classList.remove('hidden');
                     userWelcome.textContent = 'Welcome, Student';
+                    userWelcome.className = 'px-3 py-2 text-blue-200';
+                } else {
+                    // Default to student navigation if no specific role detected
+                    document.getElementById('studentNav').classList.remove('hidden');
+                    userWelcome.textContent = 'Welcome';
                     userWelcome.className = 'px-3 py-2 text-blue-200';
                 }
             }
@@ -190,6 +244,49 @@
                 throw error;
             }
         }
+
+        // Enhanced role detection with API call
+        async function detectUserRole() {
+            try {
+                const response = await apiCall('/api/users/me');
+                if (response && response.role) {
+                    return response.role;
+                }
+            } catch (error) {
+                console.log('Could not fetch user role from API, using page detection');
+            }
+            return null;
+        }
+
+        // Initialize enhanced navigation
+        document.addEventListener('DOMContentLoaded', async function() {
+            const userRole = await detectUserRole();
+            if (userRole) {
+                const roleSpecificNav = document.getElementById('roleSpecificNav');
+                const userWelcome = document.getElementById('userWelcome');
+                
+                if (roleSpecificNav) {
+                    roleSpecificNav.classList.remove('hidden');
+                    
+                    // Hide all role navs first
+                    document.getElementById('adminNav').classList.add('hidden');
+                    document.getElementById('mentorNav').classList.add('hidden');
+                    document.getElementById('studentNav').classList.add('hidden');
+                    
+                    // Show the appropriate nav based on role
+                    if (userRole === 'admin') {
+                        document.getElementById('adminNav').classList.remove('hidden');
+                        userWelcome.textContent = 'Welcome, Admin';
+                    } else if (userRole === 'mentor') {
+                        document.getElementById('mentorNav').classList.remove('hidden');
+                        userWelcome.textContent = 'Welcome, Mentor';
+                    } else if (userRole === 'student') {
+                        document.getElementById('studentNav').classList.remove('hidden');
+                        userWelcome.textContent = 'Welcome, Student';
+                    }
+                }
+            }
+        });
     </script>
 </body>
 
