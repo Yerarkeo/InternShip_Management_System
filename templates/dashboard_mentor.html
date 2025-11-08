@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,46 +9,54 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #2f7ae4 100%);
         }
-        
+
         .card-hover {
             transition: all 0.3s ease;
         }
-        
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .progress-bar {
             height: 8px;
             border-radius: 4px;
             background-color: #e5e7eb;
             overflow: hidden;
         }
-        
+
         .progress-fill {
             height: 100%;
             border-radius: 4px;
         }
     </style>
 </head>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="gradient-bg text-white p-4">
@@ -94,7 +103,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-green-100 rounded-lg">
@@ -106,7 +115,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-yellow-100 rounded-lg">
@@ -118,7 +127,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-indigo-100 rounded-lg">
@@ -142,21 +151,23 @@
                     <h2 class="text-xl font-semibold text-gray-800">Quick Actions</h2>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <a href="/tasks" class="bg-blue-600 text-white p-6 rounded-lg hover:bg-blue-700 transition flex flex-col items-center justify-center card-hover">
+                    <a href="/tasks"
+                        class="bg-blue-600 text-white p-6 rounded-lg hover:bg-blue-700 transition flex flex-col items-center justify-center card-hover">
                         <i class="fas fa-tasks text-2xl mb-3"></i>
                         <span class="font-medium">Assign Tasks</span>
                     </a>
-                    
-                    <a href="/mentor/feedback" class="bg-green-600 text-white p-6 rounded-lg hover:bg-green-700 transition flex flex-col items-center justify-center card-hover">
+
+                    <a href="/mentor/feedback"
+                        class="bg-green-600 text-white p-6 rounded-lg hover:bg-green-700 transition flex flex-col items-center justify-center card-hover">
                         <i class="fas fa-comments text-2xl mb-3"></i>
                         <span class="font-medium">Give Feedback</span>
                     </a>
-                    
-                   
-        
+
+
+
                 </div>
             </div>
         </div>
@@ -173,22 +184,22 @@
                         <h2 class="text-xl font-semibold text-gray-800">Student Monitoring</h2>
                     </div>
                 </div>
-                
+
                 <div class="p-6">
                     <div class="space-y-4">
                         <!-- Student 1 -->
                         <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=3498db&color=fff" 
-                                         alt="Michael Chen" 
-                                         class="w-10 h-10 rounded-full mr-3">
+                                    <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=3498db&color=fff"
+                                        alt="Michael Chen" class="w-10 h-10 rounded-full mr-3">
                                     <div>
                                         <h3 class="font-semibold text-gray-800">Yuna</h3>
                                         <p class="text-gray-600 text-sm">Frontend Developer Intern</p>
                                     </div>
                                 </div>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     Active
                                 </span>
                             </div>
@@ -202,28 +213,30 @@
                                 </div>
                             </div>
                             <div class="mt-3 flex space-x-2">
-                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                <button
+                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-eye mr-1"></i> View Details
                                 </button>
-                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                <button
+                                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
                                     <i class="fas fa-comment mr-1"></i> Give Feedback
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Student 2 -->
                         <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=Jessica+Williams&background=e67e22&color=fff" 
-                                         alt="Jessica Williams" 
-                                         class="w-10 h-10 rounded-full mr-3">
+                                    <img src="https://ui-avatars.com/api/?name=Jessica+Williams&background=e67e22&color=fff"
+                                        alt="Jessica Williams" class="w-10 h-10 rounded-full mr-3">
                                     <div>
                                         <h3 class="font-semibold text-gray-800">YeJi</h3>
                                         <p class="text-gray-600 text-sm">Data Science Intern</p>
                                     </div>
                                 </div>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     Active
                                 </span>
                             </div>
@@ -237,28 +250,30 @@
                                 </div>
                             </div>
                             <div class="mt-3 flex space-x-2">
-                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                <button
+                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-eye mr-1"></i> View Details
                                 </button>
-                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                <button
+                                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
                                     <i class="fas fa-comment mr-1"></i> Give Feedback
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Student 3 -->
                         <div class="border rounded-lg p-4 hover:bg-gray-50 transition">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=David+Rodriguez&background=2ecc71&color=fff" 
-                                         alt="David Rodriguez" 
-                                         class="w-10 h-10 rounded-full mr-3">
+                                    <img src="https://ui-avatars.com/api/?name=David+Rodriguez&background=2ecc71&color=fff"
+                                        alt="David Rodriguez" class="w-10 h-10 rounded-full mr-3">
                                     <div>
                                         <h3 class="font-semibold text-gray-800">Kookie</h3>
                                         <p class="text-gray-600 text-sm">UX/UI Design Intern</p>
                                     </div>
                                 </div>
-                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     Needs Attention
                                 </span>
                             </div>
@@ -272,17 +287,19 @@
                                 </div>
                             </div>
                             <div class="mt-3 flex space-x-2">
-                                <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
+                                <button
+                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-eye mr-1"></i> View Details
                                 </button>
-                                <button class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
+                                <button
+                                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition">
                                     <i class="fas fa-comment mr-1"></i> Give Feedback
                                 </button>
                             </div>
                         </div>
                     </div>
-                    
-                    
+
+
                 </div>
             </div>
 
@@ -296,7 +313,7 @@
                         <h2 class="text-xl font-semibold text-gray-800">Task Management & Feedback</h2>
                     </div>
                 </div>
-                
+
                 <div class="p-6">
                     <!-- Pending Tasks -->
                     <div class="mb-6">
@@ -309,20 +326,23 @@
                                         <p class="text-gray-600 text-sm">Assigned to: Yuna</p>
                                         <p class="text-gray-500 text-xs mt-1">Due: 2023-06-20</p>
                                     </div>
-                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <span
+                                        class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                         In Progress
                                     </span>
                                 </div>
                                 <div class="mt-2 flex space-x-2">
-                                    <button class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
+                                    <button
+                                        class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
                                         <i class="fas fa-eye mr-1"></i> Review
                                     </button>
-                                    <button class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
+                                    <button
+                                        class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
                                         <i class="fas fa-comment mr-1"></i> Feedback
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
                                 <div class="flex justify-between items-start">
                                     <div>
@@ -330,22 +350,25 @@
                                         <p class="text-gray-600 text-sm">Assigned to: Kookie</p>
                                         <p class="text-gray-500 text-xs mt-1">Due: 2023-06-18</p>
                                     </div>
-                                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <span
+                                        class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                         Overdue
                                     </span>
                                 </div>
                                 <div class="mt-2 flex space-x-2">
-                                    <button class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
+                                    <button
+                                        class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition">
                                         <i class="fas fa-eye mr-1"></i> Review
                                     </button>
-                                    <button class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
+                                    <button
+                                        class="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition">
                                         <i class="fas fa-comment mr-1"></i> Feedback
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Recent Feedback -->
                     <div>
                         <h3 class="text-lg font-medium text-gray-800 mb-3">Recent Feedback</h3>
@@ -366,14 +389,17 @@
                                             <span class="text-sm text-gray-600 ml-2">4.0/5.0</span>
                                         </div>
                                     </div>
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                         Completed
                                     </span>
                                 </div>
-                                <p class="text-gray-600 text-sm mt-2">"Good work on the initial design concepts. The color scheme is visually appealing, but we need to improve the user flow for the checkout process."</p>
+                                <p class="text-gray-600 text-sm mt-2">"Good work on the initial design concepts. The
+                                    color scheme is visually appealing, but we need to improve the user flow for the
+                                    checkout process."</p>
                                 <p class="text-gray-500 text-xs mt-2">Posted: 2023-06-10</p>
                             </div>
-                            
+
                             <div class="border rounded-lg p-3 hover:bg-gray-50 transition">
                                 <div class="flex justify-between items-start">
                                     <div>
@@ -390,18 +416,22 @@
                                             <span class="text-sm text-gray-600 ml-2">4.5/5.0</span>
                                         </div>
                                     </div>
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                         Completed
                                     </span>
                                 </div>
-                                <p class="text-gray-600 text-sm mt-2">"Excellent implementation of the authentication system. The code is clean and well-documented. Consider adding more error handling for edge cases."</p>
+                                <p class="text-gray-600 text-sm mt-2">"Excellent implementation of the authentication
+                                    system. The code is clean and well-documented. Consider adding more error handling
+                                    for edge cases."</p>
                                 <p class="text-gray-500 text-xs mt-2">Posted: 2023-06-08</p>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="text-center mt-4">
-                        <a href="/mentor/feedback" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+                        <a href="/mentor/feedback"
+                            class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
                             Manage All Feedback
                         </a>
                     </div>
@@ -416,7 +446,8 @@
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-4 md:mb-0">
                     <h5 class="text-lg font-bold">MentorHub</h5>
-                    <p class="text-gray-400">Empowering mentors and students through meaningful internship experiences.</p>
+                    <p class="text-gray-400">Empowering mentors and students through meaningful internship experiences.
+                    </p>
                 </div>
                 <div class="text-gray-400">
                     <p>&copy; 2023 MentorHub Internship System. All rights reserved.</p>
@@ -431,50 +462,51 @@
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
-        
-        const observer = new IntersectionObserver(function(entries) {
+
+        const observer = new IntersectionObserver(function (entries) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('fade-in');
                 }
             });
         }, observerOptions);
-        
+
         // Observe all cards for animation
         document.querySelectorAll('.bg-white.rounded-lg.shadow').forEach(card => {
             observer.observe(card);
         });
-        
+
         // Add hover effects to stat cards
         const statCards = document.querySelectorAll('.card-hover');
         statCards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
+            card.addEventListener('mouseenter', function () {
                 this.style.transform = 'translateY(-5px)';
                 this.style.transition = 'transform 0.3s ease, box-shadow 0.3s ease';
             });
-            
-            card.addEventListener('mouseleave', function() {
+
+            card.addEventListener('mouseleave', function () {
                 this.style.transform = 'translateY(0)';
             });
         });
-        
+
         // View Details button functionality
         document.querySelectorAll('button.bg-blue-600').forEach(button => {
             if (button.textContent.includes('View Details')) {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     alert('Student details would be displayed here');
                 });
             }
         });
-        
+
         // Give Feedback button functionality
         document.querySelectorAll('button.bg-green-600').forEach(button => {
             if (button.textContent.includes('Feedback')) {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     alert('Feedback form would open here');
                 });
             }
         });
     </script>
 </body>
+
 </html>

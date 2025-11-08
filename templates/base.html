@@ -27,7 +27,7 @@
                     <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded transition">
                         <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
                     </a>
-                    
+
                     <!-- Role Specific Navigation -->
                     <div id="roleSpecificNav" class="hidden flex items-center space-x-4">
                         <!-- Admin Links -->
@@ -45,7 +45,7 @@
                                 <i class="fas fa-chart-line mr-1"></i>Evaluations
                             </a>
                         </div>
-                        
+
                         <!-- Mentor Links -->
                         <div id="mentorNav" class="hidden">
                             <a href="/mentor/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
@@ -58,7 +58,7 @@
                                 <i class="fas fa-comments mr-1"></i>Feedback
                             </a>
                         </div>
-                        
+
                         <!-- Student Links -->
                         <div id="studentNav" class="hidden">
                             <a href="/internships" class="hover:bg-blue-700 px-3 py-2 rounded transition">
@@ -75,7 +75,7 @@
                             </a>
                         </div>
                     </div>
-                    
+
                     <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded transition">
                         <i class="fas fa-user mr-1"></i>Profile
                     </a>
@@ -88,8 +88,7 @@
                     <a href="/login" class="hover:bg-blue-700 px-3 py-2 rounded transition">
                         <i class="fas fa-sign-in-alt mr-1"></i>Login
                     </a>
-                    <a href="/register"
-                        class="bg-white text-blue-600 hover:bg-gray-100 px-3 py-2 rounded transition">
+                    <a href="/register" class="bg-white text-blue-600 hover:bg-gray-100 px-3 py-2 rounded transition">
                         <i class="fas fa-user-plus mr-1"></i>Register
                     </a>
                     {% endif %}
@@ -100,22 +99,22 @@
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        <div class="max-w-7xl mx-auto px-4 mt-4">
-            {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} 
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} 
                         bg-{{ 'red' if category == 'error' else 'green' }}-100 
                         border border-{{ 'red' if category == 'error' else 'green' }}-400 
                         text-{{ 'red' if category == 'error' else 'green' }}-700 
                         px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline">{{ message }}</span>
-                <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            {% endfor %}
+            <span class="block sm:inline">{{ message }}</span>
+            <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
     <main class="min-h-screen">
@@ -157,33 +156,33 @@
         document.addEventListener('DOMContentLoaded', function () {
             const userWelcome = document.getElementById('userWelcome');
             const roleSpecificNav = document.getElementById('roleSpecificNav');
-            
+
             // Check if user is authenticated and show role-specific navigation
             if (userWelcome && roleSpecificNav) {
                 // Get user info from the page content or check URL
                 const isAdminPage = window.location.pathname.includes('/admin');
                 const isMentorPage = window.location.pathname.includes('/mentor');
-                const isStudentPage = window.location.pathname.includes('/student') || 
-                                     window.location.pathname.includes('/internships') ||
-                                     window.location.pathname.includes('/my-applications') ||
-                                     window.location.pathname.includes('/tasks');
+                const isStudentPage = window.location.pathname.includes('/student') ||
+                    window.location.pathname.includes('/internships') ||
+                    window.location.pathname.includes('/my-applications') ||
+                    window.location.pathname.includes('/tasks');
                 const pageText = document.body.innerText;
-                
+
                 // Show the role-specific navigation container
                 roleSpecificNav.classList.remove('hidden');
-                
+
                 if (isAdminPage || pageText.includes('(Admin)') || pageText.includes('Admin Panel') || pageText.includes('System Administration')) {
                     // Show admin navigation
                     document.getElementById('adminNav').classList.remove('hidden');
                     userWelcome.textContent = 'Welcome, Admin';
                     userWelcome.className = 'px-3 py-2 text-blue-200';
-                    
+
                 } else if (isMentorPage || pageText.includes('(Mentor)') || pageText.includes('Mentor Dashboard')) {
                     // Show mentor navigation
                     document.getElementById('mentorNav').classList.remove('hidden');
                     userWelcome.textContent = 'Welcome, Mentor';
                     userWelcome.className = 'px-3 py-2 text-blue-200';
-                    
+
                 } else if (isStudentPage || pageText.includes('(Student)') || pageText.includes('Student Dashboard')) {
                     // Show student navigation
                     document.getElementById('studentNav').classList.remove('hidden');
@@ -259,20 +258,20 @@
         }
 
         // Initialize enhanced navigation
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             const userRole = await detectUserRole();
             if (userRole) {
                 const roleSpecificNav = document.getElementById('roleSpecificNav');
                 const userWelcome = document.getElementById('userWelcome');
-                
+
                 if (roleSpecificNav) {
                     roleSpecificNav.classList.remove('hidden');
-                    
+
                     // Hide all role navs first
                     document.getElementById('adminNav').classList.add('hidden');
                     document.getElementById('mentorNav').classList.add('hidden');
                     document.getElementById('studentNav').classList.add('hidden');
-                    
+
                     // Show the appropriate nav based on role
                     if (userRole === 'admin') {
                         document.getElementById('adminNav').classList.remove('hidden');

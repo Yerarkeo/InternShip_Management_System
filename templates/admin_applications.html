@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="bg-blue-600 text-white p-4">
@@ -28,8 +30,11 @@
                 <ul class="space-y-2">
                     <li><a href="/admin/dashboard" class="block p-2 hover:bg-blue-50 rounded">Dashboard</a></li>
                     <li><a href="/admin/users" class="block p-2 hover:bg-blue-50 rounded">Manage Users</a></li>
-                    <li><a href="/admin/internships" class="block p-2 hover:bg-blue-50 rounded">Manage Internships</a></li>
-                    <li><a href="/admin/applications" class="block p-2 bg-blue-100 text-blue-600 rounded font-semibold">Review Applications</a></li>
+                    <li><a href="/admin/internships" class="block p-2 hover:bg-blue-50 rounded">Manage Internships</a>
+                    </li>
+                    <li><a href="/admin/applications"
+                            class="block p-2 bg-blue-100 text-blue-600 rounded font-semibold">Review Applications</a>
+                    </li>
                     <li><a href="/admin/system" class="block p-2 hover:bg-blue-50 rounded">System Settings</a></li>
                 </ul>
             </div>
@@ -87,16 +92,20 @@
 
             <!-- Status Filters -->
             <div class="mb-6 flex space-x-4">
-                <button onclick="filterApplications('all')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button onclick="filterApplications('all')"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     All Applications
                 </button>
-                <button onclick="filterApplications('pending')" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                <button onclick="filterApplications('pending')"
+                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
                     Pending Review
                 </button>
-                <button onclick="filterApplications('approved')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                <button onclick="filterApplications('approved')"
+                    class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
                     Approved
                 </button>
-                <button onclick="filterApplications('rejected')" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                <button onclick="filterApplications('rejected')"
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
                     Rejected
                 </button>
             </div>
@@ -106,11 +115,16 @@
                 <table class="min-w-full">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Application Date</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Internship</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Application Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions</th>
                         </tr>
                     </thead>
                     <tbody id="applications-list" class="bg-white divide-y divide-gray-200">
@@ -139,13 +153,14 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 {% if application.status == 'pending' %}
-                                <button onclick="openReviewModal({{ application.id }}, '{{ application.student.full_name }}', '{{ application.internship.title }}', '{{ application.internship.company }}')" 
-                                        class="text-blue-600 hover:text-blue-900 mr-3">
+                                <button
+                                    onclick="openReviewModal({{ application.id }}, '{{ application.student.full_name }}', '{{ application.internship.title }}', '{{ application.internship.company }}')"
+                                    class="text-blue-600 hover:text-blue-900 mr-3">
                                     <i class="fas fa-edit mr-1"></i>Review
                                 </button>
                                 {% endif %}
-                                <button onclick="viewApplicationDetails({{ application.id }})" 
-                                        class="text-gray-600 hover:text-gray-900">
+                                <button onclick="viewApplicationDetails({{ application.id }})"
+                                    class="text-gray-600 hover:text-gray-900">
                                     <i class="fas fa-eye mr-1"></i>View Details
                                 </button>
                             </td>
@@ -165,7 +180,7 @@
                 <div class="mt-2">
                     <p id="modal-student-info" class="text-sm text-gray-500"></p>
                     <p id="modal-internship-info" class="text-sm text-gray-500 mt-2"></p>
-                    
+
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Decision</label>
                         <select id="status-select" class="mt-1 block w-full border border-gray-300 rounded-md p-2">
@@ -173,18 +188,21 @@
                             <option value="rejected">Reject Application</option>
                         </select>
                     </div>
-                    
+
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700">Notes (Optional)</label>
-                        <textarea id="admin-notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md p-2" 
-                                  placeholder="Add any notes or instructions for the student..."></textarea>
+                        <textarea id="admin-notes" rows="3"
+                            class="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                            placeholder="Add any notes or instructions for the student..."></textarea>
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-4">
-                    <button onclick="closeReviewModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                    <button onclick="closeReviewModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
                         Cancel
                     </button>
-                    <button onclick="submitReview()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <button onclick="submitReview()"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         Submit Decision
                     </button>
                 </div>
@@ -201,7 +219,8 @@
                     <!-- Details will be loaded here -->
                 </div>
                 <div class="flex justify-end mt-4">
-                    <button onclick="closeDetailsModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+                    <button onclick="closeDetailsModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
                         Close
                     </button>
                 </div>
@@ -265,7 +284,7 @@
             try {
                 const response = await fetch(`/api/admin/applications?status=all`);
                 const result = await response.json();
-                
+
                 if (result.success) {
                     const application = result.applications.find(app => app.id === appId);
                     if (application) {
@@ -289,9 +308,9 @@
                                 <h4 class="font-semibold text-gray-900">Application Details</h4>
                                 <p><strong>Application Date:</strong> ${new Date(application.application_date).toLocaleDateString()}</p>
                                 <p><strong>Status:</strong> <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                    ${application.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                                      application.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                                      'bg-yellow-100 text-yellow-800'}">${application.status.toUpperCase()}</span></p>
+                                    ${application.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                application.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                                    'bg-yellow-100 text-yellow-800'}">${application.status.toUpperCase()}</span></p>
                             </div>
                             ${application.cover_letter ? `
                             <div class="mt-4">
@@ -315,4 +334,5 @@
         }
     </script>
 </body>
+
 </html>

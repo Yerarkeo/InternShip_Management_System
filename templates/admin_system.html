@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>System Management - Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -58,26 +60,26 @@
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-xl font-semibold mb-4">System Actions</h2>
                 <div class="space-y-4">
-                    <button onclick="backupDatabase()" 
-                            class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition text-left">
+                    <button onclick="backupDatabase()"
+                        class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition text-left">
                         <div class="font-semibold">Backup Database</div>
                         <div class="text-sm opacity-90">Create a system backup</div>
                     </button>
-                    
-                    <button onclick="clearCache()" 
-                            class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition text-left">
+
+                    <button onclick="clearCache()"
+                        class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition text-left">
                         <div class="font-semibold">Clear Cache</div>
                         <div class="text-sm opacity-90">Clear system cache</div>
                     </button>
-                    
-                    <button onclick="generateReports()" 
-                            class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition text-left">
+
+                    <button onclick="generateReports()"
+                        class="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition text-left">
                         <div class="font-semibold">Generate Reports</div>
                         <div class="text-sm opacity-90">Create system reports</div>
                     </button>
-                    
-                    <button onclick="systemMaintenance()" 
-                            class="w-full bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 transition text-left">
+
+                    <button onclick="systemMaintenance()"
+                        class="w-full bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 transition text-left">
                         <div class="font-semibold">Maintenance Mode</div>
                         <div class="text-sm opacity-90">Enable maintenance</div>
                     </button>
@@ -108,7 +110,7 @@
 
     <script>
         // Initialize charts
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // User Role Distribution Chart
             const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
             const userRoleChart = new Chart(userRoleCtx, {
@@ -116,27 +118,29 @@
                 data: {
                     labels: ['Students', 'Admins', 'Mentors'],
                     datasets: [{
-                        data: {{ [stats.total_students|default(0), stats.total_admins|default(0), stats.total_mentors|default(0)] | tojson }},
-                        backgroundColor: [
-                            '#10B981', // green
-                            '#8B5CF6', // purple  
-                            '#3B82F6'  // blue
-                        ]
+                        data: {{ [stats.total_students |default(0), stats.total_admins |default(0), stats.total_mentors |default(0)] | tojson
+                }
+            },
+                backgroundColor: [
+                '#10B981', // green
+                '#8B5CF6', // purple  
+                '#3B82F6'  // blue
+            ]
                     }]
                 },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
+            options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
                 }
+            }
+        }
             });
 
-            // Simulate system metrics
-            document.getElementById('activeSessions').textContent = Math.floor(Math.random() * 50) + 10;
-            document.getElementById('storageUsage').textContent = (Math.random() * 10).toFixed(1) + ' GB';
+        // Simulate system metrics
+        document.getElementById('activeSessions').textContent = Math.floor(Math.random() * 50) + 10;
+        document.getElementById('storageUsage').textContent = (Math.random() * 10).toFixed(1) + ' GB';
         });
 
         // System action functions
@@ -230,4 +234,5 @@
         loadRecentActivity();
     </script>
 </body>
+
 </html>

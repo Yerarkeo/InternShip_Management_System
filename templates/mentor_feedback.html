@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,121 +19,121 @@
             --light-color: #ecf0f1;
             --dark-color: #34495e;
         }
-        
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
             color: #333;
         }
-        
+
         .navbar {
             background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
             box-shadow: 0 2px 10px rgba(52, 101, 234, 0.1);
         }
-        
+
         .card {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             margin-bottom: 20px;
         }
-        
+
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
         .card-header {
             border-radius: 10px 10px 0 0 !important;
             font-weight: 600;
         }
-        
+
         .table th {
             border-top: none;
             font-weight: 600;
             color: var(--secondary-color);
         }
-        
+
         .badge {
             font-weight: 500;
             padding: 6px 10px;
         }
-        
+
         .rating-stars {
             color: #ffc107;
             font-size: 0.9rem;
         }
-        
+
         .btn {
             border-radius: 6px;
             font-weight: 500;
             transition: all 0.3s;
         }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, var(--primary-color), #2980b9);
             border: none;
         }
-        
+
         .btn-primary:hover {
             background: linear-gradient(135deg, #2980b9, var(--primary-color));
             transform: translateY(-2px);
         }
-        
+
         .stat-card {
             text-align: center;
             padding: 20px 10px;
             border-radius: 10px;
             color: white;
         }
-        
+
         .stat-card h4 {
             font-size: 2rem;
             margin-bottom: 5px;
             font-weight: 700;
         }
-        
+
         .stat-card p {
             margin-bottom: 0;
             font-size: 0.9rem;
             opacity: 0.9;
         }
-        
+
         .profile-img {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
         }
-        
+
         .feedback-details h6 {
             color: #495057;
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        
+
         .table-hover tbody tr:hover {
             background-color: rgba(52, 152, 219, 0.075);
         }
-        
+
         .modal-content {
             border-radius: 10px;
             border: none;
         }
-        
+
         .modal-header {
             border-bottom: 1px solid #e9ecef;
             background-color: #f8f9fa;
             border-radius: 10px 10px 0 0;
         }
-        
+
         .page-title {
             color: var(--secondary-color);
             font-weight: 700;
             margin-bottom: 0;
         }
-        
+
         .section-title {
             color: var(--secondary-color);
             font-weight: 600;
@@ -140,39 +141,47 @@
             padding-bottom: 0.5rem;
             border-bottom: 2px solid var(--light-color);
         }
-        
+
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
         }
-        
+
         /* Custom animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .table-responsive {
                 font-size: 0.85rem;
             }
-            
+
             .btn-sm {
                 padding: 0.25rem 0.5rem;
                 font-size: 0.75rem;
             }
-            
+
             .stat-card h4 {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
@@ -214,15 +223,22 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <img id="userProfileImg" src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff" alt="Profile" class="profile-img me-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            <img id="userProfileImg"
+                                src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff"
+                                alt="Profile" class="profile-img me-2">
                             <span id="userName">Mentor</span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i> Profile</a></li>
-                           
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i> Profile</a>
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>
+                                    Logout</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -357,7 +373,7 @@
     <!-- Bootstrap & JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Get current user info
             fetch('/api/users/me')
                 .then(response => response.json())
@@ -383,35 +399,35 @@
                 threshold: 0.1,
                 rootMargin: '0px 0px -50px 0px'
             };
-            
-            const observer = new IntersectionObserver(function(entries) {
+
+            const observer = new IntersectionObserver(function (entries) {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('fade-in');
                     }
                 });
             }, observerOptions);
-            
+
             // Observe all cards for animation
             document.querySelectorAll('.card').forEach(card => {
                 observer.observe(card);
             });
-            
+
             // Add some interactive elements
             const statCards = document.querySelectorAll('.stat-card');
             statCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
+                card.addEventListener('mouseenter', function () {
                     this.style.transform = 'scale(1.05)';
                     this.style.transition = 'transform 0.3s ease';
                 });
-                
-                card.addEventListener('mouseleave', function() {
+
+                card.addEventListener('mouseleave', function () {
                     this.style.transform = 'scale(1)';
                 });
             });
 
             // Handle edit feedback button
-            document.getElementById('editFeedbackBtn').addEventListener('click', function() {
+            document.getElementById('editFeedbackBtn').addEventListener('click', function () {
                 const feedbackId = this.getAttribute('data-feedback-id');
                 if (feedbackId) {
                     window.location.href = `/mentor/feedback/create/${feedbackId}`;
@@ -449,9 +465,9 @@
         function updatePendingFeedbackTable(applications) {
             const tbody = document.getElementById('pendingFeedbackTable');
             const countElement = document.getElementById('pendingFeedbackCount');
-            
+
             countElement.textContent = applications.length;
-            
+
             if (applications.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -500,7 +516,7 @@
 
             // Add event listeners for view application buttons
             document.querySelectorAll('.view-application').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const applicationId = this.getAttribute('data-application-id');
                     // Implement view application details functionality
                     console.log('View application:', applicationId);
@@ -511,9 +527,9 @@
         function updateGivenFeedbackTable(feedbacks) {
             const tbody = document.getElementById('givenFeedbackTable');
             const countElement = document.getElementById('givenFeedbackCount');
-            
+
             countElement.textContent = feedbacks.length;
-            
+
             if (feedbacks.length === 0) {
                 tbody.innerHTML = `
                     <tr>
@@ -583,7 +599,7 @@
 
             // Add event listeners for view feedback buttons
             document.querySelectorAll('.view-feedback').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const feedbackId = this.getAttribute('data-feedback-id');
                     showFeedbackDetails(feedbackId);
                 });
@@ -594,36 +610,36 @@
             const fullStars = Math.floor(rating);
             const halfStar = rating % 1 >= 0.5;
             const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
-            
+
             let stars = '';
-            
+
             // Full stars
             for (let i = 0; i < fullStars; i++) {
                 stars += '<i class="fas fa-star"></i>';
             }
-            
+
             // Half star
             if (halfStar) {
                 stars += '<i class="fas fa-star-half-alt"></i>';
             }
-            
+
             // Empty stars
             for (let i = 0; i < emptyStars; i++) {
                 stars += '<i class="far fa-star"></i>';
             }
-            
+
             return stars;
         }
 
         function updateStatistics(feedbacks) {
             document.getElementById('totalFeedbacks').textContent = feedbacks.length;
             document.getElementById('submittedFeedbacks').textContent = feedbacks.length; // All are submitted
-            
+
             // Calculate average rating
             const totalRating = feedbacks.reduce((sum, feedback) => sum + (feedback.overall_rating || 0), 0);
             const averageRating = feedbacks.length > 0 ? (totalRating / feedbacks.length).toFixed(1) : '0.0';
             document.getElementById('averageRating').textContent = averageRating;
-            
+
             // Count unique students
             const uniqueStudents = new Set(feedbacks.map(feedback => feedback.student_id)).size;
             document.getElementById('totalStudents').textContent = uniqueStudents;
@@ -637,9 +653,9 @@
                         const feedback = data.feedback;
                         const modalBody = document.getElementById('feedbackModalBody');
                         const editBtn = document.getElementById('editFeedbackBtn');
-                        
+
                         editBtn.setAttribute('data-feedback-id', feedback.id);
-                        
+
                         modalBody.innerHTML = `
                             <div class="feedback-details">
                                 <div class="row mb-3">
@@ -728,7 +744,7 @@
                                 </div>
                             </div>
                         `;
-                        
+
                         // Show the modal
                         const modal = new bootstrap.Modal(document.getElementById('feedbackModal'));
                         modal.show();
@@ -741,4 +757,5 @@
         }
     </script>
 </body>
+
 </html>

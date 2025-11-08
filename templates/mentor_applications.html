@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,20 +12,25 @@
             transition: transform 0.2s;
             border-left: 4px solid transparent;
         }
+
         .application-card.pending {
             border-left-color: #ffc107;
         }
+
         .application-card.approved {
             border-left-color: #198754;
         }
+
         .application-card.rejected {
             border-left-color: #dc3545;
         }
+
         .status-badge {
             font-size: 0.75rem;
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -40,10 +46,12 @@
                         <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/mentor/internships"><i class="fas fa-briefcase"></i> My Internships</a>
+                        <a class="nav-link" href="/mentor/internships"><i class="fas fa-briefcase"></i> My
+                            Internships</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/mentor/applications"><i class="fas fa-file-alt"></i> Applications</a>
+                        <a class="nav-link active" href="/mentor/applications"><i class="fas fa-file-alt"></i>
+                            Applications</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/profile"><i class="fas fa-user"></i> Profile</a>
@@ -70,13 +78,16 @@
                             All <span class="badge bg-primary">{{ applications|length }}</span>
                         </button>
                         <button class="btn btn-outline-warning" onclick="filterApplications('pending')">
-                            Pending <span class="badge bg-warning">{{ applications|selectattr("status", "equalto", "pending")|list|length }}</span>
+                            Pending <span class="badge bg-warning">{{ applications|selectattr("status", "equalto",
+                                "pending")|list|length }}</span>
                         </button>
                         <button class="btn btn-outline-success" onclick="filterApplications('approved')">
-                            Approved <span class="badge bg-success">{{ applications|selectattr("status", "equalto", "approved")|list|length }}</span>
+                            Approved <span class="badge bg-success">{{ applications|selectattr("status", "equalto",
+                                "approved")|list|length }}</span>
                         </button>
                         <button class="btn btn-outline-danger" onclick="filterApplications('rejected')">
-                            Rejected <span class="badge bg-danger">{{ applications|selectattr("status", "equalto", "rejected")|list|length }}</span>
+                            Rejected <span class="badge bg-danger">{{ applications|selectattr("status", "equalto",
+                                "rejected")|list|length }}</span>
                         </button>
                     </div>
                 </div>
@@ -87,90 +98,94 @@
         <div class="row">
             <div class="col-12">
                 {% if applications %}
-                    {% for application in applications %}
-                    <div class="card application-card mb-3 {{ application.status }}" id="application-{{ application.id }}">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <h5 class="card-title">
-                                        {% if application.student %}
-                                            {{ application.student.full_name }}
-                                        {% else %}
-                                            Student #{{ application.student_id }}
-                                        {% endif %}
-                                    </h5>
-                                    <div class="row mb-2">
-                                        <div class="col-md-6">
-                                            <small class="text-muted">
-                                                <i class="fas fa-user-graduate"></i> 
-                                                <strong>Student:</strong> 
-                                                {% if application.student %}
-                                                    {{ application.student.full_name }}
-                                                {% else %}
-                                                    Student #{{ application.student_id }}
-                                                {% endif %}
-                                            </small>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <small class="text-muted">
-                                                <i class="fas fa-briefcase"></i> 
-                                                <strong>Internship:</strong> 
-                                                {% if application.internship %}
-                                                    {{ application.internship.title }}
-                                                {% else %}
-                                                    Internship #{{ application.internship_id }}
-                                                {% endif %}
-                                            </small>
-                                        </div>
-                                    </div>
-                                    
-                                    {% if application.cover_letter %}
-                                    <p class="card-text">
-                                        <strong>Cover Letter:</strong> 
-                                        {{ application.cover_letter[:200] }}{% if application.cover_letter|length > 200 %}...{% endif %}
-                                    </p>
+                {% for application in applications %}
+                <div class="card application-card mb-3 {{ application.status }}" id="application-{{ application.id }}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="card-title">
+                                    {% if application.student %}
+                                    {{ application.student.full_name }}
+                                    {% else %}
+                                    Student #{{ application.student_id }}
                                     {% endif %}
-                                    
-                                    <div class="mt-3">
+                                </h5>
+                                <div class="row mb-2">
+                                    <div class="col-md-6">
                                         <small class="text-muted">
-                                            <i class="fas fa-calendar"></i> 
-                                            Applied on: {{ application.application_date.strftime('%B %d, %Y at %H:%M') }}
+                                            <i class="fas fa-user-graduate"></i>
+                                            <strong>Student:</strong>
+                                            {% if application.student %}
+                                            {{ application.student.full_name }}
+                                            {% else %}
+                                            Student #{{ application.student_id }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted">
+                                            <i class="fas fa-briefcase"></i>
+                                            <strong>Internship:</strong>
+                                            {% if application.internship %}
+                                            {{ application.internship.title }}
+                                            {% else %}
+                                            Internship #{{ application.internship_id }}
+                                            {% endif %}
                                         </small>
                                     </div>
                                 </div>
-                                
-                                <div class="col-md-4">
-                                    <div class="d-flex flex-column h-100">
-                                        <div class="mb-3 text-end">
-                                            <span class="badge status-badge 
+
+                                {% if application.cover_letter %}
+                                <p class="card-text">
+                                    <strong>Cover Letter:</strong>
+                                    {{ application.cover_letter[:200] }}{% if application.cover_letter|length > 200
+                                    %}...{% endif %}
+                                </p>
+                                {% endif %}
+
+                                <div class="mt-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i>
+                                        Applied on: {{ application.application_date.strftime('%B %d, %Y at %H:%M') }}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="d-flex flex-column h-100">
+                                    <div class="mb-3 text-end">
+                                        <span class="badge status-badge 
                                                 {% if application.status == 'pending' %}bg-warning
                                                 {% elif application.status == 'approved' %}bg-success
                                                 {% else %}bg-danger{% endif %}">
-                                                {{ application.status|upper }}
-                                            </span>
-                                        </div>
-                                        
-                                        <div class="mt-auto">
-                                            <div class="btn-group w-100">
-                                                {% if application.status == 'pending' %}
-                                                <button class="btn btn-sm btn-success" onclick="updateApplicationStatus('{{ application.id }}', 'approved')">
-                                                    <i class="fas fa-check"></i> Approve
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="updateApplicationStatus('{{ application.id }}', 'rejected')">
-                                                    <i class="fas fa-times"></i> Reject
-                                                </button>
-                                                {% endif %}
-                                                <button class="btn btn-sm btn-outline-primary" onclick="viewApplicationDetails('{{ application.id }}')">
-                                                    <i class="fas fa-eye"></i> Details
-                                                </button>
-                                            </div>
+                                            {{ application.status|upper }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <div class="btn-group w-100">
+                                            {% if application.status == 'pending' %}
+                                            <button class="btn btn-sm btn-success"
+                                                onclick="updateApplicationStatus('{{ application.id }}', 'approved')">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                            <button class="btn btn-sm btn-danger"
+                                                onclick="updateApplicationStatus('{{ application.id }}', 'rejected')">
+                                                <i class="fas fa-times"></i> Reject
+                                            </button>
+                                            {% endif %}
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                onclick="viewApplicationDetails('{{ application.id }}')">
+                                                <i class="fas fa-eye"></i> Details
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
+                </div>
+                {% endfor %}
                 {% else %}
                 <div class="text-center py-5">
                     <i class="fas fa-file-alt fa-4x text-muted mb-4"></i>
@@ -201,15 +216,18 @@
                                 <p class="text-muted">Total Applications</p>
                             </div>
                             <div class="col-md-3">
-                                <h3 class="text-warning">{{ applications|selectattr("status", "equalto", "pending")|list|length }}</h3>
+                                <h3 class="text-warning">{{ applications|selectattr("status", "equalto",
+                                    "pending")|list|length }}</h3>
                                 <p class="text-muted">Pending Review</p>
                             </div>
                             <div class="col-md-3">
-                                <h3 class="text-success">{{ applications|selectattr("status", "equalto", "approved")|list|length }}</h3>
+                                <h3 class="text-success">{{ applications|selectattr("status", "equalto",
+                                    "approved")|list|length }}</h3>
                                 <p class="text-muted">Approved</p>
                             </div>
                             <div class="col-md-3">
-                                <h3 class="text-danger">{{ applications|selectattr("status", "equalto", "rejected")|list|length }}</h3>
+                                <h3 class="text-danger">{{ applications|selectattr("status", "equalto",
+                                    "rejected")|list|length }}</h3>
                                 <p class="text-muted">Rejected</p>
                             </div>
                         </div>
@@ -249,7 +267,7 @@
                     app.style.display = 'none';
                 }
             });
-            
+
             // Update active button
             document.querySelectorAll('.btn-group .btn').forEach(btn => {
                 btn.classList.remove('active');
@@ -278,7 +296,7 @@
                 const originalText = button.innerHTML;
                 button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
                 button.disabled = true;
-                
+
                 const formData = new FormData();
                 formData.append('status', status);
 
@@ -286,31 +304,31 @@
                     method: 'PUT',
                     body: formData
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(`Application ${status} successfully!`);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.error);
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(`Application ${status} successfully!`);
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.error);
+                            button.innerHTML = originalText;
+                            button.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error updating application status');
                         button.innerHTML = originalText;
                         button.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error updating application status');
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                });
+                    });
             }
         }
 
         // Initialize filter buttons
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Add click handlers to filter buttons
             document.querySelectorAll('.btn-group .btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     document.querySelectorAll('.btn-group .btn').forEach(b => {
                         b.classList.remove('active');
                     });
@@ -320,4 +338,5 @@
         });
     </script>
 </body>
+
 </html>

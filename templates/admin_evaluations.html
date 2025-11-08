@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Student Evaluations - Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -8,40 +9,57 @@
         .stat-card {
             transition: transform 0.3s ease;
         }
+
         .stat-card:hover {
             transform: translateY(-5px);
         }
+
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .score-indicator {
             height: 8px;
             border-radius: 4px;
             background-color: #e9ecef;
             overflow: hidden;
         }
+
         .score-fill {
             height: 100%;
             border-radius: 4px;
         }
+
         .score-excellent {
             background: linear-gradient(90deg, #27ae60, #2ecc71);
         }
+
         .score-good {
             background: linear-gradient(90deg, #f39c12, #f1c40f);
         }
+
         .score-average {
             background: linear-gradient(90deg, #e67e22, #e74c3c);
         }
+
         .score-poor {
             background: linear-gradient(90deg, #c0392b, #e74c3c);
         }
     </style>
 </head>
+
 <body class="bg-gray-100">
     <!-- Navigation Menu -->
     <nav class="bg-blue-600 text-white p-4">
@@ -64,7 +82,7 @@
         <!-- Page Header -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Student Evaluations</h1>
-            <button onclick="showCreateEvaluationForm()" 
+            <button onclick="showCreateEvaluationForm()"
                 class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold">
                 <i class="fas fa-plus mr-2"></i>New Evaluation
             </button>
@@ -134,7 +152,8 @@
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <div
+                                        class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-blue-600"></i>
                                     </div>
                                     <div>
@@ -149,24 +168,25 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="startEvaluation(1)" 
+                                <button onclick="startEvaluation(1)"
                                     class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-edit mr-1"></i>Continue
                                 </button>
-                                <button onclick="viewStudentDetails(1)" 
+                                <button onclick="viewStudentDetails(1)"
                                     class="bg-gray-600 text-white px-3 py-2 rounded text-sm hover:bg-gray-700 transition">
                                     <i class="fas fa-eye mr-1"></i>View
                                 </button>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Pending Evaluation 2 -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                    <div
+                                        class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-green-600"></i>
                                     </div>
                                     <div>
@@ -181,11 +201,11 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="startEvaluation(2)" 
+                                <button onclick="startEvaluation(2)"
                                     class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-edit mr-1"></i>Continue
                                 </button>
-                                <button onclick="viewStudentDetails(2)" 
+                                <button onclick="viewStudentDetails(2)"
                                     class="bg-gray-600 text-white px-3 py-2 rounded text-sm hover:bg-gray-700 transition">
                                     <i class="fas fa-eye mr-1"></i>View
                                 </button>
@@ -209,7 +229,8 @@
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                    <div
+                                        class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-purple-600"></i>
                                     </div>
                                     <div>
@@ -224,7 +245,8 @@
                                 <div class="mt-3 flex items-center">
                                     <span class="text-sm font-medium text-gray-700 mr-3">Overall Score:</span>
                                     <div class="flex items-center">
-                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded mr-2">8.7/10</span>
+                                        <span
+                                            class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded mr-2">8.7/10</span>
                                         <div class="score-indicator" style="width: 100px;">
                                             <div class="score-fill score-excellent" style="width: 87%;"></div>
                                         </div>
@@ -232,28 +254,29 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="viewEvaluation(1)" 
+                                <button onclick="viewEvaluation(1)"
                                     class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-eye mr-1"></i>View
                                 </button>
-                                <button onclick="editEvaluation(1)" 
+                                <button onclick="editEvaluation(1)"
                                     class="bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700 transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
-                                <button onclick="downloadEvaluation(1)" 
+                                <button onclick="downloadEvaluation(1)"
                                     class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition">
                                     <i class="fas fa-download mr-1"></i>PDF
                                 </button>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Completed Evaluation 2 -->
                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <div class="flex items-center mb-2">
-                                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                                    <div
+                                        class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
                                         <i class="fas fa-user text-orange-600"></i>
                                     </div>
                                     <div>
@@ -268,7 +291,8 @@
                                 <div class="mt-3 flex items-center">
                                     <span class="text-sm font-medium text-gray-700 mr-3">Overall Score:</span>
                                     <div class="flex items-center">
-                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded mr-2">7.2/10</span>
+                                        <span
+                                            class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded mr-2">7.2/10</span>
                                         <div class="score-indicator" style="width: 100px;">
                                             <div class="score-fill score-good" style="width: 72%;"></div>
                                         </div>
@@ -276,15 +300,15 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="viewEvaluation(2)" 
+                                <button onclick="viewEvaluation(2)"
                                     class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
                                     <i class="fas fa-eye mr-1"></i>View
                                 </button>
-                                <button onclick="editEvaluation(2)" 
+                                <button onclick="editEvaluation(2)"
                                     class="bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700 transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </button>
-                                <button onclick="downloadEvaluation(2)" 
+                                <button onclick="downloadEvaluation(2)"
                                     class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition">
                                     <i class="fas fa-download mr-1"></i>PDF
                                 </button>
@@ -302,7 +326,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Student *</label>
-                        <select name="student" required 
+                        <select name="student" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select a student</option>
                             <option value="1">Michael Chen - Software Engineer Intern</option>
@@ -313,7 +337,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Internship *</label>
-                        <select name="internship" required 
+                        <select name="internship" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select an internship</option>
                             <option value="1">Software Engineer - Tech Solutions Inc.</option>
@@ -323,11 +347,11 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Mentor *</label>
-                        <select name="mentor" required 
+                        <select name="mentor" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">Select a mentor</option>
                             <option value="1">John Smith</option>
@@ -338,73 +362,73 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Evaluation Period *</label>
-                        <input type="text" name="period" required 
+                        <input type="text" name="period" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="e.g., Summer 2023, Q3 2023">
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Overall Comments</label>
                     <textarea name="comments" rows="3"
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="General comments about the student's performance..."></textarea>
                 </div>
-                
+
                 <h3 class="text-lg font-semibold mt-6 mb-4">Performance Ratings</h3>
-                
+
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Technical Skills</label>
                         <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-500">Poor</span>
-                            <input type="range" name="technical" min="1" max="10" value="7" 
+                            <input type="range" name="technical" min="1" max="10" value="7"
                                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             <span class="text-sm text-gray-500">Excellent</span>
                             <span id="technicalValue" class="text-sm font-semibold w-8 text-center">7</span>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Task Completion</label>
                         <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-500">Poor</span>
-                            <input type="range" name="taskCompletion" min="1" max="10" value="8" 
+                            <input type="range" name="taskCompletion" min="1" max="10" value="8"
                                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             <span class="text-sm text-gray-500">Excellent</span>
                             <span id="taskCompletionValue" class="text-sm font-semibold w-8 text-center">8</span>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Communication</label>
                         <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-500">Poor</span>
-                            <input type="range" name="communication" min="1" max="10" value="6" 
+                            <input type="range" name="communication" min="1" max="10" value="6"
                                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             <span class="text-sm text-gray-500">Excellent</span>
                             <span id="communicationValue" class="text-sm font-semibold w-8 text-center">6</span>
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Professionalism</label>
                         <div class="flex items-center space-x-4">
                             <span class="text-sm text-gray-500">Poor</span>
-                            <input type="range" name="professionalism" min="1" max="10" value="9" 
+                            <input type="range" name="professionalism" min="1" max="10" value="9"
                                 class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                             <span class="text-sm text-gray-500">Excellent</span>
                             <span id="professionalismValue" class="text-sm font-semibold w-8 text-center">9</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-3 mt-6">
-                    <button type="button" onclick="createEvaluation()" 
+                    <button type="button" onclick="createEvaluation()"
                         class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
                         Create Evaluation
                     </button>
-                    <button type="button" onclick="hideCreateEvaluationForm()" 
+                    <button type="button" onclick="hideCreateEvaluationForm()"
                         class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition font-semibold">
                         Cancel
                     </button>
@@ -421,15 +445,15 @@
                 <!-- Evaluation details will be loaded here -->
             </div>
             <div class="flex justify-end space-x-3 mt-6">
-                <button type="button" onclick="hideEvaluationModal()" 
+                <button type="button" onclick="hideEvaluationModal()"
                     class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
                     Close
                 </button>
-                <button type="button" onclick="editEvaluation(currentEvaluationId)" 
+                <button type="button" onclick="editEvaluation(currentEvaluationId)"
                     class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 transition">
                     <i class="fas fa-edit mr-1"></i>Edit
                 </button>
-                <button type="button" onclick="downloadEvaluation(currentEvaluationId)" 
+                <button type="button" onclick="downloadEvaluation(currentEvaluationId)"
                     class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
                     <i class="fas fa-download mr-1"></i>Export PDF
                 </button>
@@ -439,7 +463,7 @@
 
     <script>
         let currentEvaluationId = null;
-        
+
         function showCreateEvaluationForm() {
             document.getElementById('createEvaluationForm').classList.remove('hidden');
         }
@@ -464,7 +488,7 @@
 
         // Update slider value displays
         document.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', function() {
+            slider.addEventListener('input', function () {
                 const valueId = this.name + 'Value';
                 document.getElementById(valueId).textContent = this.value;
             });
@@ -519,7 +543,7 @@
 
         function viewEvaluation(evaluationId) {
             currentEvaluationId = evaluationId;
-            
+
             // In a real app, you would fetch evaluation details from an API
             // For demo, we'll create sample data
             const evaluationDetails = `
@@ -606,7 +630,7 @@
                     <p class="text-gray-700">Alex has been an outstanding intern during his time at WebTech Solutions. He quickly adapted to our development environment and made significant contributions to our project. His technical skills are excellent, particularly in React and Node.js development. Alex communicates effectively with both technical and non-technical team members and has shown strong problem-solving abilities. He takes initiative in learning new technologies and approaches challenges with a positive attitude. With his current trajectory, Alex has the potential to become an exceptional software engineer. I would highly recommend him for future opportunities.</p>
                 </div>
             `;
-            
+
             document.getElementById('evaluationDetails').innerHTML = evaluationDetails;
             showEvaluationModal();
         }
@@ -621,14 +645,14 @@
         }
 
         // Close modal when clicking outside
-        document.getElementById('evaluationModal').addEventListener('click', function(e) {
+        document.getElementById('evaluationModal').addEventListener('click', function (e) {
             if (e.target === this) {
                 hideEvaluationModal();
             }
         });
 
         // Add form submission handler
-        document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+        document.getElementById('evaluationForm').addEventListener('submit', function (e) {
             e.preventDefault();
             createEvaluation();
         });
@@ -638,19 +662,20 @@
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
-        
-        const observer = new IntersectionObserver(function(entries) {
+
+        const observer = new IntersectionObserver(function (entries) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('fade-in');
                 }
             });
         }, observerOptions);
-        
+
         // Observe all cards for animation
         document.querySelectorAll('.bg-white.rounded-lg.shadow-lg').forEach(card => {
             observer.observe(card);
         });
     </script>
 </body>
+
 </html>

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>My Profile - Internship System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100">
     <nav class="bg-blue-600 text-white p-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -24,30 +26,33 @@
                     <!-- Profile Picture Section -->
                     <div class="md:w-1/3 text-center">
                         <div class="relative inline-block">
-                            <img id="profileImage" 
-                                 src="/uploads/profile_pictures/{{ user.profile_picture if user.profile_picture else 'default_avatar.png' }}" 
-                                 alt="Profile Picture"
-                                 class="w-48 h-48 rounded-full object-cover border-4 border-blue-500 mx-auto">
-                            
+                            <img id="profileImage"
+                                src="/uploads/profile_pictures/{{ user.profile_picture if user.profile_picture else 'default_avatar.png' }}"
+                                alt="Profile Picture"
+                                class="w-48 h-48 rounded-full object-cover border-4 border-blue-500 mx-auto">
+
                             <!-- Upload Overlay -->
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                            <div
+                                class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                 <label for="pictureUpload" class="cursor-pointer">
                                     <div class="bg-blue-600 text-white p-3 rounded-full shadow-lg">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                         </svg>
                                     </div>
                                 </label>
                             </div>
                         </div>
-                        
+
                         <input type="file" id="pictureUpload" accept=".png,.jpg,.jpeg,.gif" class="hidden">
-                        <button onclick="removeProfilePicture()" 
-                                class="mt-4 text-red-600 hover:text-red-800 text-sm">
+                        <button onclick="removeProfilePicture()" class="mt-4 text-red-600 hover:text-red-800 text-sm">
                             Remove Picture
                         </button>
-                        
+
                         <div class="mt-4 text-sm text-gray-500">
                             <p>Click on the picture to upload a new one</p>
                             <p>Supported: JPG, PNG, GIF (max 5MB)</p>
@@ -57,23 +62,23 @@
                     <!-- Profile Information -->
                     <div class="md:w-2/3">
                         <h2 class="text-2xl font-bold mb-6 text-gray-800">Profile Information</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Personal Information -->
                             <div>
                                 <h3 class="text-lg font-semibold mb-4 text-gray-700">Personal Information</h3>
-                                
+
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Full Name</label>
                                         <p class="mt-1 text-lg text-gray-900">{{ user.full_name }}</p>
                                     </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Email Address</label>
                                         <p class="mt-1 text-lg text-gray-900">{{ user.email }}</p>
                                     </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Role</label>
                                         <span class="mt-1 inline-block px-3 py-1 text-sm font-semibold rounded-full 
@@ -89,30 +94,30 @@
                             <!-- Contact Information -->
                             <div>
                                 <h3 class="text-lg font-semibold mb-4 text-gray-700">Contact Information</h3>
-                                
+
                                 <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Phone</label>
                                         <p class="mt-1 text-lg text-gray-900">
                                             {% if user.phone %}
-                                                {{ user.phone }}
+                                            {{ user.phone }}
                                             {% else %}
-                                                <span class="text-gray-400">Not provided</span>
+                                            <span class="text-gray-400">Not provided</span>
                                             {% endif %}
                                         </p>
                                     </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Department</label>
                                         <p class="mt-1 text-lg text-gray-900">
                                             {% if user.department %}
-                                                {{ user.department }}
+                                            {{ user.department }}
                                             {% else %}
-                                                <span class="text-gray-400">Not provided</span>
+                                            <span class="text-gray-400">Not provided</span>
                                             {% endif %}
                                         </p>
                                     </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-600">Member Since</label>
                                         <p class="mt-1 text-lg text-gray-900">
@@ -132,15 +137,15 @@
                                         {% if user.is_active %}bg-green-100 text-green-800
                                         {% else %}bg-red-100 text-red-800{% endif %}">
                                         {% if user.is_active %}
-                                            ✅ Active
+                                        ✅ Active
                                         {% else %}
-                                            ❌ Inactive
+                                        ❌ Inactive
                                         {% endif %}
                                     </span>
                                 </div>
-                                
-                                <button onclick="editProfile()" 
-                                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+
+                                <button onclick="editProfile()"
+                                    class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
                                     Edit Profile
                                 </button>
                             </div>
@@ -153,7 +158,8 @@
             {% if user.role == 'student' %}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white p-4 rounded-lg shadow text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ user.applications|length if user.applications else 0 }}</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ user.applications|length if user.applications else
+                        0 }}</div>
                     <div class="text-gray-600">Applications</div>
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow text-center">
@@ -162,7 +168,8 @@
                 </div>
                 <div class="bg-white p-4 rounded-lg shadow text-center">
                     <div class="text-2xl font-bold text-purple-600">
-                        {% set completed_tasks = user.tasks|selectattr('status', 'equalto', 'completed')|list if user.tasks else [] %}
+                        {% set completed_tasks = user.tasks|selectattr('status', 'equalto', 'completed')|list if
+                        user.tasks else [] %}
                         {{ completed_tasks|length }}/{{ user.tasks|length if user.tasks else 0 }}
                     </div>
                     <div class="text-gray-600">Completed Tasks</div>
@@ -180,26 +187,25 @@
                 <form id="editProfileForm">
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input type="text" name="full_name" value="{{ user.full_name }}" 
-                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
+                        <input type="text" name="full_name" value="{{ user.full_name }}"
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Phone</label>
-                        <input type="text" name="phone" value="{{ user.phone or '' }}" 
-                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                               placeholder="Enter your phone number">
+                        <input type="text" name="phone" value="{{ user.phone or '' }}"
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Enter your phone number">
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700">Department</label>
-                        <input type="text" name="department" value="{{ user.department or '' }}" 
-                               class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                               placeholder="Enter your department">
+                        <input type="text" name="department" value="{{ user.department or '' }}"
+                            class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Enter your department">
                     </div>
                     <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeEditModal()" 
-                                class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
-                        <button type="submit" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded-md">Save Changes</button>
+                        <button type="button" onclick="closeEditModal()"
+                            class="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -208,7 +214,7 @@
 
     <script>
         // File upload functionality
-        document.getElementById('pictureUpload').addEventListener('change', async function(e) {
+        document.getElementById('pictureUpload').addEventListener('change', async function (e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -282,7 +288,7 @@
         }
 
         // Make profile picture clickable
-        document.getElementById('profileImage').addEventListener('click', function() {
+        document.getElementById('profileImage').addEventListener('click', function () {
             document.getElementById('pictureUpload').click();
         });
 
@@ -295,16 +301,16 @@
             document.getElementById('editModal').classList.add('hidden');
         }
 
-        document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+        document.getElementById('editProfileForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const data = {
                 full_name: formData.get('full_name'),
                 phone: formData.get('phone'),
                 department: formData.get('department')
             };
-            
+
             try {
                 const response = await fetch('/api/users/me/profile', {
                     method: 'PUT',
@@ -314,7 +320,7 @@
                     },
                     body: JSON.stringify(data)
                 });
-                
+
                 if (response.ok) {
                     alert('Profile updated successfully!');
                     closeEditModal();
@@ -329,11 +335,12 @@
         });
 
         // Close modal when clicking outside
-        document.getElementById('editModal').addEventListener('click', function(e) {
+        document.getElementById('editModal').addEventListener('click', function (e) {
             if (e.target.id === 'editModal') {
                 closeEditModal();
             }
         });
     </script>
 </body>
+
 </html>

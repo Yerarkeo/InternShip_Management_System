@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
+
 <body class="bg-gray-100">
     <!-- Navigation -->
     <nav class="bg-blue-600 text-white p-4 shadow-lg">
@@ -93,23 +95,27 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div class="flex-1 w-full md:w-auto">
-                    <input type="text" id="searchInput" placeholder="Search tasks by title, description, or student..." 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <input type="text" id="searchInput" placeholder="Search tasks by title, description, or student..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
                 <div class="flex space-x-3">
-                    <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="statusFilter"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">All Status</option>
                         <option value="pending">Pending</option>
                         <option value="in_progress">In Progress</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <button onclick="searchTasks()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                    <button onclick="searchTasks()"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
                         <i class="fas fa-search mr-2"></i>Search
                     </button>
-                    <button onclick="clearFilters()" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
+                    <button onclick="clearFilters()"
+                        class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-200">
                         <i class="fas fa-times mr-2"></i>Clear
                     </button>
-                    <button onclick="showCreateModal()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                    <button onclick="showCreateModal()"
+                        class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200">
                         <i class="fas fa-plus mr-2"></i>New Task
                     </button>
                 </div>
@@ -127,13 +133,27 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Details</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Task Details</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Assigned To</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Internship</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Progress</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Due Date</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -146,9 +166,12 @@
                                         </div>
                                         <div>
                                             <div class="text-sm font-medium text-gray-900">{{ task.title }}</div>
-                                            <div class="text-sm text-gray-500 mt-1">{{ task.description[:100] if task.description else '' }}{% if task.description and task.description|length > 100 %}...{% endif %}</div>
+                                            <div class="text-sm text-gray-500 mt-1">{{ task.description[:100] if
+                                                task.description else '' }}{% if task.description and
+                                                task.description|length > 100 %}...{% endif %}</div>
                                             <div class="text-xs text-gray-400 mt-1">
-                                                Created: {{ task.created_at.strftime('%Y-%m-%d') if task.created_at else 'N/A' }}
+                                                Created: {{ task.created_at.strftime('%Y-%m-%d') if task.created_at else
+                                                'N/A' }}
                                             </div>
                                         </div>
                                     </div>
@@ -157,13 +180,14 @@
                                     {% if task.student %}
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-8 w-8">
-                                            <img class="h-8 w-8 rounded-full" 
-                                                 src="/uploads/profile_pictures/{{ task.student.profile_picture if task.student.profile_picture else 'default_avatar.png' }}" 
-                                                 alt="{{ task.student.full_name }}"
-                                                 onerror="this.src='/static/images/default_avatar.svg'">
+                                            <img class="h-8 w-8 rounded-full"
+                                                src="/uploads/profile_pictures/{{ task.student.profile_picture if task.student.profile_picture else 'default_avatar.png' }}"
+                                                alt="{{ task.student.full_name }}"
+                                                onerror="this.src='/static/images/default_avatar.svg'">
                                         </div>
                                         <div class="ml-3">
-                                            <div class="text-sm font-medium text-gray-900">{{ task.student.full_name }}</div>
+                                            <div class="text-sm font-medium text-gray-900">{{ task.student.full_name }}
+                                            </div>
                                             <div class="text-sm text-gray-500">{{ task.student.email }}</div>
                                         </div>
                                     </div>
@@ -182,7 +206,8 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ task.progress }}%"></div>
+                                            <div class="bg-blue-600 h-2 rounded-full"
+                                                style="width: {{ task.progress }}%"></div>
                                         </div>
                                         <span class="text-sm text-gray-700">{{ task.progress }}%</span>
                                     </div>
@@ -199,26 +224,27 @@
                                     <div class="flex items-center">
                                         <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
                                         {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'No due date' }}
-                                        {% if task.due_date and task.due_date.date() < today and task.status != 'completed' %}
-                                        <i class="fas fa-exclamation-triangle ml-2 text-red-500" title="Overdue"></i>
-                                        {% endif %}
+                                        {% if task.due_date and task.due_date.date() < today and task.status
+                                            !='completed' %} <i class="fas fa-exclamation-triangle ml-2 text-red-500"
+                                            title="Overdue"></i>
+                                            {% endif %}
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button onclick="updateTaskStatus({{ task.id }}, 'in_progress')" 
-                                                class="text-blue-600 hover:text-blue-900 transition duration-150"
-                                                title="Mark In Progress">
+                                        <button onclick="updateTaskStatus({{ task.id }}, 'in_progress')"
+                                            class="text-blue-600 hover:text-blue-900 transition duration-150"
+                                            title="Mark In Progress">
                                             <i class="fas fa-play"></i>
                                         </button>
-                                        <button onclick="updateTaskStatus({{ task.id }}, 'completed')" 
-                                                class="text-green-600 hover:text-green-900 transition duration-150"
-                                                title="Mark Completed">
+                                        <button onclick="updateTaskStatus({{ task.id }}, 'completed')"
+                                            class="text-green-600 hover:text-green-900 transition duration-150"
+                                            title="Mark Completed">
                                             <i class="fas fa-check"></i>
                                         </button>
-                                        <button onclick="deleteTask({{ task.id }}, '{{ task.title }}')" 
-                                                class="text-red-600 hover:text-red-900 transition duration-150"
-                                                title="Delete Task">
+                                        <button onclick="deleteTask({{ task.id }}, '{{ task.title }}')"
+                                            class="text-red-600 hover:text-red-900 transition duration-150"
+                                            title="Delete Task">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -233,7 +259,8 @@
                     <i class="fas fa-tasks text-gray-400 text-6xl mb-4"></i>
                     <h3 class="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
                     <p class="text-gray-500 mb-6">Get started by creating your first task.</p>
-                    <button onclick="showCreateModal()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200">
+                    <button onclick="showCreateModal()"
+                        class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-200">
                         <i class="fas fa-plus mr-2"></i>Create New Task
                     </button>
                 </div>
@@ -257,16 +284,17 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Task Title *</label>
                             <input type="text" id="createTitle" name="title" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                   placeholder="Enter task title">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter task title">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Internship</label>
                             <select id="createInternship" name="internship_id"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="">Select Internship (Optional)</option>
                                 {% for internship in internships %}
-                                <option value="{{ internship.id }}">{{ internship.title }} - {{ internship.company }}</option>
+                                <option value="{{ internship.id }}">{{ internship.title }} - {{ internship.company }}
+                                </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -275,15 +303,15 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <textarea id="createDescription" name="description" rows="3"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  placeholder="Enter task description"></textarea>
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Enter task description"></textarea>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Assigned To *</label>
                             <select id="createStudent" name="student_id" required
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                                 <option value="">Select Student</option>
                                 {% for student in students %}
                                 <option value="{{ student.id }}">{{ student.full_name }} ({{ student.email }})</option>
@@ -293,17 +321,17 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Due Date *</label>
                             <input type="date" id="createDueDate" name="due_date" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                     </div>
 
                     <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-                        <button type="button" onclick="closeCreateModal()" 
-                                class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200">
+                        <button type="button" onclick="closeCreateModal()"
+                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-200">
                             <i class="fas fa-times mr-2"></i>Cancel
                         </button>
-                        <button type="submit" 
-                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                        <button type="submit"
+                            class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
                             <i class="fas fa-plus mr-2"></i>Create Task
                         </button>
                     </div>
@@ -335,7 +363,7 @@
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('createDueDate').min = today;
-            
+
             // Set default due date to 7 days from now
             const defaultDueDate = new Date();
             defaultDueDate.setDate(defaultDueDate.getDate() + 7);
@@ -362,7 +390,7 @@
         // Task CRUD Operations
         async function createTask() {
             const formData = new FormData(document.getElementById('createTaskForm'));
-            
+
             // Prepare form data for submission
             const data = new URLSearchParams();
             data.append('title', formData.get('title'));
@@ -449,7 +477,7 @@
         }
 
         // Form Submission
-        document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+        document.getElementById('createTaskForm').addEventListener('submit', function (e) {
             e.preventDefault();
             createTask();
         });
@@ -488,23 +516,24 @@
         }
 
         // Event Listeners
-        document.getElementById('createModal').addEventListener('click', function(e) {
+        document.getElementById('createModal').addEventListener('click', function (e) {
             if (e.target.id === 'createModal') {
                 closeCreateModal();
             }
         });
 
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchTasks();
             }
         });
 
         // Page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('Task management page loaded');
-            console.log('Total tasks:', {{ tasks|length }});
+            console.log('Total tasks:', {{ tasks| length }});
         });
     </script>
 </body>
+
 </html>

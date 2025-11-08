@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,66 +9,74 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .gradient-bg {
             background: linear-gradient(135deg, #395bf1 0%, #5674eb 100%);
         }
-        
+
         .card-hover {
             transition: all 0.3s ease;
         }
-        
+
         .card-hover:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        
+
         .rating-stars {
             color: #fbbf24;
         }
-        
+
         .score-indicator {
             height: 8px;
             border-radius: 4px;
             background-color: #e5e7eb;
             overflow: hidden;
         }
-        
+
         .score-fill {
             height: 100%;
             border-radius: 4px;
         }
-        
+
         .score-excellent {
             background: linear-gradient(90deg, #10b981, #34d399);
         }
-        
+
         .score-good {
             background: linear-gradient(90deg, #f59e0b, #fbbf24);
         }
-        
+
         .score-average {
             background: linear-gradient(90deg, #f97316, #fb923c);
         }
-        
+
         .score-poor {
             background: linear-gradient(90deg, #ef4444, #f87171);
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-50">
     <!-- Navigation -->
     <nav class="gradient-bg text-white p-4">
@@ -103,7 +112,8 @@
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold mb-2">Your Performance Summary</h2>
-                    <p class="text-blue-100">Based on feedback from your internships and evaluations from administrators</p>
+                    <p class="text-blue-100">Based on feedback from your internships and evaluations from administrators
+                    </p>
                 </div>
                 <div class="bg-white text-gray-900 rounded-full px-6 py-3 text-center">
                     <div class="text-3xl font-bold">8.2/10</div>
@@ -125,7 +135,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-green-100 rounded-lg">
@@ -137,7 +147,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-yellow-100 rounded-lg">
@@ -149,7 +159,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-6 rounded-lg shadow card-hover">
                 <div class="flex items-center">
                     <div class="p-3 bg-purple-100 rounded-lg">
@@ -171,10 +181,11 @@
                         <i class="fas fa-comments text-yellow-600"></i>
                     </div>
                     <h2 class="text-xl font-semibold text-gray-800">Mentor Feedback</h2>
-                    <span class="ml-3 bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full">7</span>
+                    <span
+                        class="ml-3 bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full">7</span>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Feedback Card 1 -->
@@ -183,17 +194,16 @@
                             <div class="flex-1">
                                 <h3 class="font-semibold text-lg text-gray-800">Frontend Developer Intern</h3>
                                 <p class="text-gray-600 text-sm mt-1">Tech Solutions Inc.</p>
-                                
+
                                 <div class="mt-3 flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff" 
-                                         alt="John Mentor" 
-                                         class="w-8 h-8 rounded-full mr-2">
+                                    <img src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff"
+                                        alt="John Mentor" class="w-8 h-8 rounded-full mr-2">
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Yerar</p>
                                         <p class="text-xs text-gray-500">Senior Developer</p>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-3">
                                     <div class="rating-stars mb-2">
                                         <i class="fas fa-star"></i>
@@ -203,45 +213,51 @@
                                         <i class="far fa-star"></i>
                                         <span class="ml-2 text-sm font-medium text-gray-700">4.2/5.0</span>
                                     </div>
-                                    
-                                    <p class="text-gray-600 text-sm">"Your demonstrated strong proficiency in React and JavaScript. She successfully implemented complex UI components and showed good understanding of state management. Her code was clean and well-documented."</p>
+
+                                    <p class="text-gray-600 text-sm">"Your demonstrated strong proficiency in React and
+                                        JavaScript. She successfully implemented complex UI components and showed good
+                                        understanding of state management. Her code was clean and well-documented."</p>
                                 </div>
-                                
+
                                 <div class="mt-4 flex justify-between items-center">
                                     <div class="flex space-x-2">
-                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Technical: 4/5</span>
-                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Communication: 5/5</span>
+                                        <span
+                                            class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Technical:
+                                            4/5</span>
+                                        <span
+                                            class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Communication:
+                                            5/5</span>
                                     </div>
                                     <span class="text-xs text-gray-500">Oct 15, 2023</span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mt-4 flex justify-end">
-                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition view-feedback" 
-                                    data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <button
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition view-feedback"
+                                data-bs-toggle="modal" data-bs-target="#feedbackModal">
                                 View Details
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Feedback Card 2 -->
                     <div class="border rounded-lg p-4 hover:bg-gray-50 card-hover">
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <h3 class="font-semibold text-lg text-gray-800">Software Engineering Intern</h3>
                                 <p class="text-gray-600 text-sm mt-1">InnovateTech</p>
-                                
+
                                 <div class="mt-3 flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=Robert+Guide&background=e67e22&color=fff" 
-                                         alt="Robert Guide" 
-                                         class="w-8 h-8 rounded-full mr-2">
+                                    <img src="https://ui-avatars.com/api/?name=Robert+Guide&background=e67e22&color=fff"
+                                        alt="Robert Guide" class="w-8 h-8 rounded-full mr-2">
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">Kai</p>
                                         <p class="text-xs text-gray-500">Tech Lead</p>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mt-3">
                                     <div class="rating-stars mb-2">
                                         <i class="fas fa-star"></i>
@@ -251,32 +267,41 @@
                                         <i class="fas fa-star-half-alt"></i>
                                         <span class="ml-2 text-sm font-medium text-gray-700">4.5/5.0</span>
                                     </div>
-                                    
-                                    <p class="text-gray-600 text-sm">"You was an outstanding intern who quickly adapted to our development environment. She showed excellent problem-solving skills and was proactive in learning new technologies. Her communication with team members was exceptional."</p>
+
+                                    <p class="text-gray-600 text-sm">"You was an outstanding intern who quickly adapted
+                                        to our development environment. She showed excellent problem-solving skills and
+                                        was proactive in learning new technologies. Her communication with team members
+                                        was exceptional."</p>
                                 </div>
-                                
+
                                 <div class="mt-4 flex justify-between items-center">
                                     <div class="flex space-x-2">
-                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Technical: 5/5</span>
-                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Teamwork: 4/5</span>
+                                        <span
+                                            class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Technical:
+                                            5/5</span>
+                                        <span
+                                            class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Teamwork:
+                                            4/5</span>
                                     </div>
                                     <span class="text-xs text-gray-500">Sep 28, 2023</span>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mt-4 flex justify-end">
-                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition view-feedback" 
-                                    data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <button
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition view-feedback"
+                                data-bs-toggle="modal" data-bs-target="#feedbackModal">
                                 View Details
                             </button>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- View All Feedbacks Button -->
                 <div class="text-center mt-6">
-                    <a href="/student/feedback" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
+                    <a href="/student/feedback"
+                        class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition">
                         <i class="fas fa-list mr-2"></i> View All Mentor Feedbacks
                     </a>
                 </div>
@@ -294,20 +319,36 @@
                     <span class="ml-3 bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">4</span>
                 </div>
             </div>
-            
+
             <div class="p-6">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Internship</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Overall Score</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Technical</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task Completion</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Communication</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evaluation Date</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Internship</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Overall Score</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Technical</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Task Completion</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Communication</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Evaluation Date</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status</th>
+                                <th scope="col"
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -318,29 +359,35 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">8.7/10</span>
+                                        <span
+                                            class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">8.7/10</span>
                                         <div class="score-indicator" style="width: 60px;">
                                             <div class="score-fill score-excellent" style="width: 87%;"></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-10-05</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
+                                    <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation" 
-                                                data-bs-toggle="modal" data-bs-target="#evaluationModal">
+                                        <button
+                                            class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation"
+                                            data-bs-toggle="modal" data-bs-target="#evaluationModal">
                                             <i class="fas fa-eye w-4 h-4"></i>
                                         </button>
                                         <button class="bg-red-600 text-white p-1 rounded hover:bg-red-700 transition">
@@ -356,29 +403,35 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">9.1/10</span>
+                                        <span
+                                            class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">9.1/10</span>
                                         <div class="score-indicator" style="width: 60px;">
                                             <div class="score-fill score-excellent" style="width: 91%;"></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">10/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">10/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-09-20</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
+                                    <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation" 
-                                                data-bs-toggle="modal" data-bs-target="#evaluationModal">
+                                        <button
+                                            class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation"
+                                            data-bs-toggle="modal" data-bs-target="#evaluationModal">
                                             <i class="fas fa-eye w-4 h-4"></i>
                                         </button>
                                         <button class="bg-red-600 text-white p-1 rounded hover:bg-red-700 transition">
@@ -394,29 +447,35 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">7.2/10</span>
+                                        <span
+                                            class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">7.2/10</span>
                                         <div class="score-indicator" style="width: 60px;">
                                             <div class="score-fill score-good" style="width: 72%;"></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">7/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">7/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">7/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">7/10</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-08-15</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
+                                    <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <button class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation" 
-                                                data-bs-toggle="modal" data-bs-target="#evaluationModal">
+                                        <button
+                                            class="bg-blue-600 text-white p-1 rounded hover:bg-blue-700 transition view-evaluation"
+                                            data-bs-toggle="modal" data-bs-target="#evaluationModal">
                                             <i class="fas fa-eye w-4 h-4"></i>
                                         </button>
                                         <button class="bg-red-600 text-white p-1 rounded hover:bg-red-700 transition">
@@ -433,7 +492,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                     <div class="bg-white border rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Skill Development Progress</h3>
-                        
+
                         <div class="space-y-4">
                             <div>
                                 <div class="flex justify-between mb-1">
@@ -444,7 +503,7 @@
                                     <div class="bg-green-600 h-2 rounded-full" style="width: 85%"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Communication</span>
@@ -454,7 +513,7 @@
                                     <div class="bg-blue-600 h-2 rounded-full" style="width: 90%"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Teamwork</span>
@@ -464,7 +523,7 @@
                                     <div class="bg-purple-600 h-2 rounded-full" style="width: 80%"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Problem Solving</span>
@@ -476,29 +535,33 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-white border rounded-lg p-4">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Improvements</h3>
-                        
+
                         <div class="space-y-3">
                             <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
                                 <span class="text-gray-700">Technical Documentation</span>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+15%</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+15%</span>
                             </div>
-                            
+
                             <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
                                 <span class="text-gray-700">Project Management</span>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+12%</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+12%</span>
                             </div>
-                            
+
                             <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
                                 <span class="text-gray-700">Code Quality</span>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+10%</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+10%</span>
                             </div>
-                            
+
                             <div class="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
                                 <span class="text-gray-700">Team Collaboration</span>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+8%</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">+8%</span>
                             </div>
                         </div>
                     </div>
@@ -517,7 +580,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                
+
                 <div class="mt-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -528,13 +591,12 @@
                                 <p><span class="font-medium">Duration:</span> June 15 - August 25, 2023</p>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Mentor Details</h4>
                             <div class="flex items-center">
-                                <img src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff" 
-                                     alt="John Mentor" 
-                                     class="w-10 h-10 rounded-full mr-3">
+                                <img src="https://ui-avatars.com/api/?name=John+Mentor&background=3498db&color=fff"
+                                    alt="John Mentor" class="w-10 h-10 rounded-full mr-3">
                                 <div>
                                     <p class="font-medium">John Mentor</p>
                                     <p class="text-sm text-gray-500">Senior Developer</p>
@@ -543,7 +605,7 @@
                             <p class="text-sm text-gray-500 mt-2">Feedback Date: October 15, 2023</p>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Technical Skills</h4>
@@ -555,11 +617,14 @@
                                     <i class="fas fa-star"></i>
                                     <i class="far fa-star"></i>
                                 </div>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">4/5</span>
+                                <span
+                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">4/5</span>
                             </div>
-                            <p class="text-gray-600 text-sm">"Sarah demonstrated strong proficiency in React and JavaScript. She successfully implemented complex UI components and showed good understanding of state management. Her code was clean and well-documented."</p>
+                            <p class="text-gray-600 text-sm">"Sarah demonstrated strong proficiency in React and
+                                JavaScript. She successfully implemented complex UI components and showed good
+                                understanding of state management. Her code was clean and well-documented."</p>
                         </div>
-                        
+
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Communication Skills</h4>
                             <div class="flex items-center mb-2">
@@ -570,19 +635,28 @@
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                 </div>
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">5/5</span>
+                                <span
+                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">5/5</span>
                             </div>
-                            <p class="text-gray-600 text-sm">"Excellent communication with both technical and non-technical team members. Clear in explaining complex concepts and proactive in seeking clarification when needed."</p>
+                            <p class="text-gray-600 text-sm">"Excellent communication with both technical and
+                                non-technical team members. Clear in explaining complex concepts and proactive in
+                                seeking clarification when needed."</p>
                         </div>
                     </div>
-                    
+
                     <div class="mb-6">
                         <h4 class="text-lg font-medium text-gray-900 mb-2">Overall Feedback</h4>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-700">"Sarah has been an outstanding intern during her time at Tech Solutions. She quickly adapted to our development environment and contributed significantly to our project. Her technical skills are strong, particularly in front-end development. She communicates effectively with both technical and non-technical team members. With some additional experience in advanced algorithms, Sarah has the potential to become an excellent software engineer. I would highly recommend her for future opportunities."</p>
+                            <p class="text-gray-700">"Sarah has been an outstanding intern during her time at Tech
+                                Solutions. She quickly adapted to our development environment and contributed
+                                significantly to our project. Her technical skills are strong, particularly in front-end
+                                development. She communicates effectively with both technical and non-technical team
+                                members. With some additional experience in advanced algorithms, Sarah has the potential
+                                to become an excellent software engineer. I would highly recommend her for future
+                                opportunities."</p>
                         </div>
                     </div>
-                    
+
                     <div class="flex justify-between items-center">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Overall Rating</h4>
@@ -594,10 +668,11 @@
                                     <i class="fas fa-star"></i>
                                     <i class="far fa-star"></i>
                                 </div>
-                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">4.2/5.0</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">4.2/5.0</span>
                             </div>
                         </div>
-                        
+
                         <div class="flex space-x-3">
                             <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                                 Close
@@ -622,7 +697,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                
+
                 <div class="mt-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -634,54 +709,60 @@
                                 <p><span class="font-medium">Mentor:</span> John Mentor</p>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Evaluation Details</h4>
                             <div class="space-y-2">
                                 <p><span class="font-medium">Evaluated by:</span> Admin User</p>
                                 <p><span class="font-medium">Evaluation Date:</span> October 5, 2023</p>
-                                <p><span class="font-medium">Status:</span> <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span></p>
+                                <p><span class="font-medium">Status:</span> <span
+                                        class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Final</span>
+                                </p>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-6">
                         <h4 class="text-lg font-medium text-gray-900 mb-3">Evaluation Scores</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Technical Competence:</span>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </div>
                                 <div class="score-indicator mt-1">
                                     <div class="score-fill score-excellent" style="width: 90%;"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Task Completion:</span>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">8/10</span>
                                 </div>
                                 <div class="score-indicator mt-1">
                                     <div class="score-fill score-good" style="width: 80%;"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Communication Skills:</span>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </div>
                                 <div class="score-indicator mt-1">
                                     <div class="score-fill score-excellent" style="width: 90%;"></div>
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div class="flex justify-between mb-1">
                                     <span class="text-sm font-medium text-gray-700">Professionalism:</span>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
+                                    <span
+                                        class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">9/10</span>
                                 </div>
                                 <div class="score-indicator mt-1">
                                     <div class="score-fill score-excellent" style="width: 90%;"></div>
@@ -689,7 +770,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Strengths</h4>
@@ -703,7 +784,7 @@
                                 </ul>
                             </div>
                         </div>
-                        
+
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Areas for Improvement</h4>
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -715,25 +796,33 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-6">
                         <h4 class="text-lg font-medium text-gray-900 mb-2">Final Comments</h4>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-gray-700">"Sarah has been an outstanding intern during her time at Tech Solutions. She quickly adapted to our development environment and made significant contributions to our project. Her technical skills are excellent, particularly in React and JavaScript development. Sarah communicates effectively with both technical and non-technical team members and has shown strong problem-solving abilities. She takes initiative in learning new technologies and approaches challenges with a positive attitude. With her current trajectory, Sarah has the potential to become an exceptional software engineer. I would highly recommend her for future opportunities."</p>
+                            <p class="text-gray-700">"Sarah has been an outstanding intern during her time at Tech
+                                Solutions. She quickly adapted to our development environment and made significant
+                                contributions to our project. Her technical skills are excellent, particularly in React
+                                and JavaScript development. Sarah communicates effectively with both technical and
+                                non-technical team members and has shown strong problem-solving abilities. She takes
+                                initiative in learning new technologies and approaches challenges with a positive
+                                attitude. With her current trajectory, Sarah has the potential to become an exceptional
+                                software engineer. I would highly recommend her for future opportunities."</p>
                         </div>
                     </div>
-                    
+
                     <div class="flex justify-between items-center">
                         <div>
                             <h4 class="text-lg font-medium text-gray-900 mb-2">Overall Score</h4>
                             <div class="flex items-center">
-                                <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full mr-3">8.7/10</span>
+                                <span
+                                    class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full mr-3">8.7/10</span>
                                 <div class="score-indicator" style="width: 150px;">
                                     <div class="score-fill score-excellent" style="width: 87%;"></div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="flex space-x-3">
                             <button class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
                                 Close
@@ -753,26 +842,26 @@
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
         }
-        
+
         function closeModal(modalId) {
             document.getElementById(modalId).classList.add('hidden');
         }
-        
+
         // Add event listeners to open modals
         document.querySelectorAll('.view-feedback').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 openModal('feedbackModal');
             });
         });
-        
+
         document.querySelectorAll('.view-evaluation').forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function () {
                 openModal('evaluationModal');
             });
         });
-        
+
         // Close modals when clicking outside
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target.id === 'feedbackModal') {
                 closeModal('feedbackModal');
             }
@@ -780,30 +869,31 @@
                 closeModal('evaluationModal');
             }
         }
-        
+
         // Export report functionality
-        document.querySelector('button.bg-blue-600').addEventListener('click', function() {
+        document.querySelector('button.bg-blue-600').addEventListener('click', function () {
             alert('Your feedback report is being generated and will be downloaded shortly.');
         });
-        
+
         // Add animation to cards on scroll
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
-        
-        const observer = new IntersectionObserver(function(entries) {
+
+        const observer = new IntersectionObserver(function (entries) {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('fade-in');
                 }
             });
         }, observerOptions);
-        
+
         // Observe all cards for animation
         document.querySelectorAll('.bg-white.rounded-lg.shadow').forEach(card => {
             observer.observe(card);
         });
     </script>
 </body>
+
 </html>

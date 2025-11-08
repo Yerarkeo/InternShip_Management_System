@@ -8,22 +8,22 @@
 </head>
 
 <body class="bg-gray-100">
-   <!-- Add this to the navigation menu in dashboard_admin.html -->
-<nav class="bg-blue-600 text-white p-4">
-    <div class="container mx-auto flex justify-between items-center">
-        <h1 class="text-xl font-bold">Admin Dashboard</h1>
-        <div class="flex space-x-4">
-            <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
-            <!-- ADD THIS LINE -->
-            <a href="/admin/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Tasks</a>
-            <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Users</a>
-            <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Internships</a>
-            <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Applications</a>
-            <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
-            <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded">Logout</a>
+    <!-- Add this to the navigation menu in dashboard_admin.html -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Admin Dashboard</h1>
+            <div class="flex space-x-4">
+                <a href="/dashboard" class="hover:bg-blue-700 px-3 py-2 rounded">Dashboard</a>
+                <!-- ADD THIS LINE -->
+                <a href="/admin/tasks" class="hover:bg-blue-700 px-3 py-2 rounded">Manage Tasks</a>
+                <a href="/admin/users" class="hover:bg-blue-700 px-3 py-2 rounded">Users</a>
+                <a href="/admin/internships" class="hover:bg-blue-700 px-3 py-2 rounded">Internships</a>
+                <a href="/admin/applications" class="hover:bg-blue-700 px-3 py-2 rounded">Applications</a>
+                <a href="/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Profile</a>
+                <a href="/logout" class="hover:bg-blue-700 px-3 py-2 rounded">Logout</a>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <div class="container mx-auto mt-8 p-4">
         <!-- Quick Stats -->
@@ -85,7 +85,7 @@
         <!-- New Evaluation Management Card -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Existing cards can remain here if needed -->
-            
+
             <!-- New Evaluation Management Card -->
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex items-center justify-between mb-4">
@@ -93,7 +93,8 @@
                     <i class="fas fa-chart-line text-blue-500 text-xl"></i>
                 </div>
                 <p class="text-gray-600 mb-4">Manage and review student performance evaluations</p>
-                <a href="/admin/evaluations" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
+                <a href="/admin/evaluations"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition">
                     Manage Evaluations
                 </a>
             </div>
@@ -106,25 +107,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Internship Title *</label>
-                        <input type="text" name="title" required 
+                        <input type="text" name="title" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="e.g., Software Development Intern">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Company *</label>
-                        <input type="text" name="company" required 
+                        <input type="text" name="company" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Company name">
                     </div>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
                     <textarea name="description" required rows="3"
                         class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Describe the internship role and responsibilities..."></textarea>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
@@ -139,7 +140,7 @@
                             placeholder="e.g., 3 months, 6 months">
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Stipend/Salary</label>
@@ -154,13 +155,13 @@
                             placeholder="Skills and qualifications required..."></textarea>
                     </div>
                 </div>
-                
+
                 <div class="flex gap-3">
-                    <button type="button" onclick="createInternship()" 
+                    <button type="button" onclick="createInternship()"
                         class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
                         Create Internship
                     </button>
-                    <button type="button" onclick="hideCreateForm()" 
+                    <button type="button" onclick="hideCreateForm()"
                         class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition font-semibold">
                         Cancel
                     </button>
@@ -182,24 +183,27 @@
                         <div class="flex justify-between items-start">
                             <div class="flex-1">
                                 <h3 class="text-lg font-semibold text-gray-900">{{ internship.title }}</h3>
-                                <p class="text-gray-600">{{ internship.company }} • {{ internship.location or 'Remote' }}</p>
-                                <p class="text-sm text-gray-500 mt-2">{{ internship.description[:120] }}{% if internship.description|length > 120 %}...{% endif %}</p>
+                                <p class="text-gray-600">{{ internship.company }} • {{ internship.location or 'Remote'
+                                    }}</p>
+                                <p class="text-sm text-gray-500 mt-2">{{ internship.description[:120] }}{% if
+                                    internship.description|length > 120 %}...{% endif %}</p>
                                 <div class="flex items-center mt-3 space-x-4 text-sm text-gray-500">
                                     <span>Duration: {{ internship.duration or 'Not specified' }}</span>
                                     <span>Stipend: {{ internship.stipend or 'Not specified' }}</span>
-                                    <span>Applications: {{ internship.applications|length if internship.applications else 0 }}</span>
+                                    <span>Applications: {{ internship.applications|length if internship.applications
+                                        else 0 }}</span>
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
-                                <button onclick="viewInternship({{ internship.id }})" 
+                                <button onclick="viewInternship({{ internship.id }})"
                                     class="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">
                                     View
                                 </button>
-                                <button onclick="editInternship({{ internship.id }})" 
+                                <button onclick="editInternship({{ internship.id }})"
                                     class="bg-yellow-600 text-white px-3 py-2 rounded text-sm hover:bg-yellow-700 transition">
                                     Edit
                                 </button>
-                                <button onclick="deleteInternship({{ internship.id }})" 
+                                <button onclick="deleteInternship({{ internship.id }})"
                                     class="bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700 transition">
                                     Delete
                                 </button>
@@ -213,7 +217,7 @@
                     <div class="text-gray-400 text-6xl mb-4">📋</div>
                     <p class="text-gray-500 text-lg">No internships available.</p>
                     <p class="text-gray-400 text-sm mt-2">Create your first internship to get started.</p>
-                    <button onclick="showCreateForm()" 
+                    <button onclick="showCreateForm()"
                         class="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
                         Create First Internship
                     </button>
@@ -232,12 +236,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                        <input type="text" id="editTitle" required 
+                        <input type="text" id="editTitle" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Company *</label>
-                        <input type="text" id="editCompany" required 
+                        <input type="text" id="editCompany" required
                             class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -259,11 +263,11 @@
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="hideEditModal()" 
+                    <button type="button" onclick="hideEditModal()"
                         class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
                         Cancel
                     </button>
-                    <button type="button" onclick="updateInternship()" 
+                    <button type="button" onclick="updateInternship()"
                         class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
                         Update Internship
                     </button>
@@ -272,165 +276,166 @@
         </div>
     </div>
 
-   <script>
-    function showCreateForm() {
-        document.getElementById('createForm').classList.remove('hidden');
-    }
-
-    function hideCreateForm() {
-        document.getElementById('createForm').classList.add('hidden');
-        document.getElementById('internshipForm').reset();
-    }
-
-    function showEditModal() {
-        document.getElementById('editModal').classList.remove('hidden');
-    }
-
-    function hideEditModal() {
-        document.getElementById('editModal').classList.add('hidden');
-    }
-
-    async function createInternship() {
-        const form = document.getElementById('internshipForm');
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
-
-        console.log("📤 Sending internship data:", data);
-
-        // Basic validation
-        if (!data.title || !data.company || !data.description) {
-            alert('Please fill in all required fields (Title, Company, Description)');
-            return;
+    <script>
+        function showCreateForm() {
+            document.getElementById('createForm').classList.remove('hidden');
         }
 
-        // Show loading state
-        const button = event.target;
-        const originalText = button.innerHTML;
-        button.innerHTML = '<span class="animate-spin">⏳</span> Creating...';
-        button.disabled = true;
+        function hideCreateForm() {
+            document.getElementById('createForm').classList.add('hidden');
+            document.getElementById('internshipForm').reset();
+        }
 
-        try {
-            const response = await fetch('/api/admin/internships', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
+        function showEditModal() {
+            document.getElementById('editModal').classList.remove('hidden');
+        }
 
-            console.log("📥 Response status:", response.status);
+        function hideEditModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
 
-            if (response.ok) {
-                const result = await response.json();
-                console.log("✅ Success:", result);
-                alert('Internship created successfully!');
-                hideCreateForm();
-                // Refresh the page to show the new internship
-                location.reload();
-            } else {
-                const errorData = await response.json();
-                console.error("❌ Server error:", errorData);
-                alert('Error creating internship: ' + (errorData.detail || 'Unknown error'));
+        async function createInternship() {
+            const form = document.getElementById('internshipForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            console.log("📤 Sending internship data:", data);
+
+            // Basic validation
+            if (!data.title || !data.company || !data.description) {
+                alert('Please fill in all required fields (Title, Company, Description)');
+                return;
             }
-        } catch (error) {
-            console.error('❌ Network error:', error);
-            alert('Network error creating internship. Check console for details.');
-        } finally {
-            // Restore button state
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }
-    }
 
-    function editInternship(internshipId) {
-        // For now, show a simple edit form
-        // In a full implementation, you would fetch the current data
-        document.getElementById('editInternshipId').value = internshipId;
-        
-        // Set some placeholder values - in real app, fetch from API
-        document.getElementById('editTitle').value = 'Edit: Internship #' + internshipId;
-        document.getElementById('editCompany').value = 'Edit Company';
-        document.getElementById('editDescription').value = 'Edit description here...';
-        document.getElementById('editLocation').value = 'Edit location';
-        document.getElementById('editDuration').value = 'Edit duration';
-        
-        showEditModal();
-    }
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="animate-spin">⏳</span> Creating...';
+            button.disabled = true;
 
-    async function updateInternship() {
-        const internshipId = document.getElementById('editInternshipId').value;
-        const formData = {
-            title: document.getElementById('editTitle').value,
-            company: document.getElementById('editCompany').value,
-            description: document.getElementById('editDescription').value,
-            location: document.getElementById('editLocation').value,
-            duration: document.getElementById('editDuration').value
-        };
-
-        console.log("📤 Updating internship:", internshipId, formData);
-
-        try {
-            const response = await fetch(`/api/admin/internships/${internshipId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
-
-            if (response.ok) {
-                alert('Internship updated successfully!');
-                hideEditModal();
-                location.reload();
-            } else {
-                const errorData = await response.json();
-                alert('Error updating internship: ' + (errorData.detail || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error updating internship');
-        }
-    }
-
-    function viewInternship(internshipId) {
-        alert(`Viewing internship ID: ${internshipId}\n\nThis would show detailed information in a full implementation.`);
-    }
-
-    async function deleteInternship(internshipId) {
-        if (confirm('Are you sure you want to delete this internship?\n\nThis action cannot be undone and will delete all associated applications.')) {
-            console.log("🗑️ Deleting internship:", internshipId);
-            
             try {
-                const response = await fetch(`/api/admin/internships/${internshipId}`, {
-                    method: 'DELETE'
+                const response = await fetch('/api/admin/internships', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
                 });
 
+                console.log("📥 Response status:", response.status);
+
                 if (response.ok) {
-                    alert('Internship deleted successfully!');
+                    const result = await response.json();
+                    console.log("✅ Success:", result);
+                    alert('Internship created successfully!');
+                    hideCreateForm();
+                    // Refresh the page to show the new internship
                     location.reload();
                 } else {
                     const errorData = await response.json();
-                    alert('Error deleting internship: ' + (errorData.detail || 'Unknown error'));
+                    console.error("❌ Server error:", errorData);
+                    alert('Error creating internship: ' + (errorData.detail || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('❌ Network error:', error);
+                alert('Network error creating internship. Check console for details.');
+            } finally {
+                // Restore button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function editInternship(internshipId) {
+            // For now, show a simple edit form
+            // In a full implementation, you would fetch the current data
+            document.getElementById('editInternshipId').value = internshipId;
+
+            // Set some placeholder values - in real app, fetch from API
+            document.getElementById('editTitle').value = 'Edit: Internship #' + internshipId;
+            document.getElementById('editCompany').value = 'Edit Company';
+            document.getElementById('editDescription').value = 'Edit description here...';
+            document.getElementById('editLocation').value = 'Edit location';
+            document.getElementById('editDuration').value = 'Edit duration';
+
+            showEditModal();
+        }
+
+        async function updateInternship() {
+            const internshipId = document.getElementById('editInternshipId').value;
+            const formData = {
+                title: document.getElementById('editTitle').value,
+                company: document.getElementById('editCompany').value,
+                description: document.getElementById('editDescription').value,
+                location: document.getElementById('editLocation').value,
+                duration: document.getElementById('editDuration').value
+            };
+
+            console.log("📤 Updating internship:", internshipId, formData);
+
+            try {
+                const response = await fetch(`/api/admin/internships/${internshipId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Internship updated successfully!');
+                    hideEditModal();
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert('Error updating internship: ' + (errorData.detail || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error deleting internship');
+                alert('Error updating internship');
             }
         }
-    }
 
-    // Close modal when clicking outside
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            hideEditModal();
+        function viewInternship(internshipId) {
+            alert(`Viewing internship ID: ${internshipId}\n\nThis would show detailed information in a full implementation.`);
         }
-    });
 
-    // Add form submission handler
-    document.getElementById('internshipForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        createInternship();
-    });
-</script>
+        async function deleteInternship(internshipId) {
+            if (confirm('Are you sure you want to delete this internship?\n\nThis action cannot be undone and will delete all associated applications.')) {
+                console.log("🗑️ Deleting internship:", internshipId);
+
+                try {
+                    const response = await fetch(`/api/admin/internships/${internshipId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        alert('Internship deleted successfully!');
+                        location.reload();
+                    } else {
+                        const errorData = await response.json();
+                        alert('Error deleting internship: ' + (errorData.detail || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error deleting internship');
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('editModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                hideEditModal();
+            }
+        });
+
+        // Add form submission handler
+        document.getElementById('internshipForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            createInternship();
+        });
+    </script>
 </body>
+
 </html>

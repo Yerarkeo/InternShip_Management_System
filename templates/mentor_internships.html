@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +11,20 @@
         .internship-card {
             transition: transform 0.2s, box-shadow 0.2s;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .internship-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
+
         .application-badge {
             font-size: 0.8rem;
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -36,7 +40,8 @@
                         <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/mentor/internships"><i class="fas fa-briefcase"></i> My Internships</a>
+                        <a class="nav-link active" href="/mentor/internships"><i class="fas fa-briefcase"></i> My
+                            Internships</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/mentor/applications"><i class="fas fa-file-alt"></i> Applications</a>
@@ -71,69 +76,75 @@
         <!-- Internships Grid -->
         <div class="row">
             {% if internships %}
-                {% for internship in internships %}
-                <div class="col-lg-6 col-xl-4 mb-4">
-                    <div class="card internship-card h-100">
-                        <div class="card-header bg-white">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="card-title mb-1">{{ internship.title }}</h5>
-                                <span class="badge bg-success">Active</span>
-                            </div>
-                            <h6 class="card-subtitle text-muted">{{ internship.company }}</h6>
+            {% for internship in internships %}
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="card internship-card h-100">
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-1">{{ internship.title }}</h5>
+                            <span class="badge bg-success">Active</span>
                         </div>
-                        <div class="card-body">
-                            <p class="card-text">{{ internship.description[:150] }}{% if internship.description|length > 150 %}...{% endif %}</p>
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-map-marker-alt"></i> {{ internship.location or 'Not specified' }}
-                                </small>
-                            </div>
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-clock"></i> {{ internship.duration or 'Not specified' }}
-                                </small>
-                            </div>
-                            {% if internship.stipend %}
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-money-bill-wave"></i> {{ internship.stipend }}
-                                </small>
-                            </div>
-                            {% endif %}
-                            
-                            <div class="mb-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar"></i> Created: {{ internship.created_at.strftime('%b %d, %Y') }}
-                                </small>
-                            </div>
+                        <h6 class="card-subtitle text-muted">{{ internship.company }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ internship.description[:150] }}{% if internship.description|length > 150
+                            %}...{% endif %}</p>
+
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-map-marker-alt"></i> {{ internship.location or 'Not specified' }}
+                            </small>
                         </div>
-                        <div class="card-footer bg-white">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary application-badge">
-                                    <i class="fas fa-users"></i> 
-                                    {{ internship.applications|length if internship.applications else 0 }} applications
-                                </span>
-                                <div>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="viewInternship({{ internship.id }})">
-                                        <i class="fas fa-eye"></i> View
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-warning" onclick="editInternship({{ internship.id }})">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-                                </div>
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> {{ internship.duration or 'Not specified' }}
+                            </small>
+                        </div>
+                        {% if internship.stipend %}
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-money-bill-wave"></i> {{ internship.stipend }}
+                            </small>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> Created: {{ internship.created_at.strftime('%b %d, %Y')
+                                }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary application-badge">
+                                <i class="fas fa-users"></i>
+                                {{ internship.applications|length if internship.applications else 0 }} applications
+                            </span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="viewInternship({{ internship.id }})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning"
+                                    onclick="editInternship({{ internship.id }})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
             {% else %}
             <div class="col-12">
                 <div class="text-center py-5">
                     <i class="fas fa-briefcase fa-4x text-muted mb-4"></i>
                     <h3>No Internships Created Yet</h3>
-                    <p class="text-muted mb-4">Start by creating your first internship opportunity to attract students.</p>
-                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#createInternshipModal">
+                    <p class="text-muted mb-4">Start by creating your first internship opportunity to attract students.
+                    </p>
+                    <button class="btn btn-primary btn-lg" data-bs-toggle="modal"
+                        data-bs-target="#createInternshipModal">
                         <i class="fas fa-plus"></i> Create Your First Internship
                     </button>
                 </div>
@@ -156,42 +167,48 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Internship Title *</label>
-                                    <input type="text" class="form-control" name="title" required placeholder="e.g., Software Development Intern">
+                                    <input type="text" class="form-control" name="title" required
+                                        placeholder="e.g., Software Development Intern">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Company *</label>
-                                    <input type="text" class="form-control" name="company" required placeholder="Your company name">
+                                    <input type="text" class="form-control" name="company" required
+                                        placeholder="Your company name">
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Description *</label>
-                            <textarea class="form-control" name="description" rows="4" required placeholder="Describe the internship role, responsibilities, and learning opportunities..."></textarea>
+                            <textarea class="form-control" name="description" rows="4" required
+                                placeholder="Describe the internship role, responsibilities, and learning opportunities..."></textarea>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Location</label>
-                                    <input type="text" class="form-control" name="location" placeholder="e.g., Remote, New York, NY">
+                                    <input type="text" class="form-control" name="location"
+                                        placeholder="e.g., Remote, New York, NY">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Duration</label>
-                                    <input type="text" class="form-control" name="duration" placeholder="e.g., 3 months, 6 months">
+                                    <input type="text" class="form-control" name="duration"
+                                        placeholder="e.g., 3 months, 6 months">
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Stipend/Salary</label>
-                                    <input type="text" class="form-control" name="stipend" placeholder="e.g., $2000/month, Unpaid">
+                                    <input type="text" class="form-control" name="stipend"
+                                        placeholder="e.g., $2000/month, Unpaid">
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -201,10 +218,11 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Requirements</label>
-                            <textarea class="form-control" name="requirements" rows="3" placeholder="List the skills, qualifications, or experience required..."></textarea>
+                            <textarea class="form-control" name="requirements" rows="3"
+                                placeholder="List the skills, qualifications, or experience required..."></textarea>
                         </div>
                     </form>
                 </div>
@@ -233,23 +251,23 @@
         function createInternship() {
             const form = document.getElementById('createInternshipForm');
             const formData = new FormData(form);
-            
+
             // Basic validation
             if (!formData.get('title') || !formData.get('company') || !formData.get('description')) {
                 alert('Please fill in all required fields (Title, Company, Description)');
                 return;
             }
-            
+
             // Show success message (replace with actual API call)
             alert('Internship created successfully! (This is a demo - implement API call)');
-            
+
             // Close modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('createInternshipModal'));
             modal.hide();
-            
+
             // Reset form
             form.reset();
-            
+
             // In a real application, you would make an API call here:
             // fetch('/api/internships', { method: 'POST', body: formData })
             // .then(response => response.json())
@@ -260,4 +278,5 @@
         }
     </script>
 </body>
+
 </html>
